@@ -30,9 +30,16 @@ export interface DeliveryInfo {
   date?: string;
 }
 export interface PaymentInfo {
+  /** Method preselected/expanded in the list. '' means none selected. */
   method?: string;
   savedCard?: string;
   promoCode?: string;
+  /**
+   * When set to a method id, the payment section shows ONLY a single
+   * "Complete With <method>" button instead of the method list — the dedicated
+   * nextpay / pay-in-3 journeys.
+   */
+  only?: string;
 }
 /** Which section of the one-pager is open, and which are behind us. */
 export interface ProgressInfo {

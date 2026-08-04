@@ -8,20 +8,20 @@ import type { FlagId } from './flags';
  * overrides, and any pre-populated data. Adding a journey is a new entry here —
  * no navigation code changes.
  *
- * The five flows are the five scamp rows. They are one journey underneath: the
- * same one-page checkout, entered from a different sign-in treatment and with a
- * different amount already known about the shopper. Keeping them separate is so
- * they can be sent to a tester, or lined up side by side, one at a time.
+ * The five flows are the journeys the team is comparing: an Apple Pay express
+ * path, a full guest checkout, and three account-matched journeys that differ
+ * only by how they pay (saved card, Nextpay, Pay In 3). Keeping them separate is
+ * so they can be sent to a tester, or lined up side by side, one at a time.
  *
  * The screen list is the order a presenter walks and the order the canvas lays
- * out — it is not a constraint on navigation, which can `goTo` any screen.
+ * out — it is not a constraint on navigation, which can `goTo`/`next` any screen.
  */
 export type FlowId =
+  | 'apple-pay'
   | 'guest'
-  | 'collection'
-  | 'account-matched'
-  | 'keychain'
-  | 'otp-first';
+  | 'account-cash'
+  | 'account-nextpay'
+  | 'account-payin3';
 
 export type CustomerType = 'guest' | 'matched' | 'returning';
 
@@ -64,7 +64,7 @@ export type CheckoutPrefill = ProjectData & {
     postcode: string;
     date: string;
   }>;
-  payment?: Partial<{ savedCard: string }>;
+  payment?: Partial<{ savedCard: string; method: string; only: string }>;
   /** Which of the one-pager's sections is open, and which are done. */
   progress?: Partial<{ section: SectionId | 'complete'; done: SectionId[] }>;
   auth?: Partial<{ treatment: AuthTreatment }>;
@@ -91,45 +91,57 @@ export interface FlowDef extends ProjectFlow {
 const BLANK: CheckoutPrefill = {
   customer: { email: '', firstName: '', lastName: '', phone: '', signedIn: false },
   delivery: { line1: '', line2: '', city: '', postcode: '', store: '', date: '' },
-  payment: { savedCard: '' },
+  payment: { savedCard: '', method: '', only: '' },
 };
 
-/** A recognised shopper: saved address, saved card, nothing left to type. */
-const RETURNING: CheckoutPrefill = {
-  customer: {
-    firstName: 'Alex',
-    lastName: 'Smith',
-    email: 'alex_smith@next.co.uk',
-    phone: '07777777777',
-    signedIn: true,
-  },
-  // The address is spelled out because the summary now shows only what it's
-  // given — with no sample-data fallbacks left, a returning shopper missing an
-  // address would render "Deliver to:" and nothing else.
-  delivery: {
-    method: 'home',
-    addressKnown: true,
-    line1: '162 Somewhere Street',
-    line2: 'Somewhere',
-    city: 'Somewhere',
-    postcode: 'SW14NGT',
-    date: 'Weds 12th July',
-  },
-  payment: { savedCard: 'Visa ending 4567' },
-  progress: { section: 'complete', done: ['details', 'delivery', 'payment'] },
+/**
+ * The account-matched shopper: recognised by email, so the account supplies the
+ * name, saved home address and phone. Shared by the three account journeys,
+ * which differ only in how they pay.
+ */
+const ACCOUNT_CUSTOMER = {
+  ...BLANK.customer,
+  firstName: 'Luke',
+  lastName: 'Bell',
+  email: 'luke_bell@next.co.uk',
+  phone: '07784141908',
+  signedIn: true,
+};
+const ACCOUNT_DELIVERY = {
+  ...BLANK.delivery,
+  method: 'home',
+  addressKnown: true,
+  line1: '53 Carlton Road',
+  line2: 'Long Eaton',
+  city: 'Nottingham',
+  postcode: 'NG10 3LF',
+  date: 'Weds 12th July',
 };
 
 export const FLOWS: FlowDef[] = [
   {
+    id: 'apple-pay',
+    name: 'Apple Pay',
+    description: 'Express checkout: from sign-in, the Apple Pay button opens the Apple Pay sheet and the order completes — no checkout page.',
+    customerType: 'guest',
+    screens: [{ id: 'signin' }, { id: 'applepay' }, { id: 'confirmation' }],
+    flagOverrides: { expressPayment: true, savedPayment: false },
+    // Nothing is entered — Apple Pay supplies contact/address/card in its sheet.
+    prefill: {
+      ...BLANK,
+      delivery: { ...BLANK.delivery, method: 'home' },
+      auth: { treatment: 'none' },
+    },
+  },
+  {
     id: 'guest',
-    name: 'Guest',
-    description: 'No account. Fills in every section, pays by card, offered an account at the end.',
+    name: 'Guest Checkout',
+    description: 'No account. Signs in as a guest and fills in every section; no payment method preselected, Nextpay & Pay In 3 shown.',
     customerType: 'guest',
     screens: [{ id: 'signin' }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { savedPayment: false, guestRegistration: true, passkeyUpsell: false },
-    // Nothing is known about a guest — the one-pager opens with every field
-    // blank and they fill it in. Seeding a name here would make the guest
-    // journey a demo of a returning customer.
+    flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: true, passkeyUpsell: false },
+    // Every field blank; the one-pager opens on Your Details and they fill it in.
+    // `payment.method: ''` leaves the payment list with nothing preselected.
     prefill: {
       ...BLANK,
       delivery: { ...BLANK.delivery, method: 'home' },
@@ -138,80 +150,55 @@ export const FLOWS: FlowDef[] = [
     },
   },
   {
-    id: 'collection',
-    name: 'Guest · collection',
-    description: 'The guest journey routed through Collection rather than home delivery.',
-    customerType: 'guest',
-    screens: [{ id: 'signin' }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { savedPayment: false, guestRegistration: true, passkeyUpsell: false, collectionOptions: true },
-    // Also a guest, so also blank, and it opens on Your Details like any other
-    // guest — what makes this flow "collection" is the pre-chosen delivery
-    // method, which shows when they reach section 2.
-    //
-    // It used to open on Delivery with `done: ['details']` so the canvas landed
-    // straight on the interesting bit. That marked Your Details complete when it
-    // was empty, so walking the flow from sign-in gave you a finished section
-    // with nothing in it and a Change link to nowhere. Jumping to a mid-journey
-    // state is what the Pages variants are for — a flow has to stay walkable.
+    id: 'account-cash',
+    name: 'Account Matched - Cash',
+    description: 'Recognised email → one-time passcode → checkout with details and saved address prefilled; the saved card is selected and open.',
+    customerType: 'matched',
+    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { savedPayment: true, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
+    // Details and Delivery arrive complete and collapsed; the journey picks up on
+    // Payment, with the saved card selected and expanded.
     prefill: {
       ...BLANK,
-      delivery: { ...BLANK.delivery, method: 'collection' },
-      progress: { section: 'details', done: [] },
+      customer: ACCOUNT_CUSTOMER,
+      delivery: ACCOUNT_DELIVERY,
+      payment: { ...BLANK.payment, method: 'saved', savedCard: 'Visa ending 4567' },
+      progress: { section: 'payment', done: ['details', 'delivery'] },
       auth: { treatment: 'none' },
     },
   },
   {
-    id: 'account-matched',
-    name: 'Account matched',
-    description: 'Guest types an email we recognise; sign-in is offered inside Your Details without leaving the page.',
+    id: 'account-nextpay',
+    name: 'Account Matched - Nextpay',
+    description: 'As the matched journey, but the shopper sees no payment options — just a single "Complete With Nextpay" button.',
     customerType: 'matched',
-    screens: [{ id: 'signin' }, { id: 'checkout' }, { id: 'otp' }, { id: 'confirmation' }],
-    flagOverrides: { savedPayment: true, guestRegistration: false, passkeyUpsell: true },
-    // They typed an email we recognise, so the account supplies the name AND the
-    // saved delivery address: Your Details and Delivery both arrive complete and
-    // collapsed, with home delivery and the first available date preselected.
-    // Payment is where the journey picks up. Change on either reopens it — Your
-    // Details returns to sign-in ("that isn't me"); see OnePageCheckout.
+    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
+    // `payment.only: 'nextpay'` collapses the whole Payment section to one CTA.
     prefill: {
       ...BLANK,
-      customer: {
-        ...BLANK.customer,
-        email: 'luke_bell@next.co.uk',
-        firstName: 'Luke',
-        lastName: 'Bell',
-        phone: '07784141908',
-      },
-      delivery: {
-        ...BLANK.delivery,
-        method: 'home',
-        addressKnown: true,
-        line1: '53 Carlton Road',
-        line2: 'Long Eaton',
-        city: 'Nottingham',
-        postcode: 'NG10 3LF',
-        date: 'Weds 12th July',
-      },
+      customer: ACCOUNT_CUSTOMER,
+      delivery: ACCOUNT_DELIVERY,
+      payment: { ...BLANK.payment, only: 'nextpay' },
       progress: { section: 'payment', done: ['details', 'delivery'] },
-      auth: { treatment: 'inline' },
+      auth: { treatment: 'none' },
     },
   },
   {
-    id: 'keychain',
-    name: 'Keychain friendly',
-    description: 'A password-first sign-in page shaped for iOS / Android autofill, with a passcode fallback.',
-    customerType: 'returning',
-    screens: [{ id: 'signin' }, { id: 'otp', optional: true }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { savedPayment: true, guestRegistration: false, passkeyUpsell: true },
-    prefill: { ...RETURNING, auth: { treatment: 'password-first' } },
-  },
-  {
-    id: 'otp-first',
-    name: 'Focus on OTP',
-    description: 'Sign-in leads with the one-time passcode; password sits underneath as the alternative.',
-    customerType: 'returning',
+    id: 'account-payin3',
+    name: 'Account Matched - Pay In 3',
+    description: 'The matched journey with a single "Complete With Pay In 3" button in place of the payment options.',
+    customerType: 'matched',
     screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { savedPayment: true, guestRegistration: false, passkeyUpsell: true },
-    prefill: { ...RETURNING, auth: { treatment: 'otp-first' } },
+    flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
+    prefill: {
+      ...BLANK,
+      customer: ACCOUNT_CUSTOMER,
+      delivery: ACCOUNT_DELIVERY,
+      payment: { ...BLANK.payment, only: 'payin3' },
+      progress: { section: 'payment', done: ['details', 'delivery'] },
+      auth: { treatment: 'none' },
+    },
   },
 ];
 

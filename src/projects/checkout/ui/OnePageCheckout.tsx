@@ -70,11 +70,9 @@ export function OnePageCheckout() {
     return () => setSection(id);
   };
 
-  const signedIn = !!customer.signedIn;
-  // An account-matched shopper is neither a signed-in returner (their details came
-  // from an account they matched, not an authenticated session) nor a guest — so
-  // the title is plain "Checkout" rather than "Your Order" or "Guest Checkout".
-  const title = signedIn ? 'Your Order' : detailsFromAccount ? 'Checkout' : 'Guest Checkout';
+  // A shopper whose details came from their account sees "Checkout"; a guest
+  // typing everything in sees "Guest Checkout".
+  const title = detailsFromAccount ? 'Checkout' : 'Guest Checkout';
 
   const BODIES: Record<SectionId, ReactNode> = {
     details: <DetailsSection onContinue={advance('details')} />,
