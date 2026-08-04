@@ -1,0 +1,24 @@
+<svg id="icon-path-favourite-active" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <style>
+ #icon-path-favourite-active {
+  animation: favourite-loaded 1s ease-in-out;
+}
+        
+@keyframes favourite-loaded {
+  0% {
+    fill-opacity: 0;
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.25);
+  }
+
+  100% {
+    fill-opacity: 1;
+    transform: scale(1);
+  }
+}
+  </style>  
+    <path id="default" d="M10.766 21.471c.327.336.764.52 1.234.52V22c.47 0 .915-.185 1.243-.52l7.044-7.154c1.83-1.83 2.838-4.039 2.838-6.205C23.125 4.519 20.631 2 17.063 2 14.536 2 13.193 3.008 12 4.309 10.8 2.999 9.464 2 6.937 2 3.369 2 .875 4.519.875 8.12c0 2.167 1.007 4.375 2.838 6.197l7.053 7.154Z"/>
+</svg>

@@ -1,0 +1,183 @@
+/*
+ * Studio chrome — a faux-macOS browser window hosting the checkout canvas.
+ *
+ * Deliberately neutral and quiet so it never reads as part of the customer
+ * checkout. The checkout inside each frame is themed separately via the client
+ * token variables (see theme/themes.ts).
+ */
+
+/*
+ * Base resets live in src/base.css — shared with live mode. Only the studio's
+ * own body treatment belongs here.
+ *
+ * MUI's CssBaseline normally sets the body background and font from the theme,
+ * but the studio deliberately doesn't ship it (it writes to `body` and would
+ * cascade into the checkout previews). Minimal runs MUI in CSS-variables mode,
+ * so we can read the same values it would have used directly — and they follow
+ * light/dark automatically, since the vars are redefined per colour scheme.
+ */
+body {
+  font-family: 'Public Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background-color: var(--palette-background-default);
+  color: var(--palette-text-primary);
+  text-rendering: optimizeLegibility;
+}
+/* ---------- Window ---------- */
+.studio { height: 100vh; }
+/* ---------- Present mode (chrome-free) ---------- */
+.studio--present .canvas__scroll { padding-top: 28px; }
+.present-exit {
+  position: fixed; top: 14px; right: 14px; z-index: 120;
+  appearance: none; border: 1px solid var(--palette-divider);
+  background: rgba(20, 20, 24, 0.7); backdrop-filter: blur(8px);
+  color: #fff; font: inherit; font-size: 12px; font-weight: 600;
+  padding: 7px 12px; border-radius: 999px; cursor: pointer; opacity: 0.35;
+  transition: opacity 0.16s ease;
+}
+.present-exit:hover { opacity: 1; }
+/* Monochrome value ramp for the browser chrome (light-themed previews sit on a
+ * light canvas in both studio themes; the code block is always "ink" dark).
+ *
+ * A token scope only — no box of its own. It used to be the scrolling, grey-
+ * backed container for the whole component list; the view now scrolls in its
+ * <main> and shows one component, so a second frame around the card was just
+ * nesting. Keep the element: `data-client` and these variables hang off it. */
+.ds-canvas {
+  --ds-card: #ffffff;
+  --ds-stage: #f4f4f6;
+  --ds-dot: rgba(0, 0, 0, 0.06);
+  --ds-line: rgba(0, 0, 0, 0.09);
+  --ds-line-strong: rgba(0, 0, 0, 0.15);
+  --ds-ink: #1e1e1e; /* VS Code editor background */
+  --ds-ink-text: #d4d4d4;
+  --ds-ink-dim: #9a9ba4;
+  --ds-ink-line: rgba(255, 255, 255, 0.11);
+}
+:root[data-theme='dark'] .ds-canvas {
+  --ds-card: #1d1e21;
+  --ds-line: rgba(255, 255, 255, 0.09);
+  --ds-line-strong: rgba(255, 255, 255, 0.16);
+  --ds-ink: #141416; /* darker than the card so the code block still reads */
+}
+.ds-comp__cc.is-on { color: #2f9e46; }
+.ds-comp__cc.is-on .ds-comp__cc-dot { background: #34c759; }
+/* ---- Playground (transparent inside the card) ---- */
+.ds-play { display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px; }
+.ds-play__stage {
+  flex: 1; min-width: 220px; display: flex; align-items: center; justify-content: center;
+  min-height: 92px; padding: 24px; border-radius: 10px;
+  border: 1px solid var(--ds-line);
+  background-color: var(--ds-stage);
+  background-image: radial-gradient(var(--ds-dot) 1px, transparent 1.5px);
+  background-size: 16px 16px;
+  background-position: center;
+}
+/* Not scoped to .ds-play__controls: the code block is a sibling of the stage,
+ * so an ancestor selector silently left the <pre> on UA margins and no padding. */
+.ds-play__code-body {
+  margin: 0; padding: 14px 16px; overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; line-height: 1.7;
+  color: var(--ds-ink-text); background: transparent; white-space: pre;
+}
+/* Syntax highlighting — VS Code "Dark+" palette */
+.ds-play__code-body .tok-kw { color: #c586c0; }
+.ds-play__code-body .tok-tag { color: #4ec9b0; }
+.ds-play__code-body .tok-attr { color: #9cdcfe; }
+.ds-play__code-body .tok-str { color: #ce9178; }
+.ds-play__code-body .tok-num { color: #b5cea8; }
+.ds-play__code-body .tok-const { color: #569cd6; }
+.ds-play__code-body .tok-punc { color: #808080; }
+/* ---------- Canvas ---------- */
+.canvas { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+/* ---------- Frame grid ---------- */
+.canvas__scroll { flex: 1; overflow: auto; padding: 26px 24px 60px; }
+.frame { display: flex; flex-direction: column; gap: 9px; }
+.frame__caption { display: flex; align-items: center; gap: 8px; padding: 0 2px; }
+.frame__label { font-size: 12.5px; color: var(--palette-text-primary); font-weight: 550; letter-spacing: -0.005em; }
+.frame__badge {
+  font-size: 10px; font-weight: 500; color: var(--palette-text-disabled); background: var(--palette-action-selected);
+  border-radius: 5px; padding: 2px 6px; text-transform: lowercase; letter-spacing: 0.2px;
+}
+.frame__device {
+  appearance: none; border: 0; background: transparent; padding: 0;
+  cursor: pointer; position: relative; display: block;
+  transition: transform var(--layout-transition-duration, 120ms) cubic-bezier(0.16, 1, 0.3, 1);
+}
+.frame__device:hover { transform: translateY(-3px); }
+.frame__device--static { cursor: default; }
+.frame__device--static:hover { transform: none; }
+.frame__device--static:hover .shell { box-shadow: 0 16px 40px -16px rgba(0,0,0,0.6); }
+.frame__device:hover .shell { box-shadow: 0 30px 56px -20px rgba(0,0,0,0.55); }
+.frame__scale { position: relative; }
+/* ---------- Device shells (native-feeling chrome) ---------- */
+.shell {
+  position: relative; box-sizing: border-box;
+  box-shadow: 0 16px 40px -16px rgba(0,0,0,0.6);
+  transition: box-shadow 0.18s ease;
+}
+/* Device body (bezel) — dark for tablet/mobile, none for desktop */
+.shell--tablet, .shell--mobile { background: #0b0b0d; }
+.shell--tablet { border-radius: 34px; }
+.shell--mobile { border-radius: 62px; }
+.shell--desktop { border-radius: 12px; }
+.shell__screen {
+  width: 100%; height: 100%; overflow: hidden; background: #fff;
+  display: flex; flex-direction: column; position: relative;
+}
+/* OS status bar */
+.shell__status {
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 26px; color: #000; position: relative; z-index: 2;
+}
+.shell--tablet .shell__status { padding: 0 20px; }
+.shell__time { font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+.shell--tablet .shell__time { font-size: 13px; }
+.shell__status-icons { display: flex; align-items: center; gap: 6px; }
+.shell__island {
+  position: absolute; left: 50%; top: 9px; transform: translateX(-50%);
+  width: 118px; height: 33px; background: #000; border-radius: 20px;
+}
+/* Browser bar */
+.shell__browser { flex: none; display: flex; align-items: center; background: #f2f2f4; border-bottom: 1px solid #d9d9de; color: #6a6a70; }
+.shell__browser--desktop { gap: 14px; padding: 0 16px; }
+.shell__dots { display: inline-flex; gap: 8px; }
+.shell__dots i { width: 12px; height: 12px; border-radius: 50%; background: #d0d0d5; }
+.shell__dots i:nth-child(1) { background: #ff5f57; }
+.shell__dots i:nth-child(2) { background: #febc2e; }
+.shell__dots i:nth-child(3) { background: #28c840; }
+.shell__tab {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #333;
+  background: #fff; border-radius: 8px 8px 0 0; padding: 9px 16px; align-self: flex-end; margin-bottom: -1px;
+  border: 1px solid #d9d9de; border-bottom: 0;
+}
+.shell__favicon { width: 14px; height: 14px; border-radius: 3px; background: #c9c9cf; }
+.shell__omnibox {
+  flex: 1; display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+  background: #fff; border: 1px solid #dcdce1; border-radius: 8px; height: 32px; padding: 0 14px;
+  font-size: 13px; color: #444; max-width: 620px; margin: 0 auto;
+}
+.shell__omnibox--mobile { margin: 0 12px; height: 34px; justify-content: center; background: #e7e7ea; border: 0; }
+.shell__url { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shell__url-scheme { color: #a0a0a8; }
+.shell__browser-actions { display: inline-flex; gap: 12px; }
+.shell__browser-actions i { width: 15px; height: 3px; border-radius: 2px; background: #c4c4ca; box-shadow: 0 6px 0 #c4c4ca, 0 -6px 0 #c4c4ca; }
+/* Website content — the container-query context (checkout responds to THIS width) */
+.shell__web { flex: 1; min-height: 0; overflow: auto; container-type: inline-size; container-name: checkout; }
+/* Home indicator */
+.shell__home { flex: none; display: grid; place-items: center; background: #fff; }
+.shell__home-bar { width: 134px; height: 5px; border-radius: 3px; background: #111; }
+/* ---------- Focus overlay ---------- */
+.focus {
+  position: fixed; inset: 0;
+  /* Above Minimal's nav (drawer+1) and header (appBar+1) — MUI's modal level.
+     The old value of 100 predates the layout and left focus mode underneath. */
+  z-index: 1300;
+  background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
+  display: flex; flex-direction: column;
+  animation: focus-in 0.2s ease;
+}
+@keyframes focus-in { from { opacity: 0; } to { opacity: 1; } }
+.focus__stage { flex: 1; display: flex; align-items: center; justify-content: center; padding: 28px; min-height: 0; }
+.focus__wrap { position: relative; flex: none; }
+.focus__scale { position: relative; }
+.focus__scale .shell { box-shadow: 0 40px 90px -24px rgba(0,0,0,0.8); }

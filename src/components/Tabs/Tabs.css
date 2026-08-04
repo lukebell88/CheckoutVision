@@ -1,0 +1,16 @@
+.fab-tabs {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 0 16px;
+}
+/* The bottom track the folder tabs sit on; the active tab's (blended) bottom
+ * border breaks the line beneath it. */
+.fab-tabs__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 43px;
+  height: 1px;
+  background: var(--components-tab-default-root-border-color, #000);
+}

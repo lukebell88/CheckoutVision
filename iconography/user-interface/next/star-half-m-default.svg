@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="star-half-m-default">
+    <path id="background" fill-rule="evenodd" d="M12 2 8.5 8.5 2 9.74l4.5 4.76-1 7.5 6.5-3.5 6.5 3.5-1-7.5L22 9.74 15.5 8.5 12 2Z" clip-rule="evenodd"/>
+    <path id="default" fill-rule="evenodd" d="M12 2 8.5 8.5 2 9.74l4.5 4.76-1 7.5 6.5-3.5V2Z" clip-rule="evenodd"/>
+  </g>
+</svg>

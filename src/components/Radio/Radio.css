@@ -1,0 +1,98 @@
+/*
+ * Radio + RadioButton — token-driven, mirroring Fabric v2 `Radio` (26119-7819)
+ * and `RadioButton` (9064-68701). Circular; selected = 2px border + centre dot.
+ * The `.fab-radio` circle is styled by modifier classes (presentational <Radio>)
+ * AND, inside <RadioButton>, reacts to the real <input> via :checked.
+ */
+
+/* ---------- The circle ---------- */
+.fab-radio {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--components-radio-default-unselected-enabled-border-color, #929292);
+  border-radius: 50%;
+  background: var(--components-radio-default-unselected-enabled-background-color, #fff);
+  color: var(--components-radio-default-checkmark-enabled-icon-color, #000);
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.fab-radio__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  display: none;
+}
+
+/* Presentational modifier states */
+.fab-radio--selected { border-width: 2px; border-color: var(--components-radio-default-selected-enabled-border-color, #8e44ad); }
+.fab-radio--selected .fab-radio__dot { display: block; }
+.fab-radio--hovered { border-color: var(--components-radio-default-unselected-hovered-border-color, #000); }
+.fab-radio--selected.fab-radio--hovered { border-color: var(--components-radio-default-selected-hovered-border-color, #7f3d9b); }
+.fab-radio--disabled {
+  background: var(--components-radio-default-unselected-disabled-background-color, #f7f7f7);
+  border-color: var(--components-radio-default-unselected-disabled-border-color, #bdbdbd);
+  color: var(--components-radio-default-checkmark-disabled-icon-color, #bdbdbd);
+}
+.fab-radio--selected.fab-radio--disabled {
+  background: var(--components-radio-default-selected-disabled-background-color, #f7f7f7);
+  border-color: var(--components-radio-default-selected-disabled-border-color, #bdbdbd);
+}
+.fab-radio--focused { outline: 2px solid var(--interactive-focus-default-outline-color, #1d89dd); outline-offset: 2px; }
+
+/* ---------- Interactive RadioButton ---------- */
+.fab-radiobtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Spacing-2 */
+  cursor: pointer;
+}
+.fab-radiobtn--disabled { cursor: default; }
+.fab-radiobtn__input { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; }
+
+/* Selected (native :checked drives the circle + dot) */
+.fab-radiobtn__input:checked + .fab-radio {
+  border-width: 2px;
+  border-color: var(--components-radio-default-selected-enabled-border-color, #8e44ad);
+}
+.fab-radiobtn__input:checked + .fab-radio .fab-radio__dot { display: block; }
+
+/* Hover */
+.fab-radiobtn:not(.fab-radiobtn--disabled):hover .fab-radiobtn__input:not(:checked) + .fab-radio {
+  border-color: var(--components-radio-default-unselected-hovered-border-color, #000);
+}
+.fab-radiobtn:not(.fab-radiobtn--disabled):hover .fab-radiobtn__input:checked + .fab-radio {
+  border-color: var(--components-radio-default-selected-hovered-border-color, #7f3d9b);
+}
+
+/* Disabled */
+.fab-radiobtn__input:disabled + .fab-radio {
+  background: var(--components-radio-default-unselected-disabled-background-color, #f7f7f7);
+  border-color: var(--components-radio-default-unselected-disabled-border-color, #bdbdbd);
+  color: var(--components-radio-default-checkmark-disabled-icon-color, #bdbdbd);
+}
+.fab-radiobtn__input:disabled:checked + .fab-radio {
+  background: var(--components-radio-default-selected-disabled-background-color, #f7f7f7);
+  border-color: var(--components-radio-default-selected-disabled-border-color, #bdbdbd);
+}
+
+/* Focus */
+.fab-radiobtn__input:focus-visible + .fab-radio {
+  outline: 2px solid var(--interactive-focus-default-outline-color, #1d89dd);
+  outline-offset: 2px;
+}
+
+/* ---------- Label ---------- */
+.fab-radiobtn__label {
+  font-family: var(--global-body-1-font-family, inherit);
+  font-weight: var(--global-body-1-font-weight, 400);
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  letter-spacing: var(--global-body-1-letter-spacing, 0);
+  line-height: var(--global-body-1-line-height, 1.5);
+  color: var(--text-primary, #000);
+}
+.fab-radiobtn--disabled .fab-radiobtn__label { color: var(--text-disabled, #b3b3b3); }

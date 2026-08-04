@@ -1,0 +1,122 @@
+/* OrderSummary — co-located so promoting to Fabric is a move, not archaeology.
+ * Theme tokens only.
+ *
+ * Appearance only. Where the summary sits and whether it's visible belong to the
+ * page (`.co-orderslot` in checkout.css) — this file must not position it, or it
+ * can't be reused anywhere the layout differs. */
+
+.co-ordersummary__title {
+  margin: 0;
+  font-family: var(--global-h5-font-family, inherit);
+  font-size: var(--global-h5-font-size, 0.9375rem);
+  font-weight: 700;
+}
+
+.co-ordersummary__caption {
+  margin: 2px 0 12px;
+  color: var(--text-secondary, #555);
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+}
+
+.co-ordersummary__lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.co-ordersummary__line {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.co-ordersummary__thumb {
+  flex: none;
+  width: 56px;
+  height: 68px;
+  object-fit: cover;
+  background: var(--surface-subtle, #eee);
+}
+
+.co-ordersummary__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+/* Title and price share a row, price pushed right. `gap` rather than
+ * justify-content alone so a long title wraps against the price instead of
+ * running under it. */
+.co-ordersummary__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.co-ordersummary__name {
+  min-width: 0;
+  font-weight: 700;
+  font-size: var(--global-body-2-font-size, 0.8125rem);
+}
+
+.co-ordersummary__price {
+  flex: none;
+  font-weight: 700;
+  font-size: var(--global-body-2-font-size, 0.8125rem);
+}
+
+.co-ordersummary__fields {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 2px 0 0;
+  gap: 2px;
+}
+
+.co-ordersummary__field {
+  display: flex;
+  gap: 4px;
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+}
+
+/* The colon is punctuation, not part of the label — so callers pass "Size", not
+ * "Size:", and a label can be reused anywhere the separator differs. */
+.co-ordersummary__field dt {
+  flex: none;
+  color: var(--text-secondary, #555);
+}
+.co-ordersummary__field dt::after { content: ':'; }
+
+.co-ordersummary__field dd {
+  margin: 0;
+  min-width: 0;
+  font-weight: 700;
+}
+
+.co-ordersummary__promo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.co-ordersummary__totals {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle, #e3e3e3);
+}
+.co-ordersummary__totals > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+}
+.co-ordersummary__totals dt,
+.co-ordersummary__totals dd { margin: 0; }
+
+.co-ordersummary__grand {
+  font-weight: 700;
+  font-size: var(--global-subtitle-1-font-size, 1rem);
+}

@@ -1,0 +1,36 @@
+<svg id="icon-path-favourite-loading" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+<style>
+#icon-path-favourite-loading {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 80;
+  stroke-linecap: round;
+  animation: favourite-loading 1s linear infinite;
+}
+@keyframes favourite-loading {
+  0% {
+    stroke-dashoffset: 80;
+  }
+
+  100% {
+    stroke-dashoffset: 160;
+  }
+}
+
+@keyframes favourite-loaded {
+  0% {
+    fill-opacity: 0;
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.25);
+  }
+
+  100% {
+    fill-opacity: 1;
+    transform: scale(1);
+  }
+}
+  </style>
+  <path id="default" fill="none" stroke="black" stroke-width="1" d="M17.2498534,2.5 C15.5484034,2.5 13.8317534,3.14505 12.5511534,4.3753 L12.0001534,4.90445 L11.4491534,4.3753 C10.1685534,3.14505 8.45190341,2.5 6.75045341,2.5 C5.23900341,2.5 3.73895341,3.0092 2.56760341,4.06845 C-0.00879564278,6.3988 -0.0553456428,10.2957 2.42985341,12.6821 L3.16610341,13.3889 L11.3342034,21.23495 C11.5185034,21.41165 11.7588534,21.5 12.0001534,21.5 C12.2405034,21.5 12.4818034,21.41165 12.6651534,21.23495 L20.8342034,13.3889 L21.5704534,12.6821 C24.0547034,10.2957 24.0091034,6.3988 21.4327034,4.06845 C20.2613534,3.0092 18.7613034,2.5 17.2498534,2.5 Z" />
+</svg>

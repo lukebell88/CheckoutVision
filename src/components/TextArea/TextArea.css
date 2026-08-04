@@ -1,0 +1,32 @@
+.fab-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  resize: vertical;
+  background: var(--background-paper, #fff);
+  border: 1px solid var(--action-default-enabled-border-color, #949494);
+  border-radius: var(--global-text-field-medium-border-radius, 4px);
+  color: var(--text-primary, #000);
+  font-family: var(--component-input-text-font-family, 'Poppins');
+  font-size: var(--component-input-text-font-size, 0.875rem);
+  font-weight: var(--component-input-text-font-weight, 400);
+  line-height: 1.5;
+  outline: none;
+}
+.fab-textarea--large { min-height: 160px; }
+.fab-textarea--medium { min-height: 120px; }
+.fab-textarea::placeholder { color: var(--text-secondary, #616161); opacity: 1; }
+
+.fab-textarea:not(.fab-textarea--is-disabled):hover { border-color: var(--action-default-hovered-border-color, #000); }
+.fab-textarea:not(.fab-textarea--is-disabled):focus { border-color: var(--primary-main, #000); box-shadow: inset 0 0 0 1px var(--primary-main, #000); }
+
+.fab-textarea--hovered { border-color: var(--action-default-hovered-border-color, #000); }
+.fab-textarea--focused { border-color: var(--primary-main, #000); box-shadow: inset 0 0 0 1px var(--primary-main, #000); }
+.fab-textarea--error { border-color: var(--action-default-error-border-color, #d32f2f); }
+.fab-textarea--is-disabled {
+  background: var(--action-default-disabled-background-color, #fafafa);
+  border-color: var(--action-default-disabled-border-color, #e0e0e0);
+  color: var(--text-disabled, #bdbdbd);
+  cursor: not-allowed;
+}

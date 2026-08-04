@@ -1,0 +1,183 @@
+import type { ReactNode } from 'react';
+import type { ClientDef } from '../config/clients';
+
+/**
+ * The project contract — the whole surface between the studio and a prototype.
+ *
+ * The studio hosts many projects; checkout is one. Nothing in the studio may
+ * import a project directly. If the shell needs to know something about the
+ * thing it is rendering, that knowledge belongs on `ProjectDef` — a missing
+ * field here is the only correct reason for the shell to reach sideways.
+ *
+ * Platform concerns (brands, devices, the Fabric component library, the design
+ * system config boards) are NOT part of this contract: they are shared by every
+ * project and live under src/config and src/components.
+ */
+
+/** Views that render a project's own content. */
+export type ProjectView = 'flows' | 'pages';
+
+/**
+ * Every view the studio can show. `components` and `config` are platform-level
+ * (the Fabric library and its configuration); `projects` is the gallery, which
+ * sits above projects entirely and renders without loading any of them.
+ */
+export type StudioView = ProjectView | 'components' | 'config' | 'projects';
+
+/**
+ * Card-level metadata for a project, in its own `meta.ts` so the studio can list
+ * every project — names, descriptions — WITHOUT loading any of them. Loading all
+ * the definitions just to render a gallery would defeat the lazy registry.
+ */
+export interface ProjectMeta {
+  /** Must match the folder name; the registry enforces this. */
+  id: string;
+  name: string;
+  description?: string;
+}
+
+/** One screen a project can render. */
+export interface ScreenDef {
+  id: string;
+  /** Customer-facing title. */
+  title: string;
+  /** Short label for step lists and frame captions. */
+  navLabel: string;
+  /** Terminal screens end a journey — no "continue" action leaves them. */
+  terminal?: boolean;
+}
+
+/** A screen's slot within a flow. */
+export interface FlowScreen {
+  id: string;
+  /** Optional screens can be skipped in the customer-facing progression. */
+  optional?: boolean;
+}
+
+/**
+ * Project data is opaque to the studio: it carries the buckets, namespaces them
+ * per project and hands them back at render time, but never reads inside one.
+ * Each project casts to its own typed shape at its boundary.
+ */
+export type ProjectData = { [bucket: string]: Record<string, unknown> | undefined };
+
+/** Flag state, keyed by flag id. Projects narrow this to their own union. */
+export type FlagValues = Record<string, boolean>;
+
+/** A journey: an ordered subset of screens plus the state it presents. */
+export interface ProjectFlow {
+  id: string;
+  name: string;
+  description: string;
+  screens: FlowScreen[];
+  /** Applied on top of the flag defaults when this flow is selected. */
+  flagOverrides?: FlagValues;
+  /** Seed data merged into the data buckets when this flow is selected. */
+  prefill?: ProjectData;
+}
+
+/** A feature flag the project exposes to the studio's flag controls. */
+export interface ProjectFlag {
+  id: string;
+  name: string;
+  description: string;
+  /** Free-form grouping label used by the sidebar and Config board. */
+  group: string;
+  default: boolean;
+}
+
+/** One variant of a single screen (an error state, a payment type, …). */
+export interface Variant {
+  id: string;
+  label: string;
+  flags?: FlagValues;
+  data?: ProjectData;
+  note?: string;
+}
+
+/** A screen shown in several variants side by side in the Pages view. */
+export interface VariantGroup {
+  id: string;
+  name: string;
+  screen: string;
+  description?: string;
+  versions: Variant[];
+}
+
+/** Navigation and data actions handed to a rendered screen. */
+export interface ProjectNav {
+  next(): void;
+  back(): void;
+  goTo(screen: string): void;
+  patch(bucket: string, values: Record<string, unknown>): void;
+}
+
+/**
+ * Everything a project needs to render one screen. The studio builds this and
+ * provides it via context, so a project never reads the studio store.
+ */
+export interface ProjectRuntime {
+  /** The screen to render. */
+  screen: string;
+  /** Ordered screens of the active flow — for progress indicators. */
+  screens: FlowScreen[];
+  /** Screens already advanced past. */
+  completed: string[];
+  flags: FlagValues;
+  data: ProjectData;
+  /** The active brand. */
+  brand: ClientDef;
+  /** False in the canvas gallery: render actions, but inert. */
+  interactive: boolean;
+  /** No-ops when `interactive` is false. */
+  nav: ProjectNav;
+}
+
+/**
+ * A prototype hosted by the studio. Extends its own `ProjectMeta` so the card
+ * fields have a single source of truth — `project.tsx` spreads its `meta.ts`.
+ */
+export interface ProjectDef extends ProjectMeta {
+  /** Which project-scoped views this project supports. */
+  views: ProjectView[];
+  screens: Record<string, ScreenDef>;
+  flows: ProjectFlow[];
+  flags: ProjectFlag[];
+  variants?: VariantGroup[];
+  /**
+   * Render one screen. Simple projects can read the passed runtime directly;
+   * projects with nested components read it from context via useProjectRuntime.
+   */
+  render(rt: ProjectRuntime): ReactNode;
+}
+
+// --- Lookups -----------------------------------------------------------------
+
+export const screenDef = (project: ProjectDef, id: string): ScreenDef =>
+  project.screens[id] ?? { id, title: id, navLabel: id };
+
+export const flowById = (project: ProjectDef, id: string): ProjectFlow =>
+  project.flows.find((f) => f.id === id) ?? project.flows[0];
+
+export const variantGroupById = (project: ProjectDef, id: string): VariantGroup | undefined =>
+  project.variants?.find((g) => g.id === id) ?? project.variants?.[0];
+
+/** Baseline flag state from the project's declared defaults. */
+export const defaultFlags = (project: ProjectDef): FlagValues =>
+  project.flags.reduce<FlagValues>((acc, f) => ({ ...acc, [f.id]: f.default }), {});
+
+/** Flag defaults with a flow's overrides applied. */
+export const flagsForFlow = (project: ProjectDef, flow: ProjectFlow): FlagValues => ({
+  ...defaultFlags(project),
+  ...(flow.flagOverrides ?? {}),
+});
+
+/** Merge a flow's prefill over existing data (prefill wins, so the scenario is coherent). */
+export function mergeData(base: ProjectData, prefill: ProjectData | undefined): ProjectData {
+  if (!prefill) return base;
+  const out: ProjectData = { ...base };
+  for (const [bucket, values] of Object.entries(prefill)) {
+    out[bucket] = { ...(base[bucket] ?? {}), ...values };
+  }
+  return out;
+}

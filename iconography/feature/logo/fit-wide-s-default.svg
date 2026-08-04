@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <g id="fit-wide-s-default">
+    <g id="default">
+      <path id="Layer 2" fill="#fff" fill-opacity="1" fill-rule="evenodd" d="M4 16.66V7.34A3.34 3.34 0 0 1 7.34 4h9.321A3.339 3.339 0 0 1 20 7.34v9.32A3.338 3.338 0 0 1 16.661 20H7.34A3.34 3.34 0 0 1 4 16.66Z" clip-rule="evenodd"/>
+      <g id="Layer 1">
+        <path fill="#000" fill-rule="evenodd" d="M17 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2ZM7 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Z" clip-rule="evenodd"/>
+        <path fill="#000" d="M17.556 8.328 15.162 16h-1.316l-1.848-6.09L10.15 16H8.834L6.426 8.328h1.302l1.764 6.44 1.904-6.44h1.302l1.862 6.454 1.736-6.454h1.26Z"/>
+      </g>
+    </g>
+  </g>
+</svg>

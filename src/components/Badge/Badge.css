@@ -1,0 +1,46 @@
+.fab-badge {
+  position: relative;
+  display: inline-flex;
+}
+.fab-badge-standalone {
+  display: inline-flex;
+}
+.fab-badge__anchor {
+  position: absolute;
+  top: -2px;
+  left: 62%;
+}
+
+/* ---- Chip ---- */
+.fab-badge__chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 64px;
+  font-family: var(--component-badge-label-font-family, 'Poppins');
+  font-size: var(--component-badge-label-font-size, 0.625rem);
+  font-weight: var(--component-badge-label-font-weight, 500);
+  line-height: 1.5;
+}
+.fab-badge__icon { display: inline-flex; }
+
+/* Sizes — Default (number) & Icon */
+.fab-badge__chip--default.fab-badge__chip--medium { min-width: 16px; height: 16px; padding: 0 4px; }
+.fab-badge__chip--default.fab-badge__chip--large { min-width: 20px; height: 20px; padding: 0 5px; }
+.fab-badge__chip--icon.fab-badge__chip--medium { width: 16px; height: 16px; }
+.fab-badge__chip--icon.fab-badge__chip--large { width: 20px; height: 20px; }
+/* Dot */
+.fab-badge__chip--dot { width: 6px; height: 6px; padding: 0; }
+
+/* Colours */
+.fab-badge__chip--primary { background: var(--components-badge-primary-background-color, #000); color: var(--components-badge-primary-text-color, #fff); }
+.fab-badge__chip--primary .fab-badge__icon { color: var(--components-badge-primary-icon-color, #fff); }
+.fab-badge__chip--secondary { background: var(--components-badge-secondary-background-color, #eee); color: var(--components-badge-secondary-text-color, #000); }
+.fab-badge__chip--secondary .fab-badge__icon { color: var(--components-badge-secondary-icon-color, #000); }
+.fab-badge__chip--notification { background: var(--components-badge-notification-background-color, #d32f2f); color: var(--components-badge-notification-text-color, #fff); }
+.fab-badge__chip--notification .fab-badge__icon { color: var(--components-badge-notification-icon-color, #fff); }
+.fab-badge__chip--action { background: var(--grey-700, #616161); color: #fff; }
+.fab-badge__chip--action .fab-badge__icon { color: #fff; }
+.fab-badge__chip--unstyled { background: transparent; color: var(--text-primary, #000); }
+.fab-badge__chip--unstyled .fab-badge__icon { color: var(--text-primary, #000); }

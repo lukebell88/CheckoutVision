@@ -1,0 +1,20 @@
+<svg id="icon-path-favourite-loading" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>
+#icon-path-favourite-loading {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 80;
+  stroke-linecap: round;
+  animation: favourite-loading 1s linear infinite;
+}
+      @keyframes favourite-loading {
+  0% {
+    stroke-dashoffset: 80;
+  }
+
+  100% {
+    stroke-dashoffset: 160;
+  }
+}
+  </style>
+    <path id="default" fill-rule="evenodd" clip-rule="evenodd" d="M20.255 4.51003C19.445 3.66003 18.375 3.11003 17.225 2.92003C15.425 2.71003 13.525 3.72003 12.005 5.71003C10.485 3.72003 8.58504 2.71003 6.78504 2.92003C5.62504 3.11003 4.56504 3.67003 3.75504 4.51003C2.94504 5.36003 2.42504 6.44003 2.29504 7.61003C2.20504 9.30003 2.63504 10.98 3.53504 12.41C4.46504 13.97 5.60504 15.41 6.90504 16.67C8.00504 17.76 9.16504 18.78 10.395 19.72C10.835 20.05 11.215 20.33 11.485 20.52L12.005 20.89L12.525 20.52C12.795 20.33 13.175 20.05 13.615 19.72C14.845 18.78 16.005 17.76 17.105 16.67C18.415 15.4 19.545 13.97 20.475 12.41C21.375 10.97 21.805 9.30003 21.715 7.61003C21.575 6.45003 21.065 5.36003 20.255 4.51003Z" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+</svg>

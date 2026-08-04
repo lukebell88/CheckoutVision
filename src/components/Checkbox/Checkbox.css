@@ -1,0 +1,94 @@
+/*
+ * Check + Checkbox — token-driven, mirroring Fabric v2 `Check` (26119-7772)
+ * and `Checkbox` (19784-119461).
+ *
+ * The `.fab-check` box is styled by modifier classes (used by the presentational
+ * <Check>) AND, inside <Checkbox>, reacts to the real <input> via sibling
+ * selectors. Border is 1px unselected / 2px selected. Colour from the
+ * --components-checkbox-* tokens; checkmark + dash inherit currentColor.
+ */
+
+/* ---------- The box ---------- */
+.fab-check {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--components-checkbox-default-unselected-enabled-border-color, #929292);
+  border-radius: var(--global-check-default-border-radius, 4px);
+  background: var(--components-checkbox-default-unselected-enabled-background-color, #fff);
+  color: var(--components-checkbox-default-checkmark-enabled-icon-color, #000);
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.fab-check__mark { display: inline-flex; }
+.fab-check__dash { width: 8px; height: 2px; border-radius: 4px; background: currentColor; }
+
+/* Presentational modifier states (docs/preview) */
+.fab-check--hovered { border-color: var(--components-checkbox-default-unselected-hovered-border-color, #000); }
+.fab-check--disabled {
+  background: var(--components-checkbox-default-unselected-disabled-background-color, #f7f7f7);
+  border-color: var(--components-checkbox-default-unselected-disabled-border-color, #bdbdbd);
+  color: var(--components-checkbox-default-checkmark-disabled-icon-color, #bdbdbd);
+}
+.fab-check--selected {
+  border-width: 2px;
+  background: var(--components-checkbox-default-selected-enabled-background-color, #fff);
+  border-color: var(--components-checkbox-default-selected-enabled-border-color, #8e44ad);
+}
+.fab-check--selected.fab-check--hovered { border-color: var(--components-checkbox-default-selected-hovered-border-color, #7f3d9b); }
+.fab-check--selected.fab-check--disabled {
+  background: var(--components-checkbox-default-selected-disabled-background-color, #f7f7f7);
+  border-color: var(--components-checkbox-default-selected-disabled-border-color, #bdbdbd);
+}
+.fab-check--focused {
+  outline: 2px solid var(--interactive-focus-default-outline-color, #1d89dd);
+  outline-offset: 2px;
+}
+
+/* ---------- Interactive Checkbox ---------- */
+.fab-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Spacing-2 */
+  cursor: pointer;
+}
+.fab-checkbox--disabled { cursor: default; }
+.fab-checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+/* Hover (label hover drives the sibling box) */
+.fab-checkbox:not(.fab-checkbox--disabled):hover .fab-check:not(.fab-check--selected) {
+  border-color: var(--components-checkbox-default-unselected-hovered-border-color, #000);
+}
+.fab-checkbox:not(.fab-checkbox--disabled):hover .fab-check--selected {
+  border-color: var(--components-checkbox-default-selected-hovered-border-color, #7f3d9b);
+}
+/* Focus ring from the real input */
+.fab-checkbox__input:focus-visible + .fab-check {
+  outline: 2px solid var(--interactive-focus-default-outline-color, #1d89dd);
+  outline-offset: 2px;
+}
+
+/* ---------- Label + count ---------- */
+.fab-checkbox__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; /* Spacing-1 */
+  font-family: var(--component-input-label-1-font-family, inherit);
+  font-weight: var(--component-input-label-1-font-weight, 400);
+  font-size: var(--component-input-label-1-font-size, 0.875rem);
+  letter-spacing: var(--component-input-label-1-letter-spacing, 0);
+  line-height: var(--component-input-label-1-line-height, 1.5);
+  color: var(--text-primary, #000);
+}
+.fab-checkbox--disabled .fab-checkbox__text { color: var(--text-disabled, #b3b3b3); }
+.fab-checkbox__count { color: var(--text-secondary, var(--text-primary, #000)); }
+.fab-checkbox--disabled .fab-checkbox__count { color: var(--text-disabled, #b3b3b3); }

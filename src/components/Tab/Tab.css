@@ -1,0 +1,147 @@
+.fab-tab {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.fab-tab:disabled { cursor: not-allowed; }
+.fab-tab__label {
+  position: relative;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ===================== Nav / Global Bar ===================== */
+.fab-tab--nav,
+.fab-tab--global-bar {
+  flex-direction: column;
+  padding: 0 var(--spacing-2, 8px);
+}
+.fab-tab--nav { height: 44px; }
+.fab-tab--global-bar { height: 36px; }
+.fab-tab--gutter { min-width: 60px; }
+
+.fab-tab--nav,
+.fab-tab--global-bar { background: var(--components-tab-nav-default-enabled-background-color, transparent); }
+.fab-tab--nav.fab-tab--active,
+.fab-tab--global-bar.fab-tab--active { background: var(--components-tab-nav-default-active-background-color, #fff); }
+
+.fab-tab--nav .fab-tab__label,
+.fab-tab--global-bar .fab-tab__label {
+  font-family: var(--component-tab-text-nav-font-family, 'Poppins');
+  font-size: var(--component-tab-text-nav-font-size, 0.875rem);
+  font-weight: var(--component-tab-text-nav-font-weight, 600);
+  color: var(--components-tab-nav-default-enabled-text-color, #000);
+}
+.fab-tab--nav.fab-tab--active .fab-tab__label,
+.fab-tab--global-bar.fab-tab--active .fab-tab__label { color: var(--components-tab-nav-default-active-text-color, #000); }
+
+/* Sale / Clearance tones (Nav text colour) */
+.fab-tab--sale .fab-tab__label { color: var(--components-tab-nav-sale-enabled-text-color, #d0021b); }
+.fab-tab--sale.fab-tab--active .fab-tab__label { color: var(--components-tab-nav-sale-active-text-color, #d0021b); }
+.fab-tab--clearance .fab-tab__label { color: var(--components-tab-nav-clearance-enabled-text-color, #b26a00); }
+.fab-tab--clearance.fab-tab--active .fab-tab__label { color: var(--components-tab-nav-clearance-active-text-color, #b26a00); }
+
+/* Active underline indicators */
+.fab-tab__bar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+  background: var(--components-tab-nav-default-active-highlight-color, #000);
+}
+.fab-tab__bar--round { border-top-left-radius: 100px; border-top-right-radius: 100px; }
+.fab-tab__arrow {
+  position: absolute; left: 50%; bottom: -2px; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid var(--components-tab-nav-default-active-highlight-color, #000);
+}
+
+/* ===================== Default (folder) ===================== */
+.fab-tab--default {
+  height: 44px;
+  padding: 0 var(--spacing-3, 12px);
+  border-style: solid;
+  border-width: 1px 1px 1px 0; /* top · right(divider) · bottom · (left only on first) */
+  background: var(--components-tab-default-enabled-background-color, #fff);
+}
+.fab-tab--default.fab-tab--pos-left { border-left-width: 1px; border-top-left-radius: 4px; }
+.fab-tab--default.fab-tab--pos-right { border-top-right-radius: 4px; }
+
+.fab-tab--default .fab-tab__label {
+  font-family: var(--component-tab-text-1-font-family, 'Poppins');
+  font-size: var(--component-tab-text-1-font-size, 0.875rem);
+  font-weight: var(--component-tab-text-1-font-weight, 400);
+}
+.fab-tab--default.fab-tab--active .fab-tab__label {
+  font-family: var(--component-tab-text-2-font-family, 'Poppins');
+  font-weight: var(--component-tab-text-2-font-weight, 600);
+}
+
+/* State colours (border-color = top/left/right, border-bottom-color = the track line) */
+.fab-tab--default.fab-tab--enabled,
+.fab-tab--default.fab-tab--focused {
+  border-color: var(--components-tab-default-enabled-border-color, #9e9e9e);
+  border-bottom-color: var(--components-tab-default-enabled-border-bottom-color, #000);
+  background: var(--components-tab-default-enabled-background-color, #fff);
+}
+.fab-tab--default.fab-tab--enabled .fab-tab__label,
+.fab-tab--default.fab-tab--focused .fab-tab__label { color: var(--components-tab-default-enabled-text-color, #000); }
+
+.fab-tab--default.fab-tab--hovered {
+  border-color: var(--components-tab-default-hovered-border-color, #9e9e9e);
+  border-bottom-color: var(--components-tab-default-hovered-border-bottom-color, #000);
+  background: var(--components-tab-default-hovered-background-color, #f7f7f7);
+}
+.fab-tab--default.fab-tab--hovered .fab-tab__label { color: var(--components-tab-default-hovered-text-color, #000); }
+
+.fab-tab--default.fab-tab--active {
+  z-index: 1;
+  border-color: var(--components-tab-default-active-border-color, #000);
+  border-bottom-color: var(--components-tab-default-active-border-bottom-color, #fff);
+  background: var(--components-tab-default-active-background-color, #fff);
+}
+.fab-tab--default.fab-tab--active .fab-tab__label { color: var(--components-tab-default-active-text-color, #000); }
+
+.fab-tab--default.fab-tab--disabled {
+  border-color: var(--components-tab-default-disabled-border-color, #9e9e9e);
+  border-bottom-color: var(--components-tab-default-disabled-border-bottom-color, #000);
+  background: var(--components-tab-default-disabled-background-color, #f7f7f7);
+}
+.fab-tab--default.fab-tab--disabled .fab-tab__label { color: var(--components-tab-default-disabled-text-color, #b3b3b3); }
+
+/* Active top highlight bar */
+.fab-tab__highlight {
+  position: absolute; top: -1px; left: -1px; right: -1px; height: 4px;
+  background: var(--components-tab-default-active-highlight-color, #8e44ad);
+}
+.fab-tab--default.fab-tab--pos-left .fab-tab__highlight { border-top-left-radius: 4px; }
+.fab-tab--default.fab-tab--pos-right .fab-tab__highlight { border-top-right-radius: 4px; }
+
+/* Focus ring (Default variant) */
+.fab-tab__focus {
+  position: absolute; inset: -2px -1px -1px -2px;
+  border: 2px solid var(--interactive-focus-default-outline-color, #1d89dd);
+  border-top-left-radius: 5px;
+  pointer-events: none;
+}
+/* Disabled diagonal strike */
+.fab-tab__strike {
+  position: absolute; top: 50%; left: 50%;
+  width: 1px; height: 62px;
+  background: var(--components-tab-default-disabled-border-color, #9e9e9e);
+  transform: translate(-50%, -50%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* Live interactivity for uncontrolled Default tabs */
+.fab-tab--default.fab-tab--enabled:not(:disabled):hover {
+  border-color: var(--components-tab-default-hovered-border-color, #9e9e9e);
+  border-bottom-color: var(--components-tab-default-hovered-border-bottom-color, #000);
+  background: var(--components-tab-default-hovered-background-color, #f7f7f7);
+}

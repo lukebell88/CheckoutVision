@@ -1,0 +1,28 @@
+/*
+ * Live mode — full-screen, real-device checkout. No studio chrome.
+ * The `.live__web` element is the container-query context and spans the full
+ * viewport, so the checkout responds to the real device width.
+ */
+.live-mode, .live-mode body { background: #fff; height: 100%; }
+
+.live {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--background-main, #f7f7f7);
+}
+.live__web {
+  min-height: 100%;
+  container-type: inline-size;
+  container-name: checkout;
+}
+
+/* Shown while the URL's project loads (or if it isn't a known project). */
+.live--gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 14px/1.4 Inter, system-ui, sans-serif;
+  color: #666;
+}

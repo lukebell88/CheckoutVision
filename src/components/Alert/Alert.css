@@ -1,0 +1,44 @@
+.fab-alert {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  border-left: 2px solid var(--components-alert-info-default-border-color, #1976d2);
+  background: var(--components-alert-info-default-background-color, #e8f2fd);
+  color: var(--components-alert-info-default-text-color, #000);
+}
+.fab-alert--rtl {
+  border-left: 0;
+  border-right: 2px solid var(--components-alert-info-default-border-color, #1976d2);
+  direction: rtl;
+}
+.fab-alert__content {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+.fab-alert__title {
+  margin: 0;
+  font-family: var(--global-subtitle-2-font-family, 'Poppins');
+  font-size: var(--global-subtitle-2-font-size, 0.875rem);
+  font-weight: var(--global-subtitle-2-font-weight, 500);
+  line-height: 1.5;
+  color: inherit;
+}
+.fab-alert__body {
+  font-family: var(--global-body-1-font-family, 'Poppins');
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  font-weight: var(--global-body-1-font-weight, 400);
+  line-height: 1.5;
+  color: inherit;
+}
+.fab-alert__close { flex-shrink: 0; }
+
+/* Styles */
+.fab-alert--error { background: var(--components-alert-error-default-background-color, #fdf3f5); border-color: var(--components-alert-error-default-border-color, #d91440); color: var(--components-alert-error-default-text-color, #000); }
+.fab-alert--warning { background: var(--components-alert-warning-default-background-color, #fff6e9); border-color: var(--components-alert-warning-default-border-color, #ed6c02); color: var(--components-alert-warning-default-text-color, #000); }
+.fab-alert--info { background: var(--components-alert-info-default-background-color, #e8f2fd); border-color: var(--components-alert-info-default-border-color, #1976d2); color: var(--components-alert-info-default-text-color, #000); }
+.fab-alert--success { background: var(--components-alert-success-default-background-color, #edf7ed); border-color: var(--components-alert-success-default-border-color, #2e7d32); color: var(--components-alert-success-default-text-color, #000); }

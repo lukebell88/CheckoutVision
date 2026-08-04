@@ -1,0 +1,184 @@
+/*
+ * Button — token-driven styles mirroring Fabric v2 `Button` (Figma 6543-36744).
+ *
+ * Colour / typography / border-radius come from the themed CSS variables, so
+ * the button re-themes per client automatically. Padding, gap and height are
+ * the design system's shared `Structure/Button/Properties/*` constants.
+ * States: Enabled (base), Hovered (:hover), Focused (:focus-visible),
+ * Disabled (:disabled), Loading (.fab-btn--loading).
+ */
+
+.fab-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Structure Button Properties Gap */
+  height: var(--fab-btn-h);
+  padding: 0 var(--fab-btn-px);
+  border: 1px solid transparent;
+  border-radius: var(--fab-btn-radius);
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  -webkit-font-smoothing: antialiased;
+}
+.fab-btn:disabled { cursor: default; }
+.fab-btn--full { width: 100%; }
+
+/* Focused (Figma State=Focused) */
+.fab-btn:focus-visible {
+  outline: 2px solid var(--interactive-focus-default-outline-color, #1d89dd);
+  outline-offset: 2px;
+}
+
+/* ---------- Size: structure + typography ---------- */
+.fab-btn--small {
+  --fab-btn-h: 28px; --fab-btn-px: 12px;
+  --fab-btn-radius: var(--global-button-small-border-radius, 4px);
+  font-family: var(--component-button-small-font-family);
+  font-weight: var(--component-button-small-font-weight, 600);
+  font-size: var(--component-button-small-font-size, 0.75rem);
+  letter-spacing: var(--component-button-small-letter-spacing, 0);
+  line-height: var(--component-button-small-line-height, 1.5);
+  text-transform: var(--component-button-small-text-transform, none);
+  text-decoration: var(--component-button-small-text-decoration, none);
+}
+.fab-btn--medium {
+  --fab-btn-h: 36px; --fab-btn-px: 16px;
+  --fab-btn-radius: var(--global-button-medium-border-radius, 4px);
+  font-family: var(--component-button-medium-font-family);
+  font-weight: var(--component-button-medium-font-weight, 600);
+  font-size: var(--component-button-medium-font-size, 0.875rem);
+  letter-spacing: var(--component-button-medium-letter-spacing, 0);
+  line-height: var(--component-button-medium-line-height, 1.5);
+  text-transform: var(--component-button-medium-text-transform, none);
+  text-decoration: var(--component-button-medium-text-decoration, none);
+}
+.fab-btn--large {
+  --fab-btn-h: 44px; --fab-btn-px: 24px;
+  --fab-btn-radius: var(--global-button-large-border-radius, 4px);
+  font-family: var(--component-button-large-font-family);
+  font-weight: var(--component-button-large-font-weight, 600);
+  font-size: var(--component-button-large-font-size, 0.875rem);
+  letter-spacing: var(--component-button-large-letter-spacing, 0);
+  line-height: var(--component-button-large-line-height, 1.5);
+  text-transform: var(--component-button-large-text-transform, none);
+  text-decoration: var(--component-button-large-text-decoration, none);
+}
+
+/* ---------- Content / icons / label ---------- */
+.fab-btn__content { display: inline-flex; align-items: center; gap: 8px; }
+.fab-btn__icon { display: inline-flex; align-items: center; justify-content: center; }
+/* Bare <svg> icons size to the font; a wrapped <Icon> sizes itself. */
+.fab-btn__icon > svg { display: block; width: 1.15em; height: 1.15em; fill: currentColor; }
+.fab-btn--loading .fab-btn__content { opacity: 0; }
+
+/* ---------- Loading spinner (State=Loading) ---------- */
+.fab-btn__spinner {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 1.15em; height: 1.15em;
+  margin: -0.575em 0 0 -0.575em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: fab-btn-spin 0.6s linear infinite;
+}
+@keyframes fab-btn-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .fab-btn__spinner { animation-duration: 1.4s; }
+}
+
+/* =====================================================================
+ * Colour by Variant × Color × State  (Enabled / Hovered / Disabled)
+ * Values resolve from the active client's themed tokens.
+ * ===================================================================== */
+
+/* ---- Contained · Primary ---- */
+.fab-btn--contained.fab-btn--primary {
+  background: var(--components-button-contained-primary-enabled-background-color, #000);
+  color: var(--components-button-contained-primary-enabled-contrast-text-color, #fff);
+}
+.fab-btn--contained.fab-btn--primary:hover:not(:disabled) {
+  background: var(--components-button-contained-primary-hovered-background-color, #333);
+  color: var(--components-button-contained-primary-hovered-contrast-text-color, #fff);
+}
+.fab-btn--contained.fab-btn--primary:disabled {
+  background: var(--components-button-contained-primary-disabled-background-color, #b3b3b3);
+  color: var(--components-button-contained-primary-disabled-contrast-text-color, #fff);
+}
+
+/* ---- Contained · Secondary ---- */
+.fab-btn--contained.fab-btn--secondary {
+  background: var(--components-button-contained-secondary-enabled-background-color, #000);
+  color: var(--components-button-contained-secondary-enabled-contrast-text-color, #fff);
+}
+.fab-btn--contained.fab-btn--secondary:hover:not(:disabled) {
+  background: var(--components-button-contained-secondary-hovered-background-color, #333);
+  color: var(--components-button-contained-secondary-hovered-contrast-text-color, #fff);
+}
+.fab-btn--contained.fab-btn--secondary:disabled {
+  background: var(--components-button-contained-secondary-disabled-background-color, #b3b3b3);
+  color: var(--components-button-contained-secondary-disabled-contrast-text-color, #fff);
+}
+
+/* ---- Outlined · Primary ---- */
+.fab-btn--outlined.fab-btn--primary {
+  background: var(--components-button-outlined-primary-enabled-background-color, #fff);
+  color: var(--components-button-outlined-primary-enabled-contrast-text-color, #000);
+  border-color: var(--components-button-outlined-primary-enabled-border-color, #000);
+}
+.fab-btn--outlined.fab-btn--primary:hover:not(:disabled) {
+  background: var(--components-button-outlined-primary-hovered-background-color, #fff);
+  color: var(--components-button-outlined-primary-hovered-contrast-text-color, #333);
+  border-color: var(--components-button-outlined-primary-hovered-border-color, #333);
+}
+.fab-btn--outlined.fab-btn--primary:disabled {
+  background: var(--components-button-outlined-primary-disabled-background-color, #fff);
+  color: var(--components-button-outlined-primary-disabled-contrast-text-color, #b3b3b3);
+  border-color: var(--components-button-outlined-primary-disabled-border-color, #b3b3b3);
+}
+
+/* ---- Outlined · Secondary ---- */
+.fab-btn--outlined.fab-btn--secondary {
+  background: var(--components-button-outlined-secondary-enabled-background-color, #fff);
+  color: var(--components-button-outlined-secondary-enabled-contrast-text-color, #000);
+  border-color: var(--components-button-outlined-secondary-enabled-border-color, #000);
+}
+.fab-btn--outlined.fab-btn--secondary:hover:not(:disabled) {
+  background: var(--components-button-outlined-secondary-hovered-background-color, #fff);
+  color: var(--components-button-outlined-secondary-hovered-contrast-text-color, #333);
+  border-color: var(--components-button-outlined-secondary-hovered-border-color, #333);
+}
+.fab-btn--outlined.fab-btn--secondary:disabled {
+  background: var(--components-button-outlined-secondary-disabled-background-color, #fff);
+  color: var(--components-button-outlined-secondary-disabled-contrast-text-color, #b3b3b3);
+  border-color: var(--components-button-outlined-secondary-disabled-border-color, #b3b3b3);
+}
+
+/* ---- Unstyled · Primary (text button, no bg/border) ---- */
+.fab-btn--unstyled.fab-btn--primary {
+  background: transparent;
+  color: var(--components-button-unstyled-primary-enabled-contrast-text-color, #000);
+}
+.fab-btn--unstyled.fab-btn--primary:hover:not(:disabled) {
+  color: var(--components-button-unstyled-primary-hovered-contrast-text-color, #333);
+}
+.fab-btn--unstyled.fab-btn--primary:disabled {
+  color: var(--components-button-unstyled-primary-disabled-contrast-text-color, #b3b3b3);
+}
+
+/* ---- Unstyled · Secondary ---- */
+.fab-btn--unstyled.fab-btn--secondary {
+  background: transparent;
+  color: var(--components-button-unstyled-secondary-enabled-contrast-text-color, #000);
+}
+.fab-btn--unstyled.fab-btn--secondary:hover:not(:disabled) {
+  color: var(--components-button-unstyled-secondary-hovered-contrast-text-color, #333);
+}
+.fab-btn--unstyled.fab-btn--secondary:disabled {
+  color: var(--components-button-unstyled-secondary-disabled-contrast-text-color, #b3b3b3);
+}

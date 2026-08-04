@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="55" height="16" fill="none" viewBox="0 0 55 16">
+  <mask id="a" width="17" height="16" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:luminance">
+    <path fill="#fff" d="M16.812 0h-16v16h16V0Z"/>
+  </mask>
+  <g mask="url(#a)">
+    <path fill="#1677FF" d="M13.79 0H3.834A3.022 3.022 0 0 0 .812 3.022v9.956A3.022 3.022 0 0 0 3.834 16h9.956a3.022 3.022 0 0 0 3.022-3.022V3.022A3.022 3.022 0 0 0 13.79 0Z"/>
+    <path fill="url(#b)" d="M12.586 4.52h-3.13V3.053a.09.09 0 0 0-.09-.09c-1.265.004-1.546.317-1.546.726v.831H4.85c-.179 0-.256.412-.256.702a.089.089 0 0 0 .089.088H7.82v1.04H5.739c-.178 0-.256.424-.255.704a.089.089 0 0 0 .089.09H9.75a5.942 5.942 0 0 1-.573 1.979c.514.243 1.028.502 1.568.741.631-1.015 1.017-2.178 1.024-3.338a.17.17 0 0 0-.17-.171H9.455V5.309h2.961c.178 0 .255-.394.255-.7a.089.089 0 0 0-.085-.089Z"/>
+    <path fill="url(#c)" d="M13.539 12.77c.785 0 .99-.978 1.027-1.75a.266.266 0 0 0-.262-.283c-2.148-.067-3.637-.92-5.126-1.622 1.643 1.41 2.346 3.655 4.36 3.655Z"/>
+    <mask id="d" width="11" height="5" x="3" y="8" maskUnits="userSpaceOnUse" style="mask-type:luminance">
+      <path fill="#fff" d="M5.523 9.23c1.012 0 1.982.43 2.924.99.445.266.89.562 1.334.856 1.244.836 2.46 1.65 3.669 1.688-1.941-.07-2.649-2.265-4.267-3.652-1.082-.503-2.154-.934-3.474-.934-1.557 0-2.651 1.013-2.651 2.3 0 1.27 1.12 2.29 2.65 2.29a5.648 5.648 0 0 0 3.167-.96c-1.628 1.054-5.122.37-5.122-1.328 0-.727.798-1.25 1.77-1.25Z"/>
+    </mask>
+    <g mask="url(#d)">
+      <mask id="e" width="12" height="7" x="2" y="7" maskUnits="userSpaceOnUse" style="mask-type:luminance">
+        <path fill="#fff" d="M13.888 7.735H2.614v5.478h11.274V7.735Z"/>
+      </mask>
+      <g mask="url(#e)">
+        <path fill="url(#f)" d="M13.918 7.7H2.61v5.548h11.307V7.7Z"/>
+      </g>
+    </g>
+    <path fill="url(#g)" d="M3.75 10.484c0 1.696 3.497 2.378 5.125 1.326.322-.216.623-.462.9-.734-.058-.039-.368-.258-.712-.478-.218-.141-.454-.279-.622-.378-1.946 2.248-4.69 1.656-4.69.264Z"/>
+  </g>
+  <path fill="#3E3A39" d="M46.018 4.01h6.085v1.205h2.173V3.778a.579.579 0 0 0-.562-.585h-3.518V2.07h-2.275v1.123h-4.077v2.022h2.174V4.01ZM32.851 2.173l-2.228 5.27h1.709v6.271h1.87V5.396h-.678l1.408-3.223h-2.08Zm21.675 11.255-.683-2.307a.353.353 0 0 0-.336-.254H51.7l.524 1.772h-2.127V9.207h4.17v-.82H50.09V6.774h4.178V5.96H43.844v.816h4.178v1.616h-4.178v.82h4.178v3.432h-4.178v.82h10.682l-.009-.027.01-.008ZM37.632 6.493a.432.432 0 0 0-.385-.246h-1.618l1.26 3.967h1.915l-1.172-3.721Z"/>
+  <path fill="#3E3A39" d="M41.728 2.27h-1.943V4.3h-4.788v.816h4.788v7.298a.337.337 0 0 1-.313.306h-.985v.846h2.518a.766.766 0 0 0 .725-.758V5.116h.79V4.3h-.79l-.002-2.03ZM29.606 5.967h-3.733V4.633h4.328v-.836h-4.328V2.102h-1.928a.389.389 0 0 0-.383.397v1.299h-4.296v.835h4.296V5.97h-3.626v.833h7.223s-.4 1.56-2.38 3.243C23.003 8.702 22.41 7.63 22.41 7.63h-1.938c.784 1.353 1.897 2.444 3.098 3.307-1.101.717-2.53 1.407-4.378 1.96v.997s2.85-.538 5.606-2.162c1.726.991 3.59 1.72 5.53 2.162v-.944a22.997 22.997 0 0 1-4.281-2.042c1.596-1.187 2.997-2.791 3.559-4.942Z"/>
+  <defs>
+    <linearGradient id="b" x1="7.852" x2="8.989" y1="9.348" y2="2.899" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity=".7"/>
+      <stop offset=".08" stop-color="#fff" stop-opacity=".78"/>
+      <stop offset=".19" stop-color="#fff" stop-opacity=".88"/>
+      <stop offset=".32" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".99"/>
+      <stop offset=".6" stop-color="#fff"/>
+    </linearGradient>
+    <linearGradient id="c" x1="9.178" x2="14.566" y1="10.943" y2="10.943" gradientUnits="userSpaceOnUse">
+      <stop offset=".16" stop-color="#fff"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".5"/>
+    </linearGradient>
+    <linearGradient id="g" x1="5.803" x2="7.426" y1="12.443" y2="9.631" gradientUnits="userSpaceOnUse">
+      <stop offset=".28" stop-color="#fff"/>
+      <stop offset=".43" stop-color="#fff" stop-opacity=".98"/>
+      <stop offset=".61" stop-color="#fff" stop-opacity=".91"/>
+      <stop offset=".82" stop-color="#fff" stop-opacity=".81"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".7"/>
+    </linearGradient>
+    <pattern id="f" width="1" height="1" patternContentUnits="objectBoundingBox">
+      <use href="#h" transform="scale(.00377 .0077)"/>
+    </pattern>
+    <image id="h" width="265" height="130" data-name="image0_750_2318.png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQkAAACCCAYAAABVaD3LAAAACXBIWXMAABcRAAAXEQHKJvM/AAABlElEQVR4Xu3UMQHAIBDAwFL/nh8FBAHczZmzZmY+gIP/FgBvMwkgmQSQTAJIJgEkkwCSSQDJJIBkEkAyCSCZBJBMAkgmASSTAJJJAMkkgGQSQDIJIJkEkEwCSCYBJJMAkkkAySSAZBJAMgkgmQSQTAJIJgEkkwCSSQDJJIBkEkAyCSCZBJBMAkgmASSTAJJJAMkkgGQSQDIJIJkEkEwCSCYBJJMAkkkAySSAZBJAMgkgmQSQTAJIJgEkkwCSSQDJJIBkEkAyCSCZBJBMAkgmASSTAJJJAMkkgGQSQDIJIJkEkEwCSCYBJJMAkkkAySSAZBJAMgkgmQSQTAJIJgEkkwCSSQDJJIBkEkAyCSCZBJBMAkgmASSTAJJJAMkkgGQSQDIJIJkEkEwCSCYBJJMAkkkAySSAZBJAMgkgmQSQTAJIJgEkkwCSSQDJJIBkEkAyCSCZBJBMAkgmASSTAJJJAMkkgGQSQDIJIJkEkEwCSCYBJJMAkkkAySSAZBJAMgkgmQSQTAJIJgEkkwCSSQDJJIBkEkDa9ioFAFUbCbIAAAAASUVORK5CYII=" preserveAspectRatio="none"/>
+  </defs>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="store-m-default">
+    <path id="default" fill-rule="evenodd" d="M2 2v18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5L2 2Zm18.75 4.08V11H3.25V3.45l17.5 2.62v.01ZM9 20.75v-5.5h2.25v5.5H9Zm3.75 0v-5.5H15v5.5h-2.25Zm7.25 0h-3.75V15c0-.55-.45-1-1-1h-6.5c-.55 0-1 .45-1 1v5.75H4c-.41 0-.75-.34-.75-.75v-7.75h17.5V20c0 .41-.34.75-.75.75Z" clip-rule="evenodd"/>
+  </g>
+</svg>

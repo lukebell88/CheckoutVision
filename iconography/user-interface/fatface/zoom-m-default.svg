@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <g id="zoom-m-default">
+    <path id="default" fill="#000" fill-rule="evenodd" d="M15.568 3.667V2h6.431v6.431h-1.666V4.846L14.979 10.2 13.8 9.02l5.353-5.354h-3.586Zm-11.901 11.9v3.587L9.02 13.8l1.178 1.18-5.354 5.353H8.43V22H2v-6.432h1.667ZM2 2v6.431h1.667V4.845l5.354 5.354L10.2 9.02 4.846 3.667h3.586V2H2Zm17.153 18.333L13.8 14.98l1.18-1.178 5.353 5.354v-3.587H22V22h-6.433v-1.667h3.586Z" clip-rule="evenodd"/>
+  </g>
+</svg>

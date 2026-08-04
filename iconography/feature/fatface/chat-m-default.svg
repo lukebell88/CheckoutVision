@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <g id="chat-m-default">
+    <g id="default">
+      <path fill="#000" d="M22 17.833v-12.5h-3.334V7h1.667v9.167h-2.5v2.632l-3.76-2.632H9.738l-2.381 1.666h6.19L19.5 22v-4.167H22ZM5 7h10V6H5v1Zm10 2H5V8h10v1ZM5 11h6v-1H5v1Z"/>
+      <path fill="#000" fill-rule="evenodd" d="M17.833 14.5V2H2v12.5h2.5v4.167l5.952-4.167h7.381ZM3.666 3.667h12.5v9.167H9.927l-.43.3-3.33 2.332v-2.632h-2.5V3.667Z" clip-rule="evenodd"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+<svg id="icon-path-favourite-loading" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+<style>
+#icon-path-favourite-loading {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 80;
+  stroke-linecap: round;
+  animation: favourite-loading 1s linear infinite;
+}
+@keyframes favourite-loading {
+  0% {
+    stroke-dashoffset: 80;
+  }
+
+  100% {
+    stroke-dashoffset: 160;
+  }
+}
+
+@keyframes favourite-loaded {
+  0% {
+    fill-opacity: 0;
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.25);
+  }
+
+  100% {
+    fill-opacity: 1;
+    transform: scale(1);
+  }
+}
+  </style>
+<path id="default" fill="none" stroke="black" stroke-width="1" d="M16.8554 2.5C14.8254 2.5 12.9254 3.48 12.0354 5.01L11.9854 5.09L11.9554 5.04C11.0654 3.51 9.17536 2.53 7.13536 2.53C6.21536 2.53 5.29536 2.73 4.48536 3.12C3.28536 3.69 2.35536 4.74 1.87536 6.09C1.31536 7.66 1.40536 9.49 2.10536 10.98C2.51536 11.84 3.29536 12.91 4.24536 14.02C5.19536 15.13 6.31536 16.3 7.38536 17.37C9.52536 19.5 11.5054 21.24 11.6854 21.4C11.7654 21.48 11.8754 21.5 11.9754 21.5C11.9954 21.5 12.0154 21.5 12.0354 21.5C12.1354 21.49 12.2354 21.44 12.3054 21.37C12.5354 21.17 14.5254 19.42 16.6554 17.29C17.7254 16.23 18.8254 15.07 19.7654 13.96C20.7054 12.86 21.4754 11.8 21.8854 10.95C22.5954 9.45 22.6854 7.63 22.1254 6.06C21.6454 4.71 20.7154 3.65 19.5154 3.09C18.6954 2.7 17.7754 2.5 16.8654 2.5H16.8554Z"/>
+</svg>

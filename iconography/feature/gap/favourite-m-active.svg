@@ -1,0 +1,24 @@
+<svg id="icon-path-favourite-active" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <style>
+ #icon-path-favourite-active {
+  animation: favourite-loaded 1s ease-in-out;
+}
+        
+@keyframes favourite-loaded {
+  0% {
+    fill-opacity: 0;
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.25);
+  }
+
+  100% {
+    fill-opacity: 1;
+    transform: scale(1);
+  }
+}
+  </style>
+    <path id="default" fill-rule="evenodd" d="M16.38 2c-1.76 0-3.27.81-4.38 1.91C10.89 2.81 9.38 2 7.62 2 4.07 2 1.17 4.89 1.17 8.44c0 7.31 9.6 12.85 10.01 13.09L12 22l.82-.47c.41-.23 10.01-5.78 10.01-13.09 0-3.55-2.9-6.44-6.46-6.44h.01Z" clip-rule="evenodd"/>
+</svg>

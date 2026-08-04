@@ -1,0 +1,55 @@
+/* PaymentSelection — co-located so promoting to Fabric is a move, not
+ * archaeology through checkout.css. Theme tokens only.
+ *
+ * Full-width stacked rows rather than DeliverySelection's chip grid: these carry
+ * regulated small print and the selected one has to open wide enough to hold a
+ * card form. */
+
+.co-payment__option {
+  margin-bottom: 10px;
+  border: 1px solid var(--border-subtle, #d5d5d5);
+  background: var(--surface-card, #fff);
+}
+
+.co-payment__option--on {
+  border-color: var(--border-strong, #111);
+  border-width: 2px;
+}
+
+.co-payment__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.co-payment__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.co-payment__title { font-weight: 700; }
+
+.co-payment__meta {
+  font-size: var(--global-caption-font-size, 0.75rem);
+  color: var(--text-secondary, #555);
+}
+
+.co-payment__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+/* Indented to the head's padding so the revealed form lines up with the title
+ * rather than the radio. */
+.co-payment__content { padding: 0 14px 14px; }

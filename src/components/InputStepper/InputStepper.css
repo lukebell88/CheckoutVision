@@ -1,0 +1,48 @@
+.fab-stepper {
+  display: inline-flex;
+  align-items: center;
+  background: var(--action-default-enabled-background-color, #fff);
+  border: 1px solid var(--action-default-enabled-border-color, #949494);
+  overflow: hidden;
+}
+/* Radius from the exported per-brand token (Next 4px, Joules 0 square). */
+.fab-stepper--large { border-radius: var(--global-input-stepper-large-border-radius, 4px); }
+.fab-stepper--medium { border-radius: var(--global-input-stepper-medium-border-radius, 4px); }
+.fab-stepper__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--action-default-enabled-icon-color, #000);
+  flex-shrink: 0;
+}
+.fab-stepper__value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-left: 1px solid var(--action-default-enabled-border-color, #949494);
+  border-right: 1px solid var(--action-default-enabled-border-color, #949494);
+  font-family: var(--component-input-label-1-font-family, 'Poppins');
+  font-size: var(--component-input-label-1-font-size, 0.875rem);
+  color: var(--text-primary, #000);
+  text-align: center;
+}
+.fab-stepper--large .fab-stepper__btn { width: 44px; height: 44px; }
+.fab-stepper--large .fab-stepper__value { min-width: 44px; height: 44px; }
+.fab-stepper--medium .fab-stepper__btn { width: 36px; height: 36px; }
+.fab-stepper--medium .fab-stepper__value { min-width: 36px; height: 36px; }
+
+.fab-stepper__btn:not(:disabled):hover { background: var(--action-default-hovered-background-color, rgba(0, 0, 0, 0.04)); }
+.fab-stepper__btn:focus-visible { outline: 2px solid var(--primary-main, #000); outline-offset: -2px; }
+.fab-stepper__btn:disabled { color: var(--action-default-disabled-icon-color, #bdbdbd); cursor: not-allowed; }
+
+.fab-stepper--is-disabled {
+  border-color: var(--action-default-disabled-border-color, #e0e0e0);
+}
+.fab-stepper--is-disabled .fab-stepper__value {
+  color: var(--text-disabled, #bdbdbd);
+  border-color: var(--action-default-disabled-border-color, #e0e0e0);
+}

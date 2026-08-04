@@ -1,0 +1,36 @@
+<svg id="icon-path-favourite-loading" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+<style>
+#icon-path-favourite-loading {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 80;
+  stroke-linecap: round;
+  animation: favourite-loading 1s linear infinite;
+}
+@keyframes favourite-loading {
+  0% {
+    stroke-dashoffset: 80;
+  }
+
+  100% {
+    stroke-dashoffset: 160;
+  }
+}
+
+@keyframes favourite-loaded {
+  0% {
+    fill-opacity: 0;
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.25);
+  }
+
+  100% {
+    fill-opacity: 1;
+    transform: scale(1);
+  }
+}
+  </style>
+<path id="default" fill="none" stroke="black" stroke-width="1.25" d="M2.66882 12.035L12.0088 21.375L21.3488 12.035C23.4988 9.885 23.4988 6.395 21.3488 4.245C20.2788 3.175 18.8688 2.635 17.4588 2.625C16.0488 2.625 14.6388 3.175 13.5688 4.245L12.0088 5.805L10.4488 4.245C8.29882 2.095 4.80882 2.095 2.65882 4.245C1.58882 5.315 1.04882 6.725 1.03882 8.135C1.03882 9.545 1.58882 10.955 2.65882 12.025L2.66882 12.035Z"/>
+</svg>

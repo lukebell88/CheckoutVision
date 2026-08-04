@@ -1,0 +1,36 @@
+.fab-appbar-global {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 36px;
+  padding: 0 32px;
+  overflow: hidden;
+  background: var(--components-app-bar-global-bar-default-background-color, #f7f7f7);
+  color: var(--components-app-bar-global-bar-default-text-color, #000);
+}
+.fab-appbar-global__message {
+  grid-column: 2;
+  max-width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--global-body-4-font-family, 'Poppins');
+  font-size: var(--global-body-4-font-size, 0.75rem);
+  font-weight: var(--global-body-4-font-weight, 500);
+  line-height: 1.5;
+  color: var(--components-app-bar-global-bar-default-text-color, #000);
+  white-space: nowrap;
+}
+.fab-appbar-global__links {
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  justify-self: end;
+}
+.fab-appbar-global__divider {
+  background: var(--components-app-bar-global-bar-default-divider-default-border-color, #eee);
+  height: 60%;
+  align-self: center;
+}

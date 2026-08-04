@@ -1,0 +1,13 @@
+@font-face {
+	font-family: "Nimbus Sans L Italic";
+	src: url("nimbus-sans-l-italic-400.woff2") format("woff2");
+	font-weight: 400;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Nimbus Sans L Italic";
+	src: url("nimbus-sans-l-italic-700.woff2") format("woff2");
+	font-weight: 700;
+	font-style: normal;
+}

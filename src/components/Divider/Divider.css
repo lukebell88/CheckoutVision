@@ -1,0 +1,13 @@
+.fab-divider {
+  background: var(--components-divider-default-border-color, #eee);
+  border: 0;
+  flex-shrink: 0;
+}
+.fab-divider--horizontal {
+  width: 100%;
+  height: 1px;
+}
+.fab-divider--vertical {
+  width: 1px;
+  align-self: stretch;
+}

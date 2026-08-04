@@ -1,0 +1,30 @@
+/*
+ * Genuine globals — needed by the studio AND by live mode.
+ *
+ * Keep this file tiny. Everything studio-specific belongs in app/studio.css,
+ * which only the studio bundle loads: a tester opening a live link should never
+ * download the chrome's stylesheet (or, once Minimal lands, MUI).
+ *
+ * The font here is a neutral fallback only. The studio overrides it, and the
+ * checkout sets its own brand face on `.checkout` — this just stops anything
+ * that inherits from `body` landing on the browser's serif default.
+ */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+}

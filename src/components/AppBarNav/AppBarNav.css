@@ -1,0 +1,30 @@
+.fab-appbar-nav {
+  position: relative;
+  background: var(--components-app-bar-nav-bar-default-background-color, #f7f7f7);
+  border-bottom: 1px solid var(--components-app-bar-nav-bar-default-border-color, #eee);
+}
+.fab-appbar-nav__scroll {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 var(--spacing-6, 24px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.fab-appbar-nav__scroll::-webkit-scrollbar {
+  display: none;
+}
+.fab-appbar-nav__fade {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 1px;
+  width: 24px;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    var(--components-app-bar-nav-bar-default-gradient-right-1, rgba(247, 247, 247, 0)),
+    var(--components-app-bar-nav-bar-default-gradient-right-2, #f7f7f7)
+  );
+}

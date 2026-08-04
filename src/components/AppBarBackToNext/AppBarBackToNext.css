@@ -1,0 +1,20 @@
+.fab-appbar-backtonext {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  height: 24px;
+  padding: 0 32px;
+  overflow: hidden;
+  background: var(--components-app-bar-back-to-next-default-background-color, #000);
+  color: var(--components-app-bar-back-to-next-default-text-color, #fff);
+}
+.fab-appbar-backtonext__text {
+  font-family: var(--global-body-2-font-family, 'Poppins');
+  font-size: var(--global-body-2-font-size, 0.75rem);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+/* Force the (dark) brand logo to render white on the black strip. */
+.fab-appbar-backtonext__logo img {
+  filter: brightness(0) invert(1);
+}

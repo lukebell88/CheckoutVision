@@ -1,0 +1,47 @@
+/* DeliverySelection — co-located so promoting to Fabric is a move, not
+ * archaeology through checkout.css. Theme tokens only.
+ *
+ * Three across is the scamp's layout and works down to 320px because the labels
+ * are short. If a brand adds a fourth method this wants to become a wrapping
+ * flex row — change it here, not at the call site. */
+
+.co-delivery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.co-delivery__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border: 1px solid var(--border-subtle, #d5d5d5);
+  background: var(--surface-card, #fff);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Padding compensates for the thicker border so the chip doesn't shift on
+ * selection — an outline would sit outside the grid cell. */
+.co-delivery__option--on {
+  border-color: var(--border-strong, #111);
+  border-width: 2px;
+  padding: 11px 9px;
+}
+
+.co-delivery__option:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.co-delivery__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.co-delivery__title { font-size: var(--global-body-3-font-size, 0.8125rem); }
+.co-delivery__price { font-weight: 700; }

@@ -1,0 +1,33 @@
+.fab-link {
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.fab-link--always { text-decoration: underline; }
+.fab-link--hover { text-decoration: none; }
+.fab-link--hover:hover { text-decoration: underline; }
+.fab-link--none { text-decoration: none; }
+.fab-link--disabled { color: var(--text-disabled, #bdbdbd); pointer-events: none; cursor: not-allowed; }
+
+.fab-link--body-4 {
+  font-family: var(--global-body-4-font-family, 'Poppins');
+  font-size: var(--global-body-4-font-size, 0.75rem);
+  font-weight: var(--global-body-4-font-weight, 500);
+  line-height: var(--global-body-4-line-height, 1.5);
+  letter-spacing: var(--global-body-4-letter-spacing, 0);
+}
+.fab-link--body-3 {
+  font-family: var(--global-body-3-font-family, 'Poppins');
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  font-weight: var(--global-body-3-font-weight, 400);
+}
+.fab-link--body-2 {
+  font-family: var(--global-body-2-font-family, 'Poppins');
+  font-size: var(--global-body-2-font-size, 0.75rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+}
+.fab-link--body-1 {
+  font-family: var(--global-body-1-font-family, 'Poppins');
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  font-weight: var(--global-body-1-font-weight, 400);
+}

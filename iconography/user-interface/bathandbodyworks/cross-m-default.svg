@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="cross-m-default">
+    <path id="default" fill-rule="evenodd" d="m12.707 12 5.146-5.146a.5.5 0 1 0-.707-.708L12 11.293 6.853 6.146a.5.5 0 0 0-.707.708L11.293 12l-5.147 5.146A.502.502 0 0 0 6.5 18a.498.498 0 0 0 .353-.146L12 12.707l5.146 5.147a.502.502 0 0 0 .707 0 .5.5 0 0 0 0-.708L12.707 12Z" clip-rule="evenodd"/>
+  </g>
+</svg>

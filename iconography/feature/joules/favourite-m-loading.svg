@@ -1,0 +1,20 @@
+<svg id="icon-path-favourite-loading" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>
+#icon-path-favourite-loading {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 80;
+  stroke-linecap: round;
+  animation: favourite-loading 1s linear infinite;
+}
+      @keyframes favourite-loading {
+  0% {
+    stroke-dashoffset: 80;
+  }
+
+  100% {
+    stroke-dashoffset: 160;
+  }
+}
+  </style>
+<path id="default" d="M11.95 21.37C12.39 21.37 12.8 21.19 13.11 20.87L19.72 14.17C21.44 12.46 22.38 10.39 22.38 8.36C22.37 4.99001 20.03 2.63 16.69 2.63C14.32 2.63 13.07 3.57 11.95 4.79C10.83 3.57 9.57 2.63 7.21 2.63C3.87 2.63 1.53001 4.99 1.53001 8.37C1.53001 10.4 2.47001 12.47 4.19001 14.18L10.79 20.88C11.1 21.19 11.51 21.37 11.95 21.37Z" stroke="black" stroke-width="1.26" stroke-miterlimit="10"/>
+</svg>

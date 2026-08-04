@@ -1,0 +1,70 @@
+.fab-header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  isolation: isolate;
+  /* Establish a container so the bars respond to the HEADER's own width,
+   * not the viewport — correct when the header sits in a narrow device frame
+   * inside a wide window. */
+  container-type: inline-size;
+  container-name: header;
+}
+
+/* At XL (Figma "XL 1280px+") the bars widen their gutters to 40px. */
+@container header (min-width: 1280px) {
+  .fab-appbar-brand { --fab-appbar-pad: 40px; }
+}
+
+/* Below the M breakpoint (Figma XS/S Screen Size variants): the inline search
+ * field collapses to a search icon in the icon group, the global-bar links
+ * hide, and the bars tighten their padding. */
+@container header (max-width: 767px) {
+  /* Figma's XS/S AppBarBrand is 44px tall with 44px touch targets — the Default
+   * form as much as the Secure one. Overriding --fab-ib-size rather than the
+   * `size` prop keeps the shared IconButton untouched everywhere else. */
+  .fab-appbar-brand {
+    height: 44px;
+    --fab-appbar-pad: 16px;
+  }
+  .fab-appbar-brand .fab-iconbtn--medium {
+    --fab-ib-size: 44px;
+    --fab-ib-radius: 22px;
+  }
+
+  /* Secure: the 44px targets carry their own inset, so Figma runs the icon side
+   * to a 4px gutter and closes the gap between logo and lock. */
+  .fab-appbar-brand--secure { padding-right: 4px; }
+  .fab-appbar-brand--secure.fab-appbar-brand--centered { padding-left: 4px; }
+  .fab-appbar-brand--secure .fab-appbar-brand__left { gap: 0; }
+
+  /* Global-bar links hide; the promo message stays. */
+  .fab-appbar-global__links { display: none; }
+
+  /* Inline search field collapses everywhere. */
+  .fab-appbar-brand__search { display: none; }
+
+  /* Split variants (Standard/Cutaway): search → leading icon, keep all icons. */
+  .fab-appbar-brand--split .fab-appbar-brand__search-icon { display: inline-flex; }
+  .fab-appbar-brand--split .fab-appbar-brand__right { gap: 0; }
+
+  /* Centred variants (Club22/Club25/Tab22): swap the full desktop icon group
+   * for the reduced clusters on both sides of the logo. */
+  .fab-appbar-brand__desktop-icons { display: none; }
+  .fab-appbar-brand__mobile-left { display: flex; }
+  .fab-appbar-brand__mobile-right { display: flex; }
+
+  /* Tab22 hides its nav bar on mobile (hamburger takes over). */
+  .fab-header--nav-hidden-mobile .fab-appbar-nav { display: none; }
+
+  /* The brand bar steps its own gutters via --fab-appbar-pad above. */
+  .fab-appbar-global {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* XS (< 400px): split variants drop the search icon too (Figma XS variant). */
+@container header (max-width: 399px) {
+  .fab-appbar-brand--split .fab-appbar-brand__search-icon { display: none; }
+}

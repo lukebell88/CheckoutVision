@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="calendar-m-default">
+    <g id="default">
+      <path d="M5.753 14.921h1.666v-1.667H5.753v1.667Zm5.277 0H9.365v-1.667h1.667v1.667Zm1.945 0h1.667v-1.667h-1.667v1.667Zm5.278 0h-1.667v-1.667h1.667v1.667Zm-12.5 3.333h1.666v-1.666H5.753v1.666Zm5.277 0H9.365v-1.666h1.667v1.666Zm1.945 0h1.667v-1.666h-1.667v1.666Zm5.278 0h-1.667v-1.666h1.667v1.666Z"/>
+      <path fill-rule="evenodd" d="M17 2v1.667H6.583V2H5.75v1.667H2V22h20V3.668h-4.167V2H17Zm.833 5V4.5h3.334v5.425H2.833V4.501H5.75V7h.833V4.5H17V7h.833Zm-15 14.167h18.334V10.758H2.834v10.409Z" clip-rule="evenodd"/>
+    </g>
+  </g>
+</svg>

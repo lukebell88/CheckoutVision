@@ -1,0 +1,91 @@
+.fab-textfield {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--background-paper, #fff);
+  border: 1px solid var(--action-default-enabled-border-color, #949494);
+  color: var(--text-secondary, #616161);
+}
+.fab-textfield--medium { height: 36px; padding: 0 12px; }
+.fab-textfield--large { height: 44px; padding: 0 16px; }
+.fab-textfield--radius-default { border-radius: var(--global-text-field-medium-border-radius, 4px); }
+.fab-textfield--radius-rounded { border-radius: 999px; }
+
+/* ---- Variants ---- */
+.fab-textfield--strong {
+  background: var(--action-strong-enabled-background-color, #f7f7f7);
+  border-color: var(--action-strong-enabled-border-color, #949494);
+}
+.fab-textfield--block {
+  background: var(--grey-100, #f5f5f5);
+  border: 0;
+  border-bottom: 1px solid var(--action-strong-enabled-border-color, #949494);
+  border-radius: 4px 4px 0 0;
+}
+
+/* ---- Interactive (when no forced state) ---- */
+.fab-textfield:not(.fab-textfield--is-disabled):hover {
+  border-color: var(--action-default-hovered-border-color, #000);
+}
+.fab-textfield:not(.fab-textfield--is-disabled):focus-within {
+  border-color: var(--primary-main, #000);
+  box-shadow: inset 0 0 0 1px var(--primary-main, #000);
+}
+
+/* ---- Forced states (specimens) ---- */
+.fab-textfield--hovered { border-color: var(--action-default-hovered-border-color, #000); }
+.fab-textfield--focused {
+  border-color: var(--primary-main, #000);
+  box-shadow: inset 0 0 0 1px var(--primary-main, #000);
+}
+.fab-textfield--error { border-color: var(--action-default-error-border-color, #d32f2f); }
+.fab-textfield--success { border-color: var(--success-main, #2e7d32); }
+
+/* Validation outranks focus.
+ *
+ * `:focus-within` above is `.fab-textfield:not(…):focus-within` — specificity
+ * 0,3,0 — so it beat plain `--error` (0,1,0) and an invalid field turned black
+ * the moment you clicked into it, which is exactly when you're reading it. These
+ * match that specificity and come later, so validation wins; the focus ring is
+ * kept and tinted so both states stay legible at once.
+ *
+ * Figma's State variant is exclusive, so it has nothing to say about error AND
+ * focus — but that combination is the normal case in a form being corrected. */
+.fab-textfield--error:not(.fab-textfield--is-disabled):focus-within {
+  border-color: var(--action-default-error-border-color, #d32f2f);
+  box-shadow: inset 0 0 0 1px var(--action-default-error-border-color, #d32f2f);
+}
+.fab-textfield--success:not(.fab-textfield--is-disabled):focus-within {
+  border-color: var(--success-main, #2e7d32);
+  box-shadow: inset 0 0 0 1px var(--success-main, #2e7d32);
+}
+.fab-textfield--is-disabled {
+  background: var(--action-default-disabled-background-color, #fafafa);
+  border-color: var(--action-default-disabled-border-color, #e0e0e0);
+  color: var(--text-disabled, #bdbdbd);
+}
+
+.fab-textfield__input {
+  flex: 1 0 0;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: var(--text-primary, #000);
+  font-family: var(--component-input-text-font-family, 'Poppins');
+  font-size: var(--component-input-text-font-size, 0.875rem);
+  font-weight: var(--component-input-text-font-weight, 400);
+  line-height: 1.5;
+}
+.fab-textfield__input::placeholder { color: var(--text-secondary, #616161); opacity: 1; }
+.fab-textfield__input:disabled { color: var(--text-disabled, #bdbdbd); cursor: not-allowed; }
+.fab-textfield__adorn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-secondary, #616161);
+}
+.fab-textfield--error .fab-textfield__adorn { color: var(--action-default-error-icon-color, #d32f2f); }

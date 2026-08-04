@@ -1,0 +1,64 @@
+/* FormField — co-located so promoting to Fabric is a move, not archaeology
+ * through checkout.css. Theme tokens only.
+ *
+ * The control's own border colours come from `<TextField state=…>`; everything
+ * here is the label, the required marker and the message. */
+
+.co-formfield { margin-bottom: 14px; }
+
+.co-formfield__label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: var(--component-input-label-1-font-size, 0.8125rem);
+  color: var(--text-secondary, #555);
+}
+
+.co-formfield__req {
+  margin-left: 2px;
+  color: var(--brand-error-default-text-color, #c00);
+}
+
+/* The control fills the field; TextField is inline-flex by default. */
+.co-formfield .fab-textfield { width: 100%; }
+
+/* Reveal toggle. Sits in TextField's endIcon slot, so it only needs to reset the
+ * button chrome and take a real hit area — the slot handles placement. */
+.co-formfield__reveal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* -8px margin keeps the 32px target from widening the field's adornment. */
+  width: 32px;
+  height: 32px;
+  margin: -8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.co-formfield__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 4px 0 0;
+  font-size: var(--global-caption-font-size, 0.75rem);
+  color: var(--text-secondary, #555);
+}
+
+/* Colour carries meaning here, so the icon carries it too — colour alone would
+ * fail anyone who can't distinguish it. */
+.co-formfield__note--error { color: var(--brand-error-default-text-color, #c00); }
+.co-formfield__note--success { color: var(--brand-success-default-text-color, #2e7d32); }
+.co-formfield__note--warning { color: var(--brand-warning-default-text-color, #b26a00); }
+
+/* One flex item, so the sentence inside wraps as normal text — including any
+ * inline links. */
+.co-formfield__note-text { min-width: 0; }
+
+.co-formfield__note-icon {
+  flex: none;
+  /* Optically centres the 16px icon against the first line of caption text. */
+  margin-top: 1px;
+}

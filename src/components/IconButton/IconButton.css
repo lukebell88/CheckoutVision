@@ -1,0 +1,141 @@
+/*
+ * IconButton — token-driven styles mirroring Fabric v2 `IconButton`
+ * (Figma 9028-69880). Square, circular via icon-button radius tokens.
+ * Colour: Contained/Outlined Primary·Secondary → button colour tokens;
+ * Action → --action-default-* tokens. States: Enabled (base), Hovered (:hover),
+ * Focused (:focus-visible), Disabled (:disabled), Loading (.fab-iconbtn--loading).
+ */
+
+.fab-iconbtn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fab-ib-size);
+  height: var(--fab-ib-size);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--fab-ib-radius);
+  cursor: pointer;
+  position: relative;
+  flex: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.fab-iconbtn:disabled { cursor: default; }
+.fab-iconbtn:focus-visible {
+  outline: 2px solid var(--interactive-focus-default-outline-color, #1d89dd);
+  outline-offset: 2px;
+}
+
+/* Size (square) + circular radius */
+.fab-iconbtn--medium { --fab-ib-size: 36px; --fab-ib-radius: var(--global-icon-button-medium-border-radius, 18px); }
+.fab-iconbtn--large { --fab-ib-size: 44px; --fab-ib-radius: var(--global-icon-button-large-border-radius, 22px); }
+
+/* Icon slot (24px) — inline SVG inherits `color` via currentColor */
+.fab-iconbtn__icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
+/* Bare <svg>/<img> fill the slot; a wrapped <Icon> sizes itself. */
+.fab-iconbtn__icon > svg { width: 100%; height: 100%; display: block; fill: currentColor; }
+.fab-iconbtn__icon > img { width: 100%; height: 100%; object-fit: contain; }
+.fab-iconbtn--loading .fab-iconbtn__icon { visibility: hidden; }
+
+/* Loading spinner (16px) */
+.fab-iconbtn__spinner {
+  position: absolute;
+  width: 16px; height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: fab-iconbtn-spin 0.6s linear infinite;
+}
+@keyframes fab-iconbtn-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .fab-iconbtn__spinner { animation-duration: 1.4s; } }
+
+/* ===================== Colour by Variant × Color × State ===================== */
+
+/* ---- Contained · Primary ---- */
+.fab-iconbtn--contained.fab-iconbtn--primary {
+  background: var(--components-button-contained-primary-enabled-background-color, #8e44ad);
+  color: var(--components-button-contained-primary-enabled-icon-color, #fff);
+}
+.fab-iconbtn--contained.fab-iconbtn--primary:hover:not(:disabled) {
+  background: var(--components-button-contained-primary-hovered-background-color, #7f3d9b);
+  color: var(--components-button-contained-primary-hovered-icon-color, #fff);
+}
+.fab-iconbtn--contained.fab-iconbtn--primary:disabled {
+  background: var(--components-button-contained-primary-disabled-background-color, #d5c3e0);
+  color: var(--components-button-contained-primary-disabled-icon-color, #fff);
+}
+
+/* ---- Contained · Secondary ---- */
+.fab-iconbtn--contained.fab-iconbtn--secondary {
+  background: var(--components-button-contained-secondary-enabled-background-color, #000);
+  color: var(--components-button-contained-secondary-enabled-icon-color, #fff);
+}
+.fab-iconbtn--contained.fab-iconbtn--secondary:hover:not(:disabled) {
+  background: var(--components-button-contained-secondary-hovered-background-color, #333);
+  color: var(--components-button-contained-secondary-hovered-icon-color, #fff);
+}
+.fab-iconbtn--contained.fab-iconbtn--secondary:disabled {
+  background: var(--components-button-contained-secondary-disabled-background-color, #b3b3b3);
+  color: var(--components-button-contained-secondary-disabled-icon-color, #fff);
+}
+
+/* ---- Outlined · Primary ---- */
+.fab-iconbtn--outlined.fab-iconbtn--primary {
+  background: var(--components-button-outlined-primary-enabled-background-color, #fff);
+  border-color: var(--components-button-outlined-primary-enabled-border-color, #8e44ad);
+  color: var(--components-button-outlined-primary-enabled-icon-color, #8e44ad);
+}
+.fab-iconbtn--outlined.fab-iconbtn--primary:hover:not(:disabled) {
+  background: var(--components-button-outlined-primary-hovered-background-color, #fff);
+  border-color: var(--components-button-outlined-primary-hovered-border-color, #7f3d9b);
+  color: var(--components-button-outlined-primary-hovered-icon-color, #7f3d9b);
+}
+.fab-iconbtn--outlined.fab-iconbtn--primary:disabled {
+  background: var(--components-button-outlined-primary-disabled-background-color, #fff);
+  border-color: var(--components-button-outlined-primary-disabled-border-color, #d5c3e0);
+  color: var(--components-button-outlined-primary-disabled-icon-color, #d5c3e0);
+}
+
+/* ---- Outlined · Secondary ---- */
+.fab-iconbtn--outlined.fab-iconbtn--secondary {
+  background: var(--components-button-outlined-secondary-enabled-background-color, #fff);
+  border-color: var(--components-button-outlined-secondary-enabled-border-color, #000);
+  color: var(--components-button-outlined-secondary-enabled-icon-color, #000);
+}
+.fab-iconbtn--outlined.fab-iconbtn--secondary:hover:not(:disabled) {
+  background: var(--components-button-outlined-secondary-hovered-background-color, #fff);
+  border-color: var(--components-button-outlined-secondary-hovered-border-color, #333);
+  color: var(--components-button-outlined-secondary-hovered-icon-color, #333);
+}
+.fab-iconbtn--outlined.fab-iconbtn--secondary:disabled {
+  background: var(--components-button-outlined-secondary-disabled-background-color, #fff);
+  border-color: var(--components-button-outlined-secondary-disabled-border-color, #b3b3b3);
+  color: var(--components-button-outlined-secondary-disabled-icon-color, #b3b3b3);
+}
+
+/* ---- Outlined · Action (neutral bordered — action-default tokens) ---- */
+.fab-iconbtn--outlined.fab-iconbtn--action {
+  background: var(--action-default-enabled-background-color, #fff);
+  border-color: var(--action-default-enabled-border-color, #949494);
+  color: var(--action-default-enabled-icon-color, #000);
+}
+.fab-iconbtn--outlined.fab-iconbtn--action:hover:not(:disabled) {
+  background: var(--action-default-hovered-background-color, #fff);
+  border-color: var(--action-default-hovered-border-color, #424242);
+  color: var(--action-default-enabled-icon-color, #000);
+}
+.fab-iconbtn--outlined.fab-iconbtn--action:disabled {
+  background: var(--action-default-disabled-background-color, #fff);
+  border-color: var(--action-default-disabled-border-color, #bdbdbd);
+  color: var(--action-default-disabled-icon-color, #b3b3b3);
+}
+
+/* ---- Unstyled (no bg / no border — icon only; Figma uses Action colour) ---- */
+.fab-iconbtn--unstyled {
+  background: transparent;
+  color: var(--action-default-enabled-icon-color, #000);
+}
+.fab-iconbtn--unstyled:disabled {
+  color: var(--action-default-disabled-icon-color, #b3b3b3);
+}

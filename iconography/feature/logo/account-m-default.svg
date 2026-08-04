@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="account-m-default">
+    <path id="default" fill-opacity="1" fill-rule="evenodd" d="M12 3c2.757 0 5 2.243 5 5s-2.243 5-5 5-5-2.243-5-5 2.243-5 5-5Zm0 13c3.745 0 7.259 1.843 9.892 5.19a.5.5 0 1 1-.784.62C18.666 18.707 15.43 17 11.999 17c-3.43 0-6.666 1.708-9.107 4.81a.5.5 0 1 1-.784-.62C4.742 17.843 8.253 16 11.998 16Zm0-14a6 6 0 0 1 0 12 6 6 0 0 1 0-12Z" clip-rule="evenodd"/>
+  </g>
+</svg>

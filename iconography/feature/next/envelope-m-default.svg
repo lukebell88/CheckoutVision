@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="envelope-m-default">
+    <path id="default" d="M0 2v18c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V2H0Zm20.79 1.25L12 11.3 3.21 3.25h17.58ZM22.75 20c0 .41-.34.75-.75.75H2c-.41 0-.75-.34-.75-.75V3.25h.11L12 13l10.64-9.75h.11V20Z"/>
+  </g>
+</svg>
