@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output (built in CI for Pages)
+dist/
+
+# Vite / TS caches
+.vite/
+*.tsbuildinfo
+
+# Local env
+.env
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+.vercel

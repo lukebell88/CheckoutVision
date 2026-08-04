@@ -4,7 +4,10 @@ import react from '@vitejs/plugin-react';
 // The design assets (theming/, iconography/, fonts/) live at the project root,
 // alongside src/. Vite's default root is the project root, so those folders are
 // importable via ../ from within src using ?raw, ?url and glob imports.
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // GitHub Pages serves this project under /CheckoutVision/. Assets and the
+  // favicon are emitted with that prefix for the built site; dev stays at root.
+  base: command === 'build' ? '/CheckoutVision/' : '/',
   plugins: [react()],
   server: {
     port: 5180,
@@ -26,4 +29,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
