@@ -61,11 +61,19 @@ const METHODS: Method[] = [
   { id: 'giftcard', title: 'Gift Card' },
 ];
 
+/** How each single-CTA method reads on its "Complete With …" button. */
+const COMPLETE_LABEL: Record<string, string> = {
+  nextpay: 'Nextpay',
+  payin3: 'Pay In 3',
+};
+
 export function PaymentSection({ onPay }: { onPay?: () => void }) {
   const { flags, payment } = useCheckoutConfig();
   const methods = METHODS.filter((m) => !m.flag || flags[m.flag]);
 
-  const defaultMethod = flags.savedPayment ? 'saved' : 'card';
+  // `payment.method` preselects a method — '' means none selected (guest).
+  // Undefined falls back to the saved-card-or-new-card default.
+  const defaultMethod = payment.method !== undefined ? payment.method : flags.savedPayment ? 'saved' : 'card';
   const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
 
   const payButton = (
@@ -111,6 +119,17 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
       {payButton}
     </>
   );
+
+  // Dedicated single-method journeys (nextpay / pay in 3): the shopper sees no
+  // method list, just one CTA that completes the order.
+  if (payment.only) {
+    const label = COMPLETE_LABEL[payment.only] ?? payment.only;
+    return (
+      <Button variant="contained" color="primary" size="large" fullWidth onClick={onPay}>
+        Complete With {label}
+      </Button>
+    );
+  }
 
   const options: PaymentOption[] = methods.map((m) => ({
     id: m.id,

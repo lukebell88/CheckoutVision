@@ -1,26 +1,29 @@
+import { useEffect, useRef, useState } from 'react';
 import { useProjectRuntime } from '../../../studio/runtime';
 import { Link } from '../../../components/Link';
 import { Button } from '../../../components/Button';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { TitleBar } from '../components/TitleBar';
-import { OtpBoxes } from './SignInScreen';
 
 /**
  * One-time passcode entry.
  *
- * The scamp draws this with the push notification still on screen and the code
- * already filled — the point of the concept is that the shopper barely types.
- * Both are reproduced: the notification is a decorative overlay, and the boxes
- * come pre-filled so a walkthrough lands on the "it just worked" moment.
+ * The boxes are backed by a real input so the device's own keyboard comes up —
+ * `autocomplete="one-time-code"` lets iOS/Android offer the code from the SMS or
+ * email natively, which is the whole concept: the shopper barely types. The push
+ * notification slides in from the top like an iOS banner and dismisses itself.
  */
 export function OtpScreen() {
   const { customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const phoneTail = (customer.phone ?? '07777771234').slice(-4);
 
+  const [code, setCode] = useState('');
+
   return (
     <main className="co-screen co-screen--narrow">
-      {/* Decorative: the OS notification arriving as the shopper waits. */}
+      {/* The OS notification arriving — a banner over everything that slides in
+          from the top and slides back out on its own. Decorative. */}
       <div className="co-push" aria-hidden="true">
         <span className="co-push__icon" />
         <div className="co-push__body">
@@ -39,7 +42,7 @@ export function OtpScreen() {
       </h2>
       <p className="co-lede__sub">Enter the code within 15 minutes to sign in</p>
 
-      <OtpBoxes code="123456" />
+      <OtpInput value={code} onChange={setCode} />
 
       <p className="co-help">
         Didn’t receive anything <Link href="#">Resend code</Link> or try{' '}
@@ -55,14 +58,46 @@ export function OtpScreen() {
       >
         Continue
       </Button>
-
-      {/* The keyboard's autofill strip — where the code actually comes from. */}
-      <div className="co-keyboard" aria-hidden="true">
-        <div className="co-keyboard__suggest">
-          <span>from messages</span>
-          <strong>123456</strong>
-        </div>
-      </div>
     </main>
+  );
+}
+
+/**
+ * Six passcode boxes backed by one real input. The input is transparent and sits
+ * over the boxes: tapping anywhere focuses it (raising the native keyboard) and
+ * the digits render in the boxes as they're typed or autofilled. It auto-focuses
+ * on mount so the keyboard is up straight away where the OS allows it.
+ */
+const LENGTH = 6;
+
+export function OtpInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const chars = value.padEnd(LENGTH, ' ').slice(0, LENGTH).split('');
+
+  useEffect(() => {
+    ref.current?.focus();
+  }, []);
+
+  return (
+    <div className="co-otp" onClick={() => ref.current?.focus()}>
+      <input
+        ref={ref}
+        className="co-otp__field"
+        type="text"
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        maxLength={LENGTH}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
+        aria-label="One-time passcode"
+        value={value}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, LENGTH))}
+      />
+      {chars.map((c, i) => (
+        <span key={i} className={`co-otp__box ${i === value.length ? 'co-otp__box--active' : ''}`}>
+          {c.trim()}
+        </span>
+      ))}
+    </div>
   );
 }

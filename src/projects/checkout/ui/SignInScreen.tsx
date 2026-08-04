@@ -31,7 +31,9 @@ export function SignInScreen() {
   // you type: the complaint here is "you haven't filled this in", which isn't
   // true until you try to move on.
   const emailId = useId();
-  const [emailInput, setEmailInput] = useState('');
+  // Prefilled for a recognised shopper (account-matched flows carry the email),
+  // empty for a guest — so an account journey is just "tap Continue".
+  const [emailInput, setEmailInput] = useState(customer.email ?? '');
   const [emailMissing, setEmailMissing] = useState(false);
 
   const continueWithEmail = () => {
@@ -42,11 +44,13 @@ export function SignInScreen() {
       document.getElementById(emailId)?.focus();
       return;
     }
-    // Carry it forward so Your Details opens with the address already in it —
+    // Carry it forward so the next screen opens with the email already in it —
     // asking twice for something they just typed is its own kind of error.
+    // `nav.next()` follows the flow's screen order, so a guest lands on checkout
+    // while an account-matched journey lands on the one-time passcode page.
     if (interactive) {
       nav.patch('customer', { email: emailInput.trim() });
-      nav.goTo('checkout');
+      nav.next();
     }
   };
   const treatment = auth.treatment ?? 'none';
@@ -196,7 +200,7 @@ export function SignInScreen() {
         {flags.expressPayment && (
           <>
             <p className="co-guest__title">Checkout now with express payment</p>
-            <button type="button" className="co-express" onClick={go('confirmation')}>
+            <button type="button" className="co-express" onClick={go('applepay')}>
               Buy with <AppleMark /> Pay
             </button>
           </>
