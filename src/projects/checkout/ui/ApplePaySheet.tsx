@@ -6,18 +6,26 @@ import './ApplePaySheet.css';
 /**
  * Apple Pay sheet — the express-payment path.
  *
- * A mock of the native iOS Apple Pay sheet, reached from the sign-in screen's
- * "Buy with Apple Pay" button. Deliberately NOT brand-tokened: this is the
- * operating system's own surface, so it uses its own system-style chrome and
- * sits over a dimmed backdrop. Confirming (the side-button double-click) places
- * the order; the ✕ or backdrop cancels back to sign-in.
+ * A mock of the native iOS Apple Pay sheet, opened by a "Buy with Apple Pay"
+ * button. It is an OVERLAY, not a screen: it renders on top of whatever page
+ * invoked it (sign-in or checkout), which stays mounted and dimmed behind the
+ * scrim — closing returns there with nothing to re-render. Deliberately NOT
+ * brand-tokened: this is the operating system's own surface, so it uses its own
+ * system-style chrome. Confirming (the side-button double-click) places the
+ * order; the ✕ or backdrop dismisses the sheet.
  */
 export function ApplePaySheet() {
   const { interactive, nav, brand } = useProjectRuntime();
   const { total } = cartTotals();
 
-  const cancel = interactive ? () => nav.goTo('signin') : undefined;
-  const pay = interactive ? () => nav.goTo('confirmation') : undefined;
+  // Closing just clears the overlay flag — the page underneath is still there.
+  const cancel = interactive ? () => nav.patch('overlay', { applePay: false }) : undefined;
+  const pay = interactive
+    ? () => {
+        nav.patch('overlay', { applePay: false });
+        nav.goTo('confirmation');
+      }
+    : undefined;
 
   return (
     <div className="applepay">

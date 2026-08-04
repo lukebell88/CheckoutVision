@@ -51,6 +51,11 @@ export interface ProgressInfo {
 export interface AuthInfo {
   treatment?: AuthTreatment;
 }
+/** Transient overlays that sit ON TOP of the current screen, not beside it. */
+export interface OverlayInfo {
+  /** The Apple Pay sheet is open over whatever screen invoked it. */
+  applePay?: boolean;
+}
 
 export interface CheckoutConfig {
   flags: FlagState;
@@ -59,6 +64,7 @@ export interface CheckoutConfig {
   payment: PaymentInfo;
   progress: ProgressInfo;
   auth: AuthInfo;
+  overlay: OverlayInfo;
 }
 
 /** The active checkout config for the surrounding rendered instance. */
@@ -71,6 +77,7 @@ export function useCheckoutConfig(): CheckoutConfig {
     payment: (rt.data.payment ?? {}) as PaymentInfo,
     progress: (rt.data.progress ?? {}) as ProgressInfo,
     auth: (rt.data.auth ?? {}) as AuthInfo,
+    overlay: (rt.data.overlay ?? {}) as OverlayInfo,
   };
 }
 

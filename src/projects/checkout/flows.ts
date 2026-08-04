@@ -80,6 +80,8 @@ export type CheckoutPrefill = ProjectData & {
   /** Which of the one-pager's sections is open, and which are done. */
   progress?: Partial<{ section: SectionId | 'complete'; done: SectionId[] }>;
   auth?: Partial<{ treatment: AuthTreatment }>;
+  /** Overlays sitting on top of the current screen (the Apple Pay sheet). */
+  overlay?: Partial<{ applePay: boolean }>;
 };
 
 export interface FlowDef extends ProjectFlow {
@@ -104,6 +106,9 @@ const BLANK: CheckoutPrefill = {
   customer: { email: '', firstName: '', lastName: '', phone: '', signedIn: false },
   delivery: { line1: '', line2: '', city: '', postcode: '', store: '', date: '' },
   payment: { savedCard: '', method: '', only: '' },
+  // Reset the overlay too: without this, a flow that doesn't mention it would
+  // keep the last flow's open Apple Pay sheet (see the merge note above).
+  overlay: { applePay: false },
 };
 
 /**
@@ -134,9 +139,9 @@ export const FLOWS: FlowDef[] = [
   {
     id: 'apple-pay',
     name: 'Apple Pay',
-    description: 'Express checkout: from sign-in, the Apple Pay button opens the Apple Pay sheet and the order completes — no checkout page.',
+    description: 'Express checkout: from sign-in, the Apple Pay button opens the Apple Pay sheet over the page and the order completes — no checkout page.',
     customerType: 'guest',
-    screens: [{ id: 'signin' }, { id: 'applepay' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin' }, { id: 'confirmation' }],
     flagOverrides: { expressPayment: true, savedPayment: false },
     // Nothing is entered — Apple Pay supplies contact/address/card in its sheet.
     prefill: {
@@ -218,14 +223,13 @@ export const FLOWS: FlowDef[] = [
     description: 'No sign-in page: email is captured at the top of checkout. The entered email is recognised, so a one-time passcode (with passkey and password) is presented inline before the account details unlock.',
     customerType: 'matched',
     // With the flag on, `signin` and `otp` are gated out — the journey is the
-    // one-pager alone, which owns email capture and inline verification. The
-    // Apple Pay sheet stays reachable: it's the email-free express path the
-    // block offers at the top.
+    // one-pager alone, which owns email capture and inline verification. Apple
+    // Pay is the email-free express path the block offers at the top; it opens
+    // as an overlay over the checkout, so it isn't a screen in this list.
     screens: [
       { id: 'signin', when: UNLESS_EMAIL_FIRST },
       { id: 'otp', when: UNLESS_EMAIL_FIRST },
       { id: 'checkout' },
-      { id: 'applepay', optional: true },
       { id: 'confirmation' },
     ],
     flagOverrides: { emailFirstCheckout: true, savedPayment: true, creditOptions: true, guestRegistration: false, passkeyUpsell: true },

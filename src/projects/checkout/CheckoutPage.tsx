@@ -1,5 +1,6 @@
 import { useProjectRuntime } from '../../studio/runtime';
 import type { CheckoutPageId } from './screens';
+import { useCheckoutConfig } from './checkoutConfig';
 import { SignInScreen } from './ui/SignInScreen';
 import { OtpScreen } from './ui/OtpScreen';
 import { ApplePaySheet } from './ui/ApplePaySheet';
@@ -16,17 +17,26 @@ import { Confirmation } from './ui/Confirmation';
  * Each screen owns its own layout and actions — there is no shared form/summary
  * chrome any more, because the scamp gives the sign-in, the one-pager and the
  * confirmation genuinely different shapes.
+ *
+ * The Apple Pay sheet is not in this table: it's an overlay rendered ON TOP of
+ * the current screen (which stays mounted behind its scrim), driven by the
+ * `overlay.applePay` data flag rather than by navigation.
  */
 const SCREENS: Record<CheckoutPageId, () => JSX.Element> = {
   signin: SignInScreen,
   otp: OtpScreen,
-  applepay: ApplePaySheet,
   checkout: OnePageCheckout,
   confirmation: Confirmation,
 };
 
 export function CheckoutPage() {
   const { screen } = useProjectRuntime();
+  const { overlay } = useCheckoutConfig();
   const Body = SCREENS[screen as CheckoutPageId] ?? OnePageCheckout;
-  return <Body />;
+  return (
+    <>
+      <Body />
+      {overlay.applePay && <ApplePaySheet />}
+    </>
+  );
 }

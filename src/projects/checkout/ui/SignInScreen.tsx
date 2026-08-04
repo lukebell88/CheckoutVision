@@ -26,6 +26,8 @@ export function SignInScreen() {
 
   const go = (id: string) => (interactive ? () => nav.goTo(id) : undefined);
   const back = interactive ? nav.back : undefined;
+  // Apple Pay is an overlay over this screen, not a route — open it in place.
+  const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
 
   // Email capture, with submit-time validation. Deliberately not validated as
   // you type: the complaint here is "you haven't filled this in", which isn't
@@ -200,7 +202,7 @@ export function SignInScreen() {
         {flags.expressPayment && (
           <>
             <p className="co-guest__title">Checkout now with express payment</p>
-            <button type="button" className="co-express" onClick={go('applepay')}>
+            <button type="button" className="co-express" onClick={openApplePay}>
               Buy with <AppleMark /> Pay
             </button>
           </>

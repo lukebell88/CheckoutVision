@@ -25,6 +25,7 @@ export interface CheckoutVariantGroup extends VariantGroup {
       payment?: Record<string, unknown>;
       progress?: Record<string, unknown>;
       auth?: Record<string, unknown>;
+      overlay?: Record<string, unknown>;
     };
     note?: string;
   }>;
@@ -44,6 +45,12 @@ export const VARIANT_GROUPS: CheckoutVariantGroup[] = [
       { id: 'password-first', label: 'Password first (keychain)', data: { auth: { treatment: 'password-first' }, customer: GUEST } },
       { id: 'otp-first', label: 'Passcode first', data: { auth: { treatment: 'otp-first' }, customer: GUEST } },
       { id: 'no-express', label: 'Without express payment', flags: { expressPayment: false } },
+      {
+        id: 'apple-pay',
+        label: 'Apple Pay sheet over sign-in',
+        data: { overlay: { applePay: true } },
+        note: 'The sheet is an overlay: the sign-in page stays mounted and dimmed behind its scrim.',
+      },
     ],
   },
   {
@@ -53,6 +60,13 @@ export const VARIANT_GROUPS: CheckoutVariantGroup[] = [
     description: 'Email captured at the top of the one-pager, with the sign-in page removed — entry, inline verify, and the resting chip.',
     versions: [
       { id: 'entry', label: 'Email entry + express', flags: { emailFirstCheckout: true }, data: { customer: { email: '' } } },
+      {
+        id: 'express',
+        label: 'Apple Pay sheet over checkout',
+        flags: { emailFirstCheckout: true },
+        data: { customer: { email: '' }, overlay: { applePay: true } },
+        note: 'Tapping express opens the sheet over the checkout — the page stays behind it.',
+      },
       {
         id: 'verify',
         label: 'Recognised — verify inline',

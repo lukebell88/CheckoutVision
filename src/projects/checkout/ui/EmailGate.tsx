@@ -148,7 +148,7 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
           <button
             type="button"
             className="co-express"
-            onClick={interactive ? () => nav.goTo('applepay') : undefined}
+            onClick={interactive ? () => nav.patch('overlay', { applePay: true }) : undefined}
           >
             Buy with <AppleMark /> Pay
           </button>
