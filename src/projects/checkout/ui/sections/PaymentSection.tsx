@@ -1,10 +1,37 @@
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
+import { Icon } from '../../../../components/Icon';
 import { useCheckoutConfig } from '../../checkoutConfig';
-import { AppleMark } from '../parts';
 import { FormField } from '../../components/FormField';
 import { PaymentSelection, type PaymentOption } from '../../components/PaymentSelection';
 import { useSeededState } from '../useSeededState';
+
+/**
+ * The scheme / wallet logo shown on the right of each payment row. The wallet
+ * logos live in the shared common/payment set; card and gift card are brand
+ * feature icons so they follow the active brand. All are sized to one height
+ * (auto width) by .co-payment__logo so the column reads evenly — see
+ * PaymentSelection.css.
+ */
+function PaymentMark({ method }: { method: string }) {
+  switch (method) {
+    case 'nextpay':
+      return <Icon name="payment-next-pay-v2-contained" category="common" brand="payment" className="co-payment__logo" />;
+    case 'payin3':
+      return <Icon name="payment-pay-in-3-contained" category="common" brand="payment" className="co-payment__logo" />;
+    case 'apple':
+      return <Icon name="payment-apple-pay" category="common" brand="payment" className="co-payment__logo" />;
+    case 'paypal':
+      return <Icon name="payment-paypal-m-ident" category="common" brand="payment" className="co-payment__logo" />;
+    case 'giftcard':
+      return <Icon name="giftcard" category="feature" className="co-payment__logo" />;
+    case 'card':
+    case 'saved':
+      return <Icon name="card" category="feature" className="co-payment__logo" />;
+    default:
+      return null;
+  }
+}
 
 /**
  * 3. Payment.
@@ -31,6 +58,7 @@ const METHODS: Method[] = [
   { id: 'apple', title: 'Apple Pay' },
   { id: 'card', title: 'Credit / Debit Card' },
   { id: 'paypal', title: 'PayPal' },
+  { id: 'giftcard', title: 'Gift Card' },
 ];
 
 export function PaymentSection({ onPay }: { onPay?: () => void }) {
@@ -76,16 +104,20 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     </>
   );
 
+  const giftCardForm = (
+    <>
+      <FormField label="Gift Card Number" required placeholder="1234 5678 9012 3456" inputMode="numeric" />
+      <FormField label="PIN" required placeholder="1234" inputMode="numeric" />
+      {payButton}
+    </>
+  );
+
   const options: PaymentOption[] = methods.map((m) => ({
     id: m.id,
     title: m.id === 'saved' ? (payment.savedCard || 'Saved card') : m.title,
     meta: m.meta,
-    mark: m.id === 'apple' ? (
-      <>
-        <AppleMark size={16} /> Pay
-      </>
-    ) : undefined,
-    content: m.id === 'card' ? cardForm : payButton,
+    mark: <PaymentMark method={m.id} />,
+    content: m.id === 'card' ? cardForm : m.id === 'giftcard' ? giftCardForm : payButton,
   }));
 
   return <PaymentSelection options={options} value={sel} onChange={setSel} />;

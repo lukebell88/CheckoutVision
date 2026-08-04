@@ -50,6 +50,16 @@
   flex: none;
 }
 
+/* Scheme / wallet logos vary in aspect ratio, so pin them all to one height and
+ * let the width follow — otherwise <Icon>'s square box makes the wide logos
+ * (nextpay, PayPal, Apple Pay) render shorter than the square ones. The
+ * !important beats Icon's inline width/height. */
+.co-payment__mark .co-payment__logo {
+  width: auto !important;
+  height: 22px !important;
+}
+.co-payment__mark .co-payment__logo svg { width: auto; height: 100%; }
+
 /* Indented to the head's padding so the revealed form lines up with the title
  * rather than the radio. */
 .co-payment__content { padding: 0 14px 14px; }
