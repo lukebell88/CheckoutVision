@@ -30,9 +30,9 @@ import { TitleBar } from '../components/TitleBar';
  * that's the one piece of layout it doesn't dictate.
  */
 export function OnePageCheckout() {
-  const { customer, progress, auth } = useCheckoutConfig();
+  const { customer, progress, auth, delivery } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
-  const { total, delivery } = cartTotals();
+  const { total, delivery: deliveryCost } = cartTotals(delivery.method);
 
   // The runtime seeds it; interactive walkthroughs then drive it locally so the
   // shopper isn't navigating between screens to fill in one page.
@@ -71,7 +71,10 @@ export function OnePageCheckout() {
   };
 
   const signedIn = !!customer.signedIn;
-  const title = signedIn ? 'Your Order' : 'Guest Checkout';
+  // An account-matched shopper is neither a signed-in returner (their details came
+  // from an account they matched, not an authenticated session) nor a guest — so
+  // the title is plain "Checkout" rather than "Your Order" or "Guest Checkout".
+  const title = signedIn ? 'Your Order' : detailsFromAccount ? 'Checkout' : 'Guest Checkout';
 
   const BODIES: Record<SectionId, ReactNode> = {
     details: <DetailsSection onContinue={advance('details')} />,
@@ -85,7 +88,8 @@ export function OnePageCheckout() {
 
       <div className="co-totalbar">
         <span className="co-totalbar__total">
-          Total: <strong>{money(total)}</strong> (inc {money(delivery)} delivery)
+          Total: <strong>{money(total)}</strong>{' '}
+          {deliveryCost === 0 ? '(FREE delivery)' : `(inc ${money(deliveryCost)} delivery)`}
         </span>
         <OrderToggle open={orderOpen} onToggle={() => setOrderOpen((v) => !v)} />
       </div>

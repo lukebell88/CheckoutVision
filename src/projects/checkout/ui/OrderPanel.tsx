@@ -1,7 +1,7 @@
 import { Button } from '../../../components/Button';
 import { OrderSummary } from '../components/OrderSummary';
 import { useCheckoutConfig } from '../checkoutConfig';
-import { CART, cartTotals, money } from '../cart';
+import { CART, cartTotals, deliveryLabel, money } from '../cart';
 
 /**
  * The checkout's use of OrderSummary.
@@ -32,8 +32,8 @@ export function OrderToggle({ open, onToggle }: { open: boolean; onToggle: () =>
 }
 
 export function OrderPanel({ open }: { open: boolean }) {
-  const { flags } = useCheckoutConfig();
-  const { subtotal, delivery, total } = cartTotals();
+  const { flags, delivery: deliveryInfo } = useCheckoutConfig();
+  const { subtotal, delivery, total } = cartTotals(deliveryInfo.method);
 
   return (
     <OrderSummary
@@ -52,7 +52,7 @@ export function OrderPanel({ open }: { open: boolean }) {
       }))}
       totals={[
         { label: 'Subtotal', value: money(subtotal) },
-        { label: 'Delivery', value: money(delivery) },
+        { label: 'Delivery', value: deliveryLabel(delivery) },
         { label: 'Total', value: money(total), grand: true },
       ]}
       showPromoCode={flags.promoCode}

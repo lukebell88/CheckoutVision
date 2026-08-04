@@ -1,4 +1,4 @@
-import { type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Button } from '../../../../components/Button';
 import { Icon } from '../../../../components/Icon';
 import { Link } from '../../../../components/Link';
@@ -6,6 +6,8 @@ import { useProjectRuntime } from '../../../../studio/runtime';
 import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
 import { DeliverySelection } from '../../components/DeliverySelection';
+import { StorePicker } from '../../components/StorePicker';
+import { searchStores, storeLabel, type Store } from '../../stores';
 import { useSeededState } from '../useSeededState';
 
 /**
@@ -36,9 +38,16 @@ const DATES = [
 ];
 
 export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
-  const { flags, delivery, customer } = useCheckoutConfig();
+  const { flags, delivery, customer, auth } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const [method, setMethod] = useSeededState(String(delivery.method), () => delivery.method ?? 'home');
+  // Patch the method as soon as it's picked (not just on Continue) so the order
+  // summary's Delivery line and the total bar update live while this section is
+  // still open — Home £4.95 / Collection FREE / Parcel Shop £3.50.
+  const chooseMethod = (id: string) => {
+    setMethod(id);
+    if (interactive) nav.patch('delivery', { method: id });
+  };
   const [date, setDate] = useSeededState(String(delivery.date), () => 0);
 
   const [form, setForm] = useSeededState(
@@ -58,6 +67,50 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const methods = flags.collectionOptions ? METHODS : METHODS.filter((m) => m.id === 'home');
   const collection = method === 'collection';
 
+  // Store finder (Collection). `form.store` holds the chosen store's label (what
+  // the summary shows); `storeQuery` is the search box; `selectedStore` keeps the
+  // object so the dropdown can render and re-highlight it. Results come from
+  // Next's real collect-in-store endpoint — see ../../stores.ts.
+  const detailsFromAccount = !!customer.signedIn || (auth.treatment ?? 'none') !== 'none';
+  const accountPostcode = detailsFromAccount ? (delivery.postcode ?? '') : '';
+
+  const [storeQuery, setStoreQuery] = useState(accountPostcode);
+  const [stores, setStores] = useState<Store[]>([]);
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [searchState, setSearchState] = useState<'idle' | 'loading' | 'error'>('idle');
+
+  const selectStore = (s: Store) => {
+    setSelectedStore(s);
+    setForm((f) => ({ ...f, store: storeLabel(s) }));
+  };
+
+  const doSearch = async (query: string, autoSelectNearest = false) => {
+    if (!query.trim()) return;
+    setSearchState('loading');
+    try {
+      const results = await searchStores(query);
+      setStores(results);
+      setSearchState('idle');
+      if (autoSelectNearest && results[0]) selectStore(results[0]);
+    } catch {
+      setStores([]);
+      setSearchState('error');
+    }
+  };
+
+  const runSearch = () => void doSearch(storeQuery);
+
+  // Account-matched: use the saved postcode to find the nearest store up front
+  // and default the selection to it. Runs once, when Collection is first chosen.
+  const autoSearched = useRef(false);
+  useEffect(() => {
+    if (collection && accountPostcode && !autoSearched.current) {
+      autoSearched.current = true;
+      void doSearch(accountPostcode, true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collection, accountPostcode]);
+
   const submit = () => {
     if (interactive) {
       const { phone, ...address } = form;
@@ -76,18 +129,21 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
 
   return (
     <>
-      <DeliverySelection options={methods} value={method} onChange={setMethod} />
+      <DeliverySelection options={methods} value={method} onChange={chooseMethod} />
 
       {collection ? (
         <>
           <p className="co-section__lede">Tell us where you would like to collect your order.</p>
-          <FormField
+          <StorePicker
             label="Find a Store"
-            required
-            placeholder="Type town, city or postcode"
-            endIcon={<Icon name="search" category="feature" size={20} />}
-            value={form.store}
-            onChange={set('store')}
+            stores={stores}
+            selected={selectedStore}
+            loading={searchState === 'loading'}
+            error={searchState === 'error'}
+            query={storeQuery}
+            onQueryChange={setStoreQuery}
+            onSearch={runSearch}
+            onSelect={selectStore}
           />
         </>
       ) : (

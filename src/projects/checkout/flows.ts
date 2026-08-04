@@ -167,24 +167,31 @@ export const FLOWS: FlowDef[] = [
     customerType: 'matched',
     screens: [{ id: 'signin' }, { id: 'checkout' }, { id: 'otp' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: true, guestRegistration: false, passkeyUpsell: true },
-    // They typed an email we recognise, so Your Details arrives already complete
-    // — the account supplies the name, and there's nothing left for them to fill
-    // in. Delivery is where the journey picks up.
-    //
-    // The address is NOT prefilled: knowing who an email belongs to is not the
-    // same as having authenticated them, and a saved address is a lot more to
-    // hand over than a first name. Change on Your Details returns to sign-in, so
-    // "that isn't me" has somewhere to go — see OnePageCheckout.
+    // They typed an email we recognise, so the account supplies the name AND the
+    // saved delivery address: Your Details and Delivery both arrive complete and
+    // collapsed, with home delivery and the first available date preselected.
+    // Payment is where the journey picks up. Change on either reopens it — Your
+    // Details returns to sign-in ("that isn't me"); see OnePageCheckout.
     prefill: {
       ...BLANK,
       customer: {
         ...BLANK.customer,
-        email: 'alex_smith@next.co.uk',
-        firstName: 'Alex',
-        lastName: 'Smith',
+        email: 'luke_bell@next.co.uk',
+        firstName: 'Luke',
+        lastName: 'Bell',
+        phone: '07784141908',
       },
-      delivery: { ...BLANK.delivery, method: 'home' },
-      progress: { section: 'delivery', done: ['details'] },
+      delivery: {
+        ...BLANK.delivery,
+        method: 'home',
+        addressKnown: true,
+        line1: '53 Carlton Road',
+        line2: 'Long Eaton',
+        city: 'Nottingham',
+        postcode: 'NG10 3LF',
+        date: 'Weds 12th July',
+      },
+      progress: { section: 'payment', done: ['details', 'delivery'] },
       auth: { treatment: 'inline' },
     },
   },

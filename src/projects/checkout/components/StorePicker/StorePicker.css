@@ -1,0 +1,116 @@
+/* StorePicker — a dropdown of enriched store options.
+ * Colours, radius and type all read the same tokens as <Select> and the rest of
+ * checkout, so it themes with the active brand. */
+.co-storepicker { position: relative; }
+
+.co-storepicker__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  color: var(--text-primary, #111);
+}
+.co-storepicker__req { color: var(--action-default-error-border-color, #d32f2f); margin-left: 2px; }
+
+/* The panel floats over the fields beneath it, like any menu. */
+.co-storepicker__panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--surface-card, #fff);
+  border: 1px solid var(--action-default-enabled-border-color, #949494);
+  border-radius: var(--global-select-large-border-radius, 4px);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+  padding: 8px;
+}
+
+/* Guest default: a search bar with the icon in a button on the right — same
+ * shape as the drawer's search (StoreDrawer.css). */
+.co-storepicker__searchbar { display: flex; align-items: stretch; }
+.co-storepicker__searchinput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--action-default-enabled-border-color, #949494);
+  border-right: none;
+  border-radius: var(--global-select-large-border-radius, 4px) 0 0 var(--global-select-large-border-radius, 4px);
+  background: var(--action-default-enabled-background-color, #fff);
+  color: var(--text-primary, #111);
+  font: inherit;
+}
+.co-storepicker__searchinput:focus-visible {
+  outline: none;
+  border-color: var(--primary-main, #111);
+}
+.co-storepicker__searchbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  flex-shrink: 0;
+  border: 1px solid var(--primary-main, #111);
+  border-radius: 0 var(--global-select-large-border-radius, 4px) var(--global-select-large-border-radius, 4px) 0;
+  background: var(--primary-main, #111);
+  color: var(--primary-contrast-text, #fff);
+  cursor: pointer;
+}
+.co-storepicker__searchbtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.co-storepicker__status {
+  margin: 8px 4px;
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  color: var(--text-secondary, #555);
+}
+.co-storepicker__status--error { color: var(--action-default-error-border-color, #c0392b); }
+
+.co-storepicker__list { list-style: none; margin: 4px 0 0; padding: 0; }
+
+.co-storeoption {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--global-select-large-border-radius, 4px);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.co-storeoption:hover { background: var(--surface-subtle, #f4f4f4); }
+.co-storeoption--on { background: var(--surface-subtle, #f0f0f0); }
+
+.co-storeoption__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.co-storeoption__name {
+  font-weight: 700;
+  color: var(--text-primary, #111);
+  text-transform: capitalize;
+}
+.co-storeoption__addr {
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  color: var(--text-secondary, #555);
+  text-transform: capitalize;
+}
+/* Postcode stays uppercase even though the rest of the line is capitalized. */
+.co-storeoption__pc { text-transform: uppercase; }
+
+.co-storepicker__another {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+  padding: 12px;
+  border: none;
+  border-top: 1px solid var(--border-subtle, #e3e3e3);
+  background: transparent;
+  color: var(--primary-main, #111);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.co-storepicker__another:hover { text-decoration: underline; }

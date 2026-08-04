@@ -245,6 +245,7 @@
 .co-date--on { border-color: var(--border-strong, #111); border-width: 2px; }
 .co-date__day { font-weight: 700; font-size: var(--global-body-3-font-size, 0.8125rem); }
 .co-date__num { font-size: var(--global-caption-font-size, 0.75rem); }
+/* The Collection store finder is its own component — see components/StorePicker. */
 
 /* ---------- Order summary placement ----------
  * The component owns how the summary LOOKS; these rules own where it sits and
