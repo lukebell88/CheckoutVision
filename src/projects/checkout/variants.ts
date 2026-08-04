@@ -47,6 +47,43 @@ export const VARIANT_GROUPS: CheckoutVariantGroup[] = [
     ],
   },
   {
+    id: 'email-first',
+    name: 'No sign-in page',
+    screen: 'checkout',
+    description: 'Email captured at the top of the one-pager, with the sign-in page removed — entry, inline verify, and the resting chip.',
+    versions: [
+      { id: 'entry', label: 'Email entry + express', flags: { emailFirstCheckout: true }, data: { customer: { email: '' } } },
+      {
+        id: 'verify',
+        label: 'Recognised — verify inline',
+        flags: { emailFirstCheckout: true },
+        data: { customer: { email: 'alex_smith@next.co.uk', recognised: true, signedIn: false } },
+        note: 'A known email locks to a chip and reveals the passcode step (passkey / password below).',
+      },
+      {
+        id: 'guest',
+        label: 'Guest — sections revealed',
+        flags: { emailFirstCheckout: true },
+        data: {
+          customer: { ...GUEST, email: 'alex_smith@next.co.uk', signedIn: false },
+          progress: { section: 'details', done: [] },
+        },
+        note: 'An unrecognised email drops straight into Your Details — no second email field.',
+      },
+      {
+        id: 'verified',
+        label: 'Signed in — chip at rest',
+        flags: { emailFirstCheckout: true, savedPayment: true },
+        data: {
+          customer: { ...GUEST, email: 'alex_smith@next.co.uk', signedIn: true },
+          delivery: { method: 'home', addressKnown: true },
+          payment: { method: 'saved', savedCard: 'Visa ending 4567' },
+          progress: { section: 'payment', done: ['details', 'delivery'] },
+        },
+      },
+    ],
+  },
+  {
     id: 'sections',
     name: 'Checkout sections',
     screen: 'checkout',

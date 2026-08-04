@@ -6,6 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 
 import { useStore } from '../../studio/store';
+import { flowScreens } from '../../studio/project';
 import { useProjectOptional } from '../../studio/runtime';
 import { HeaderSection } from '../../studio-layout/core';
 import { BrandSwitcher } from './BrandSwitcher';
@@ -144,8 +145,12 @@ function CanvasToolbar({ view }: { view: string }) {
   const openFocus = useStore((s) => s.openFocus);
   const setPresent = useStore((s) => s.setPresent);
   const flowId = useStore((s) => s.byProject[s.projectId]?.flowId ?? '');
+  const flags = useStore((s) => s.byProject[s.projectId]?.flags ?? {});
 
-  const firstScreen = project?.flows.find((f) => f.id === flowId)?.screens[0]?.id;
+  const flow = project?.flows.find((f) => f.id === flowId);
+  // Respect flag-gated screens so focus opens on the journey's real first screen
+  // (email-first, say, drops the sign-in page).
+  const firstScreen = flow ? flowScreens(flow, flags)[0]?.id : undefined;
 
   return (
     <Stack

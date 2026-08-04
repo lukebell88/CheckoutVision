@@ -23,6 +23,7 @@ export type FlagId =
   | 'addressLookup'
   | 'collectionOptions'
   | 'deliveryDates'
+  | 'emailFirstCheckout'
   | 'guestRegistration'
   | 'passkeyUpsell'
   | 'freeDeliveryCountdown'
@@ -46,6 +47,7 @@ export const FLAGS: FlagDef[] = [
   { id: 'saveCardPrompt', name: 'Save card prompt', description: '“Checkout faster” — offer to store the card for next time.', group: 'Payment', default: true },
   { id: 'promoCode', name: 'Promotional code', description: 'Show a promo/voucher code entry in the order panel.', group: 'Payment', default: true },
 
+  { id: 'emailFirstCheckout', name: 'No sign-in page', description: 'Drop the sign-in page — capture email (and express pay) at the top of checkout; recognised shoppers verify inline.', group: 'Account', default: false },
   { id: 'guestRegistration', name: 'Guest registration', description: 'Offer account creation to guests on the confirmation.', group: 'Account', default: true },
   { id: 'passkeyUpsell', name: 'Passkey upsell', description: 'Offer to save a passkey once the order is placed.', group: 'Account', default: true },
 

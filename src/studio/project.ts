@@ -47,11 +47,24 @@ export interface ScreenDef {
   terminal?: boolean;
 }
 
+/**
+ * A screen is present in a journey only while its `when` flag holds the given
+ * value. This is how a flag can add or remove a whole screen — e.g. the
+ * email-first checkout drops the standalone sign-in page when its flag is on.
+ * Absent means "always present".
+ */
+export interface FlagCondition {
+  flag: string;
+  is: boolean;
+}
+
 /** A screen's slot within a flow. */
 export interface FlowScreen {
   id: string;
   /** Optional screens can be skipped in the customer-facing progression. */
   optional?: boolean;
+  /** Gate this screen's presence on a flag — absent means always present. */
+  when?: FlagCondition;
 }
 
 /**
@@ -158,6 +171,15 @@ export const screenDef = (project: ProjectDef, id: string): ScreenDef =>
 
 export const flowById = (project: ProjectDef, id: string): ProjectFlow =>
   project.flows.find((f) => f.id === id) ?? project.flows[0];
+
+/**
+ * A flow's screens filtered to those whose `when` condition holds under the
+ * given flag state. Every consumer that walks a flow's screens — navigation,
+ * the canvas, the focus stepper — goes through this so a flag-gated screen is
+ * uniformly absent: unreachable by next/back, unrendered in the canvas.
+ */
+export const flowScreens = (flow: ProjectFlow, flags: FlagValues): FlowScreen[] =>
+  flow.screens.filter((s) => !s.when || flags[s.when.flag] === s.when.is);
 
 export const variantGroupById = (project: ProjectDef, id: string): VariantGroup | undefined =>
   project.variants?.find((g) => g.id === id) ?? project.variants?.[0];

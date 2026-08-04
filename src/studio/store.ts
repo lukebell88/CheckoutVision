@@ -11,6 +11,7 @@ import { DEFAULT_PROJECT_ID, loadedProject } from './registry';
 import {
   flagsForFlow,
   flowById,
+  flowScreens,
   mergeData,
   type FlagValues,
   type ProjectData,
@@ -126,14 +127,27 @@ export function initialProjectState(project: ProjectDef): ProjectState {
   if (!flow) {
     return { flowId: '', screen: '', completed: [], flags: {}, data: {}, variantId: '' };
   }
+  const flags = flagsForFlow(project, flow);
   return {
     flowId: flow.id,
-    screen: flow.screens[0]?.id ?? '',
+    screen: flowScreens(flow, flags)[0]?.id ?? '',
     completed: [],
-    flags: flagsForFlow(project, flow),
+    flags,
     data: mergeData({}, flow.prefill),
     variantId: project.variants?.[0]?.id ?? '',
   };
+}
+
+/**
+ * Apply a new flag state, keeping the current screen if it survives the change
+ * and otherwise falling back to the flow's first screen. A flag can gate a
+ * screen out of the journey (see flowScreens), so toggling one while sitting on
+ * that screen would otherwise strand the view on a screen no longer in the flow.
+ */
+function withFlags(project: ProjectDef, ps: ProjectState, flags: FlagValues) {
+  const screens = flowScreens(flowById(project, ps.flowId), flags);
+  const screen = screens.some((s) => s.id === ps.screen) ? ps.screen : (screens[0]?.id ?? '');
+  return { flags, screen };
 }
 
 /** Stable empty slice, so selectors never return a fresh object. */
@@ -243,13 +257,15 @@ export const useStore = create<StudioState>()(
           const a = active();
           if (!a) return;
           const flow = flowById(a.project, id);
-          const valid = new Set(flow.screens.map((s) => s.id));
+          const flags = flagsForFlow(a.project, flow);
+          const screens = flowScreens(flow, flags);
+          const valid = new Set(screens.map((s) => s.id));
           set({ focused: false });
           patch((ps) => ({
             flowId: flow.id,
-            screen: flow.screens[0]?.id ?? '',
+            screen: screens[0]?.id ?? '',
             completed: ps.completed.filter((s) => valid.has(s)),
-            flags: flagsForFlow(a.project, flow),
+            flags,
             // Prefill wins over entered data so the presented scenario is coherent.
             data: mergeData(ps.data, flow.prefill),
           }));
@@ -264,7 +280,9 @@ export const useStore = create<StudioState>()(
         // and the shell renders before a link's scenario is applied.
         goToScreen: (id) => {
           const a = active();
-          if (!a || !flowById(a.project, a.ps.flowId).screens.some((s) => s.id === id)) return;
+          if (!a) return;
+          const screens = flowScreens(flowById(a.project, a.ps.flowId), a.ps.flags);
+          if (!screens.some((s) => s.id === id)) return;
           patch(() => ({ screen: id }));
         },
         openFocus: (id) => {
@@ -275,7 +293,7 @@ export const useStore = create<StudioState>()(
         next: () => {
           const a = active();
           if (!a) return;
-          const screens = flowById(a.project, a.ps.flowId).screens;
+          const screens = flowScreens(flowById(a.project, a.ps.flowId), a.ps.flags);
           const idx = screens.findIndex((s) => s.id === a.ps.screen);
           if (idx < 0 || idx >= screens.length - 1) return;
           patch((ps) => ({
@@ -286,16 +304,30 @@ export const useStore = create<StudioState>()(
         back: () => {
           const a = active();
           if (!a) return;
-          const screens = flowById(a.project, a.ps.flowId).screens;
+          const screens = flowScreens(flowById(a.project, a.ps.flowId), a.ps.flags);
           const idx = screens.findIndex((s) => s.id === a.ps.screen);
           if (idx <= 0) return;
           patch(() => ({ screen: screens[idx - 1].id }));
         },
 
         // --- Flags & data buffers ---
-        toggleFlag: (id) => patch((ps) => ({ flags: { ...ps.flags, [id]: !ps.flags[id] } })),
-        setFlag: (id, value) => patch((ps) => ({ flags: { ...ps.flags, [id]: value } })),
-        setFlags: (flags) => patch(() => ({ flags })),
+        // A flag can gate a screen out of the journey, so re-clamp the current
+        // screen whenever flags change (see withFlags).
+        toggleFlag: (id) => {
+          const a = active();
+          if (!a) return;
+          patch((ps) => withFlags(a.project, ps, { ...ps.flags, [id]: !ps.flags[id] }));
+        },
+        setFlag: (id, value) => {
+          const a = active();
+          if (!a) return;
+          patch((ps) => withFlags(a.project, ps, { ...ps.flags, [id]: value }));
+        },
+        setFlags: (flags) => {
+          const a = active();
+          if (!a) return;
+          patch((ps) => withFlags(a.project, ps, flags));
+        },
         patchData: (bucket, values) =>
           patch((ps) => ({ data: { ...ps.data, [bucket]: { ...(ps.data[bucket] ?? {}), ...values } } })),
 

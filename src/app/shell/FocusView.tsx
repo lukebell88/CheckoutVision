@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import { useStore, selectProjectState } from '../../studio/store';
 import { RenderedProject, useProject } from '../../studio/runtime';
 import { useStoreRuntime } from '../../studio/useRuntime';
-import { flowById, screenDef } from '../../studio/project';
+import { flowById, flowScreens, screenDef } from '../../studio/project';
 import { deviceById } from '../../config/devices';
 import { clientById } from '../../config/clients';
 import { buildLiveUrl } from '../../live/liveUrl';
@@ -49,9 +49,10 @@ export function FocusView() {
   const stageRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  const idx = flow.screens.findIndex((s) => s.id === ps.screen);
+  const screens = flowScreens(flow, ps.flags);
+  const idx = screens.findIndex((s) => s.id === ps.screen);
   const atStart = idx <= 0;
-  const atEnd = idx >= flow.screens.length - 1;
+  const atEnd = idx >= screens.length - 1;
 
   useLayoutEffect(() => {
     const stage = stageRef.current;
@@ -122,7 +123,7 @@ export function FocusView() {
             variant="caption"
             sx={{ color: 'text.secondary', fontVariantNumeric: 'tabular-nums' }}
           >
-            {idx + 1} / {flow.screens.length}
+            {idx + 1} / {screens.length}
           </Typography>
           <IconButton size="small" onClick={next} disabled={atEnd} aria-label="Next (→)">
             <IcChevronRight />

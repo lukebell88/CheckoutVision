@@ -11,6 +11,8 @@ import { DeliverySection } from './sections/DeliverySection';
 import { PaymentSection } from './sections/PaymentSection';
 import { OrderPanel, OrderToggle } from './OrderPanel';
 import { TitleBar } from '../components/TitleBar';
+import { EmailGate } from './EmailGate';
+import { useEmailFirst } from './useEmailFirst';
 
 /**
  * The checkout — one page, three numbered sections.
@@ -33,6 +35,10 @@ export function OnePageCheckout() {
   const { customer, progress, auth, delivery } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const { total, delivery: deliveryCost } = cartTotals(delivery.method);
+
+  // Email-first: the sign-in page is gone, so the one-pager captures the email
+  // (and verifies a recognised shopper) up top before revealing the sections.
+  const ef = useEmailFirst();
 
   // The runtime seeds it; interactive walkthroughs then drive it locally so the
   // shopper isn't navigating between screens to fill in one page.
@@ -66,13 +72,20 @@ export function OnePageCheckout() {
 
   const change = (id: SectionId) => {
     if (!interactive) return undefined;
-    if (id === 'details' && detailsFromAccount) return () => nav.goTo('signin');
+    // Email-first has no sign-in page to return to — re-identifying means
+    // reopening the email chip at the top of the page.
+    if (id === 'details' && detailsFromAccount) {
+      return ef.active ? ef.onChangeEmail : () => nav.goTo('signin');
+    }
     return () => setSection(id);
   };
 
   // A shopper whose details came from their account sees "Checkout"; a guest
-  // typing everything in sees "Guest Checkout".
-  const title = detailsFromAccount ? 'Checkout' : 'Guest Checkout';
+  // typing everything in sees "Guest Checkout". Under email-first a recognised
+  // shopper counts as known even before the passcode step, so the title doesn't
+  // read "Guest" while they're verifying an account we've already matched.
+  const knownShopper = detailsFromAccount || (ef.active && !!customer.recognised);
+  const title = knownShopper ? 'Checkout' : 'Guest Checkout';
 
   const BODIES: Record<SectionId, ReactNode> = {
     details: <DetailsSection onContinue={advance('details')} />,
@@ -96,7 +109,10 @@ export function OnePageCheckout() {
         <OrderPanel open={orderOpen} />
 
         <div className="co-sections">
-          {SECTIONS.map((id, i) => {
+          {ef.active && <EmailGate ef={ef} />}
+
+          {ef.sectionsVisible &&
+            SECTIONS.map((id, i) => {
             const isOpen = section === id;
             const complete = done.includes(id) || section === 'complete';
             return (
@@ -139,7 +155,7 @@ export function OnePageCheckout() {
           })}
         </div>
 
-        {section === 'complete' && (
+        {ef.sectionsVisible && section === 'complete' && (
           <div className="co-placeorder">
             <Button
               variant="contained"

@@ -21,7 +21,8 @@ export type FlowId =
   | 'guest'
   | 'account-cash'
   | 'account-nextpay'
-  | 'account-payin3';
+  | 'account-payin3'
+  | 'email-first';
 
 export type CustomerType = 'guest' | 'matched' | 'returning';
 
@@ -40,7 +41,16 @@ export interface FlowScreenRef {
   id: CheckoutPageId;
   /** Optional screens can be skipped in the customer-facing progression. */
   optional?: boolean;
+  /**
+   * Gate this screen on a flag — absent means always present. The email-first
+   * checkout uses this to drop the sign-in and passcode PAGES, folding email
+   * capture and verification into the top of the one-pager instead.
+   */
+  when?: { flag: FlagId; is: boolean };
 }
+
+/** Present only while the email-first flag is OFF — the pages it replaces. */
+const UNLESS_EMAIL_FIRST = { flag: 'emailFirstCheckout', is: false } as const;
 
 /**
  * Checkout's data buckets, as carried opaquely by the studio. A type alias
@@ -53,6 +63,8 @@ export type CheckoutPrefill = ProjectData & {
     email: string;
     phone: string;
     signedIn: boolean;
+    /** The email belongs to a known account — email-first shows the verify step. */
+    recognised: boolean;
   }>;
   delivery?: Partial<{
     method: string;
@@ -138,7 +150,7 @@ export const FLOWS: FlowDef[] = [
     name: 'Guest Checkout',
     description: 'No account. Signs in as a guest and fills in every section; no payment method preselected, Nextpay & Pay In 3 shown.',
     customerType: 'guest',
-    screens: [{ id: 'signin' }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: true, passkeyUpsell: false },
     // Every field blank; the one-pager opens on Your Details and they fill it in.
     // `payment.method: ''` leaves the payment list with nothing preselected.
@@ -154,7 +166,7 @@ export const FLOWS: FlowDef[] = [
     name: 'Account Matched - Cash',
     description: 'Recognised email → one-time passcode → checkout with details and saved address prefilled; the saved card is selected and open.',
     customerType: 'matched',
-    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'otp', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: true, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
     // Details and Delivery arrive complete and collapsed; the journey picks up on
     // Payment, with the saved card selected and expanded.
@@ -172,7 +184,7 @@ export const FLOWS: FlowDef[] = [
     name: 'Account Matched - Nextpay',
     description: 'As the matched journey, but the shopper sees no payment options — just a single "Complete With Nextpay" button.',
     customerType: 'matched',
-    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'otp', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
     // `payment.only: 'nextpay'` collapses the whole Payment section to one CTA.
     prefill: {
@@ -189,13 +201,43 @@ export const FLOWS: FlowDef[] = [
     name: 'Account Matched - Pay In 3',
     description: 'The matched journey with a single "Complete With Pay In 3" button in place of the payment options.',
     customerType: 'matched',
-    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'otp', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
     prefill: {
       ...BLANK,
       customer: ACCOUNT_CUSTOMER,
       delivery: ACCOUNT_DELIVERY,
       payment: { ...BLANK.payment, only: 'payin3' },
+      progress: { section: 'payment', done: ['details', 'delivery'] },
+      auth: { treatment: 'none' },
+    },
+  },
+  {
+    id: 'email-first',
+    name: 'No Sign-in Page — Recognised',
+    description: 'No sign-in page: email is captured at the top of checkout. The entered email is recognised, so a one-time passcode (with passkey and password) is presented inline before the account details unlock.',
+    customerType: 'matched',
+    // With the flag on, `signin` and `otp` are gated out — the journey is the
+    // one-pager alone, which owns email capture and inline verification. The
+    // Apple Pay sheet stays reachable: it's the email-free express path the
+    // block offers at the top.
+    screens: [
+      { id: 'signin', when: UNLESS_EMAIL_FIRST },
+      { id: 'otp', when: UNLESS_EMAIL_FIRST },
+      { id: 'checkout' },
+      { id: 'applepay', optional: true },
+      { id: 'confirmation' },
+    ],
+    flagOverrides: { emailFirstCheckout: true, savedPayment: true, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
+    // The account is known (`recognised`) but not yet verified (`signedIn: false`)
+    // and the email starts EMPTY so the tester types it and watches the check.
+    // Its account details wait behind the passcode: the saved address and card
+    // are seeded, but the sections stay hidden until verification succeeds.
+    prefill: {
+      ...BLANK,
+      customer: { ...ACCOUNT_CUSTOMER, email: '', signedIn: false, recognised: true },
+      delivery: ACCOUNT_DELIVERY,
+      payment: { ...BLANK.payment, method: 'saved', savedCard: 'Visa ending 4567' },
       progress: { section: 'payment', done: ['details', 'delivery'] },
       auth: { treatment: 'none' },
     },

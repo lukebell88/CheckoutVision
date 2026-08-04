@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 
 import { useStore, selectProjectState } from '../../studio/store';
 import { useProject } from '../../studio/runtime';
-import { flowById } from '../../studio/project';
+import { flowById, flowScreens } from '../../studio/project';
 import { deviceById } from '../../config/devices';
 import { Frame } from './Frame';
 import { CanvasRoot, CanvasGrid } from './CanvasChrome';
@@ -14,7 +14,9 @@ const GAP = 22; // px gap between frames
  * are contributed to the layout header (see StudioHeader). */
 export function Canvas() {
   const project = useProject();
-  const flow = flowById(project, useStore(selectProjectState).flowId);
+  const ps = useStore(selectProjectState);
+  const flow = flowById(project, ps.flowId);
+  const screens = flowScreens(flow, ps.flags);
   const device = useStore((s) => s.device);
   const columns = useStore((s) => s.columns);
 
@@ -42,7 +44,7 @@ export function Canvas() {
         gridRef={gridRef}
         heading={<ViewHeading title={flow.name} subtitle={flow.description} />}
       >
-        {flow.screens.map((s) => (
+        {screens.map((s) => (
           <Frame key={s.id} screen={s.id} optional={s.optional} width={cellWidth} device={dev} />
         ))}
       </CanvasGrid>

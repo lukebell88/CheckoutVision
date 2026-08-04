@@ -18,6 +18,8 @@ export interface CustomerInfo {
   phone?: string;
   signedIn?: boolean;
   createAccount?: boolean;
+  /** The email is recognised as a known account (pre-verification). */
+  recognised?: boolean;
 }
 export interface DeliveryInfo {
   method?: string;

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { clientById } from '../config/clients';
 import { useStore, selectProjectState } from './store';
 import { INERT_NAV, useProject } from './runtime';
-import { defaultFlags, flowById, mergeData, type ProjectRuntime, type Variant } from './project';
+import { defaultFlags, flowById, flowScreens, mergeData, type ProjectRuntime, type Variant } from './project';
 
 /**
  * Runtime builders.
@@ -30,7 +30,7 @@ export function useStoreRuntime(screen: string, interactive: boolean): ProjectRu
     const flow = flowById(project, ps.flowId);
     return {
       screen,
-      screens: flow.screens,
+      screens: flowScreens(flow, ps.flags),
       completed: ps.completed,
       flags: ps.flags,
       data: ps.data,
@@ -49,11 +49,12 @@ export function useVariantRuntime(screen: string, variant: Variant): ProjectRunt
 
   return useMemo(() => {
     const flow = flowById(project, ps.flowId);
+    const flags = { ...defaultFlags(project), ...(variant.flags ?? {}) };
     return {
       screen,
-      screens: flow.screens,
+      screens: flowScreens(flow, flags),
       completed: [],
-      flags: { ...defaultFlags(project), ...(variant.flags ?? {}) },
+      flags,
       data: mergeData({}, variant.data),
       brand: clientById(clientId),
       interactive: false,

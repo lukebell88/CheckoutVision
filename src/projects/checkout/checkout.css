@@ -155,6 +155,31 @@
   cursor: pointer;
 }
 
+/* ---------- Email-first gate ---------- */
+/* The top-of-page email step when the sign-in page is removed. Sits above the
+ * numbered sections and owns email capture + inline verification. */
+.co-emailgate { margin-bottom: 20px; }
+.co-emailgate .co-lede { margin-top: 0; }
+
+.co-emailgate__locklabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  color: var(--text-secondary, #555);
+}
+/* In this form context the chip fills the row, pushing Change to the edge. */
+.co-emailgate__locked .co-chip { display: flex; width: 100%; }
+.co-emailgate__locked .co-chip__label { flex: 1 1 auto; }
+
+.co-emailgate__verify {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle, #e3e3e3);
+}
+.co-emailgate__verify .fab-btn + .fab-btn { margin-top: 10px; }
+
+.co-emailgate__express { margin-top: 4px; }
+
 /* ---------- OTP ---------- */
 .co-otp { position: relative; display: flex; gap: 8px; margin: 12px 0; }
 /* One real input over the boxes: raises the native keyboard and lets the OS

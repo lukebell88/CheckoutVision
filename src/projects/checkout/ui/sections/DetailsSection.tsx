@@ -48,13 +48,19 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
   // wrong before they've reached it is nagging, not helping.
   const [tried, setTried] = useSeededState(seed, () => false);
 
+  // Email-first captures the address at the top of the page, so this section
+  // neither asks for it again nor validates it — it just carries the value
+  // through on submit.
+  const emailFirst = flags.emailFirstCheckout;
   const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email);
   const errors: Partial<Record<keyof typeof form, string>> = {
-    email: !form.email.trim()
-      ? 'Enter your email address to continue.'
-      : !emailValid
-        ? 'Enter an email address in the format name@example.com'
-        : undefined,
+    email: emailFirst
+      ? undefined
+      : !form.email.trim()
+        ? 'Enter your email address to continue.'
+        : !emailValid
+          ? 'Enter an email address in the format name@example.com'
+          : undefined,
     firstName: !form.firstName.trim() ? 'Enter your first name to continue.' : undefined,
     lastName: !form.lastName.trim() ? 'Enter your last name to continue.' : undefined,
   };
@@ -94,23 +100,25 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
 
   return (
     <>
-      <FormField
-        id={fieldId('email')}
-        label="Email Address"
-        required
-        type="email"
-        placeholder="you@example.com"
-        value={form.email}
-        onChange={set('email')}
-        status={emailStatus}
-        message={
-          emailStatus === 'error'
-            ? errors.email
-            : emailStatus === 'success'
-              ? 'We’ll send your order confirmation here'
-              : undefined
-        }
-      />
+      {!emailFirst && (
+        <FormField
+          id={fieldId('email')}
+          label="Email Address"
+          required
+          type="email"
+          placeholder="you@example.com"
+          value={form.email}
+          onChange={set('email')}
+          status={emailStatus}
+          message={
+            emailStatus === 'error'
+              ? errors.email
+              : emailStatus === 'success'
+                ? 'We’ll send your order confirmation here'
+                : undefined
+          }
+        />
+      )}
 
       {matched && (
         <div className="co-matched">
