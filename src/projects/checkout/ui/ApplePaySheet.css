@@ -1,6 +1,6 @@
 /* Apple Pay sheet — a mock of the native iOS surface, so it uses system-style
- * chrome (not brand tokens): dark scrim, white rounded bottom sheet, SF-like
- * system font, hairline separators. */
+ * chrome (not brand tokens): a light metallic-sheen sheet, white rounded rows,
+ * SF-like system font, and the side-button confirm prompt. */
 .applepay {
   position: fixed;
   inset: 0;
@@ -8,152 +8,203 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
 }
 .applepay__scrim {
   position: absolute;
   inset: 0;
   border: none;
-  background: rgb(0 0 0 / 55%);
+  background: rgb(0 0 0 / 50%);
   cursor: pointer;
 }
 
+/* iOS side-button hint on the backdrop, aligned to the physical button. */
+.applepay__rail {
+  position: absolute;
+  top: 34%;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  pointer-events: none;
+}
+.applepay__rail-text {
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: right;
+}
+.applepay__rail-bar {
+  width: 5px;
+  height: 78px;
+  border-radius: 3px 0 0 3px;
+  background: #fff;
+}
+
+/* ---------- Sheet ---------- */
 .applepay__sheet {
   position: relative;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  padding: 8px 20px calc(20px + env(safe-area-inset-bottom, 0px));
-  background: #f7f7f8;
+  padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px));
   color: #000;
-  border-radius: 12px 12px 0 0;
-  box-shadow: 0 -8px 40px rgb(0 0 0 / 25%);
-  animation: applepay-up 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 26px 26px 0 0;
+  /* The characteristic light metallic sheen: a soft top highlight over a
+   * top-to-bottom grey gradient. */
+  background:
+    radial-gradient(140% 70% at 50% -8%, rgb(255 255 255 / 75%), rgb(255 255 255 / 0%) 55%),
+    linear-gradient(180deg, #ececed 0%, #e4e4e6 48%, #d8d8db 100%);
+  box-shadow: 0 -10px 44px rgb(0 0 0 / 22%);
+  animation: applepay-up 300ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 @keyframes applepay-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
 
-.applepay__grabber {
-  width: 40px;
-  height: 5px;
-  margin: 2px auto 10px;
-  border-radius: 3px;
-  background: rgb(60 60 67 / 30%);
-}
-
+/* ---------- Header ---------- */
 .applepay__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 .applepay__wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  font-size: 22px;
+  gap: 3px;
+  font-size: 30px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .applepay__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 50%;
-  background: rgb(120 120 128 / 16%);
-  color: #3c3c43;
-  font-size: 15px;
+  background: rgb(120 120 128 / 20%);
+  color: #4b4b50;
   cursor: pointer;
 }
 
-/* Card row */
+/* ---------- Card row ---------- */
 .applepay__card {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  padding: 12px 14px;
-  margin-bottom: 14px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   background: #fff;
   text-align: left;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
 }
 .applepay__card-art {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 26px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #1a1f71, #2b3a9e);
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 52px;
+  height: 34px;
+  padding: 3px;
+  border-radius: 5px;
+  background: linear-gradient(150deg, #1a2a6c 0%, #22357f 55%, #16204f 100%);
+}
+.applepay__card-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(90deg, #e4002b 0%, #ff5a3c 100%);
+}
+.applepay__card-visa {
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
   font-style: italic;
   letter-spacing: 0.02em;
 }
-.applepay__card-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.applepay__card-name { font-size: 15px; font-weight: 500; }
-.applepay__card-num { font-size: 13px; color: #6b6b70; }
-.applepay__chev { color: #c4c4c6; font-size: 20px; }
+.applepay__card-name { font-size: 18px; font-weight: 500; }
+.applepay__card-num { font-size: 18px; white-space: nowrap; }
+.applepay__dots { position: relative; top: 2px; letter-spacing: 1px; }
 
-/* Detail rows */
-.applepay__rows {
-  margin: 0 0 14px;
-  padding: 2px 14px;
-  background: #fff;
-  border-radius: 12px;
-}
-.applepay__row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 0;
-  border-bottom: 0.5px solid rgb(60 60 67 / 18%);
-}
-.applepay__row:last-child { border-bottom: none; }
-.applepay__row dt { color: #6b6b70; font-size: 14px; flex: none; }
-.applepay__row dd { margin: 0; font-size: 14px; text-align: right; }
-
-.applepay__total {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 4px 14px 18px;
-  font-size: 17px;
-  font-weight: 600;
-}
-.applepay__amount { font-size: 17px; font-weight: 600; }
-
-/* Confirm — the side-button double-click prompt, made tappable for the demo. */
-.applepay__confirm {
-  position: relative;
+/* ---------- Other cards row ---------- */
+.applepay__more {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
-  padding: 15px;
+  padding: 17px 18px;
+  margin-bottom: 18px;
   border: none;
-  border-radius: 12px;
-  background: #000;
-  color: #fff;
-  font-size: 16px;
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+}
+.applepay__chev { color: #b8b8be; font-size: 22px; line-height: 1; }
+
+/* ---------- Total ---------- */
+.applepay__pay {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  row-gap: 2px;
+  padding: 2px 4px 20px;
+}
+.applepay__pay-to {
+  grid-column: 1;
+  font-size: 15px;
+  color: #6b6b70;
+}
+.applepay__amount {
+  grid-column: 1;
+  font-size: 30px;
   font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.applepay__info {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgb(120 120 128 / 16%);
+  color: #6b6b70;
+  font-size: 15px;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* ---------- Confirm ---------- */
+.applepay__confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 4px 0 6px;
+  border: none;
+  background: none;
+  color: #000;
   cursor: pointer;
 }
-/* A nod to the iPhone side button the prompt refers to. */
-.applepay__sidebtn {
-  width: 4px;
-  height: 16px;
-  border-radius: 2px;
-  background: #fff;
-  box-shadow: 8px 0 0 -1px rgb(255 255 255 / 45%);
-}
+.applepay__sidebtn { display: inline-flex; }
+.applepay__confirm-text { font-size: 17px; font-weight: 400; }

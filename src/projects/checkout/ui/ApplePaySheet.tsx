@@ -9,10 +9,14 @@ import './ApplePaySheet.css';
  * A mock of the native iOS Apple Pay sheet, opened by a "Buy with Apple Pay"
  * button. It is an OVERLAY, not a screen: it renders on top of whatever page
  * invoked it (sign-in or checkout), which stays mounted and dimmed behind the
- * scrim — closing returns there with nothing to re-render. Deliberately NOT
- * brand-tokened: this is the operating system's own surface, so it uses its own
- * system-style chrome. Confirming (the side-button double-click) places the
- * order; the ✕ or backdrop dismisses the sheet.
+ * scrim — closing returns there with nothing to re-render.
+ *
+ * Deliberately NOT brand-tokened: this is the operating system's own surface,
+ * so it mirrors the real sheet's chrome — the "⍺ Pay" wordmark, a card row with
+ * the artwork and masked number, the "Other Cards & Pay Later Options" row, the
+ * "Pay <merchant>" total with an info affordance, and the "Confirm with Side
+ * Button" prompt with the side-button glyph and the double-click rail on the
+ * backdrop. Confirming places the order; the ✕ or backdrop dismisses the sheet.
  */
 export function ApplePaySheet() {
   const { interactive, nav, brand } = useProjectRuntime();
@@ -31,50 +35,71 @@ export function ApplePaySheet() {
     <div className="applepay">
       <button className="applepay__scrim" aria-label="Cancel" onClick={cancel} />
 
-      <section className="applepay__sheet" role="dialog" aria-modal="true" aria-label="Apple Pay">
-        <div className="applepay__grabber" aria-hidden="true" />
+      {/* The iOS hint drawn on the backdrop next to the physical side button. */}
+      <div className="applepay__rail" aria-hidden="true">
+        <span className="applepay__rail-text">
+          Double-Click
+          <br />
+          to Pay
+        </span>
+        <span className="applepay__rail-bar" />
+      </div>
 
+      <section className="applepay__sheet" role="dialog" aria-modal="true" aria-label="Apple Pay">
         <header className="applepay__head">
           <span className="applepay__wordmark">
-            <AppleMark size={20} /> Pay
+            <AppleMark size={27} />
+            Pay
           </span>
           <button className="applepay__close" aria-label="Cancel" onClick={cancel}>
-            ✕
+            <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden="true">
+              <path
+                d="M1 1l13 13M14 1L1 14"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         </header>
 
         <button className="applepay__card" type="button">
-          <span className="applepay__card-art">VISA</span>
-          <span className="applepay__card-text">
-            <span className="applepay__card-name">Visa Debit</span>
-            <span className="applepay__card-num">•••• 4567</span>
+          <span className="applepay__card-art">
+            <span className="applepay__card-stripe" />
+            <span className="applepay__card-visa">VISA</span>
           </span>
+          <span className="applepay__card-name">Visa Debit</span>
+          <span className="applepay__card-num">
+            <span className="applepay__dots">••••</span> 4567
+          </span>
+        </button>
+
+        <button className="applepay__more" type="button">
+          <span>Other Cards &amp; Pay Later Options</span>
           <span className="applepay__chev" aria-hidden="true">›</span>
         </button>
 
-        <dl className="applepay__rows">
-          <div className="applepay__row">
-            <dt>Pay to</dt>
-            <dd>{brand.name}</dd>
-          </div>
-          <div className="applepay__row">
-            <dt>Deliver to</dt>
-            <dd>53 Carlton Road, Long Eaton, Nottingham, NG10 3LF</dd>
-          </div>
-          <div className="applepay__row">
-            <dt>Contact</dt>
-            <dd>luke_bell@next.co.uk</dd>
-          </div>
-        </dl>
-
-        <div className="applepay__total">
-          <span>Pay {brand.name}</span>
+        <div className="applepay__pay">
+          <span className="applepay__pay-to">Pay {brand.name}</span>
           <span className="applepay__amount">{money(total)}</span>
+          <span className="applepay__info" aria-hidden="true">i</span>
         </div>
 
         <button className="applepay__confirm" type="button" onClick={pay}>
-          <span className="applepay__sidebtn" aria-hidden="true" />
-          Double-Click to Pay
+          <span className="applepay__sidebtn" aria-hidden="true">
+            <svg width="46" height="46" viewBox="0 0 46 46" fill="none">
+              <circle cx="23" cy="23" r="21" stroke="#0a84ff" strokeWidth="1.4" />
+              <rect x="30.5" y="15" width="4" height="16" rx="2" fill="#0a84ff" />
+              <path
+                d="M27.5 23H15.5M20 18l-5 5 5 5"
+                stroke="#0a84ff"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span className="applepay__confirm-text">Confirm with Side Button</span>
         </button>
       </section>
     </div>
