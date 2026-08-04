@@ -1,0 +1,62 @@
+@font-face {
+	font-family: "Jost";
+	src: url("jost-100.woff2") format("woff2");
+	font-weight: 100;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-200.woff2") format("woff2");
+	font-weight: 200;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-300.woff2") format("woff2");
+	font-weight: 300;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-400.woff2") format("woff2");
+	font-weight: 400;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-500.woff2") format("woff2");
+	font-weight: 500;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-600.woff2") format("woff2");
+	font-weight: 600;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-700.woff2") format("woff2");
+	font-weight: 700;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-800.woff2") format("woff2");
+	font-weight: 800;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Jost";
+	src: url("jost-900.woff2") format("woff2");
+	font-weight: 900;
+	font-style: normal;
+}
