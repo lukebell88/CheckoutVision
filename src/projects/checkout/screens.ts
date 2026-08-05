@@ -9,19 +9,19 @@ import type { ScreenDef } from '../../studio/project';
  * (`section` in the runtime's `progress` bucket), not navigation, so the whole
  * journey is a single route the shopper never leaves.
  *
- * That leaves the screens either side of it: the sign-in fork, the one-time
- * passcode entry, and the terminal confirmation.
+ * That leaves the screens either side of it: the sign-in fork and the terminal
+ * confirmation. Sign-in now owns identity verification inline (the "Confirm it's
+ * you" step), so there is no separate passcode page.
  *
  * The Apple Pay sheet is NOT a screen: it's an overlay that sits on top of
  * whichever page invoked it (sign-in or checkout), so that page stays mounted
  * behind its scrim. It's driven by the `overlay` data bucket — see
  * `ApplePaySheet` and `CheckoutPage`.
  */
-export type CheckoutPageId = 'signin' | 'otp' | 'checkout' | 'confirmation';
+export type CheckoutPageId = 'signin' | 'checkout' | 'confirmation';
 
 export const CHECKOUT_SCREENS: Record<CheckoutPageId, ScreenDef> = {
   signin: { id: 'signin', title: 'Sign / Register', navLabel: 'Sign in' },
-  otp: { id: 'otp', title: 'One-time passcode', navLabel: 'Passcode' },
   checkout: { id: 'checkout', title: 'Checkout', navLabel: 'Checkout' },
   confirmation: { id: 'confirmation', title: 'Order complete', navLabel: 'Confirmation', terminal: true },
 };

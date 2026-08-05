@@ -24,7 +24,6 @@ export interface CheckoutVariantGroup extends VariantGroup {
       delivery?: Record<string, unknown>;
       payment?: Record<string, unknown>;
       progress?: Record<string, unknown>;
-      auth?: Record<string, unknown>;
       overlay?: Record<string, unknown>;
     };
     note?: string;
@@ -38,17 +37,20 @@ export const VARIANT_GROUPS: CheckoutVariantGroup[] = [
     id: 'signin',
     name: 'Sign in',
     screen: 'signin',
-    description: 'How sign-in is put to a shopper we recognise.',
+    description: 'The standalone sign-in page: email capture, then inline verification for a recognised shopper.',
     versions: [
-      { id: 'email', label: 'Email capture', data: { auth: { treatment: 'none' } } },
-      { id: 'chooser', label: 'Hi Alex — passcode or password', data: { auth: { treatment: 'chooser' }, customer: { ...GUEST, signedIn: false } } },
-      { id: 'password-first', label: 'Password first (keychain)', data: { auth: { treatment: 'password-first' }, customer: GUEST } },
-      { id: 'otp-first', label: 'Passcode first', data: { auth: { treatment: 'otp-first' }, customer: GUEST } },
-      { id: 'no-express', label: 'Without express payment', flags: { expressPayment: false } },
+      { id: 'email', label: 'Email capture', data: { customer: { email: '' } } },
+      {
+        id: 'matched',
+        label: 'Recognised — Confirm it’s you',
+        data: { customer: { ...GUEST, email: 'luke_bell@next.co.uk', phone: '07784141908', recognised: true, signedIn: false } },
+        note: 'A known email commits and reveals the passcode step, with passkey / password in the switcher.',
+      },
+      { id: 'no-express', label: 'Without express payment', flags: { expressPayment: false }, data: { customer: { email: '' } } },
       {
         id: 'apple-pay',
         label: 'Apple Pay sheet over sign-in',
-        data: { overlay: { applePay: true } },
+        data: { customer: { email: '' }, overlay: { applePay: true } },
         note: 'The sheet is an overlay: the sign-in page stays mounted and dimmed behind its scrim.',
       },
     ],
@@ -71,8 +73,8 @@ export const VARIANT_GROUPS: CheckoutVariantGroup[] = [
         id: 'verify',
         label: 'Recognised — verify inline',
         flags: { emailFirstCheckout: true },
-        data: { customer: { email: 'alex_smith@next.co.uk', recognised: true, signedIn: false } },
-        note: 'A known email locks to a chip and reveals the passcode step (passkey / password below).',
+        data: { customer: { email: 'alex_smith@next.co.uk', phone: '07784141908', recognised: true, signedIn: false } },
+        note: 'A known email commits and reveals the passcode step, with passkey / password in the switcher.',
       },
       {
         id: 'guest',
@@ -107,19 +109,6 @@ export const VARIANT_GROUPS: CheckoutVariantGroup[] = [
       { id: 'delivery', label: '2 · Delivery', data: { progress: { section: 'delivery', done: ['details'] }, customer: GUEST } },
       { id: 'payment', label: '3 · Payment', data: { progress: { section: 'payment', done: ['details', 'delivery'] }, customer: GUEST, delivery: { method: 'home', addressKnown: true } } },
       { id: 'complete', label: 'Ready to pay', data: { progress: { section: 'complete', done: ['details', 'delivery', 'payment'] }, customer: GUEST, delivery: { method: 'home', addressKnown: true } } },
-      // The scamp's row 2: matched inside an OPEN Your Details, sign-in offered
-      // in place. The account-matched flow now arrives with the section already
-      // complete, so this state only exists here — keep it, it's a real option
-      // for how a match could be handled.
-      {
-        id: 'matched-inline',
-        label: '1 · Matched, sign in here',
-        data: {
-          progress: { section: 'details', done: [] },
-          customer: { email: 'alex_smith@next.co.uk', signedIn: false },
-          auth: { treatment: 'inline' },
-        },
-      },
     ],
   },
   {

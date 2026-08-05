@@ -38,7 +38,7 @@ const DATES = [
 ];
 
 export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
-  const { flags, delivery, customer, auth } = useCheckoutConfig();
+  const { flags, delivery, customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const [method, setMethod] = useSeededState(String(delivery.method), () => delivery.method ?? 'home');
   // Patch the method as soon as it's picked (not just on Continue) so the order
@@ -71,7 +71,7 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   // the summary shows); `storeQuery` is the search box; `selectedStore` keeps the
   // object so the dropdown can render and re-highlight it. Results come from
   // Next's real collect-in-store endpoint — see ../../stores.ts.
-  const detailsFromAccount = !!customer.signedIn || (auth.treatment ?? 'none') !== 'none';
+  const detailsFromAccount = !!customer.signedIn;
   const accountPostcode = detailsFromAccount ? (delivery.postcode ?? '') : '';
 
   const [storeQuery, setStoreQuery] = useState(accountPostcode);

@@ -1,229 +1,177 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useProjectRuntime } from '../../../studio/runtime';
 import { Button } from '../../../components/Button';
-import { TextField } from '../../../components/TextField';
-import { Link } from '../../../components/Link';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { TitleBar } from '../components/TitleBar';
-import { LegalNote, OrRule, AppleMark } from './parts';
 import { FormField } from '../components/FormField';
+import { Spinner } from '../components/Spinner';
+import { ConfirmIdentity } from './ConfirmIdentity';
+import { OrRule, AppleMark, LegalNote } from './parts';
+import { useSeededState } from './useSeededState';
 
 /**
- * Sign / Register — the fork every journey starts at.
+ * Sign / Register — the standalone page, when the email-first flag is off.
  *
- * One screen, five faces, chosen by the flow's `auth.treatment`. That's the axis
- * the scamp's middle three rows exist to compare, so it belongs in one component
- * where the differences are readable side by side rather than in five near-copies.
+ * The same idea as the email-first block, as its own screen: an email field
+ * that auto-commits (no Continue button — valid fires on pause/blur/Enter), a
+ * spinner while the account check runs, then a committed field with a ✕ to
+ * change it. A recognised email reveals the inline "Confirm it's you" step
+ * (passcode / password / passkey); on success we move to the checkout. A guest
+ * gets the "Checkout as a guest" and Apple Pay express paths below.
  *
- *   none           · email capture + guest + express pay (the default entry)
- *   chooser        · "Hi Alex" — one-time code recommended, password secondary
- *   password-first · password above the fold for keychain autofill, OTP below
- *   otp-first      · passcode boxes lead, password underneath
+ * The old per-treatment faces (chooser / password-first / otp-first) are gone —
+ * verification is one shared component now (see ConfirmIdentity).
  */
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const DEBOUNCE_MS = 800;
+const CHECK_MS = 900;
+
 export function SignInScreen() {
-  const { flags, customer, auth } = useCheckoutConfig();
+  const { flags, customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
+  const recognised = !!customer.recognised;
 
-  const go = (id: string) => (interactive ? () => nav.goTo(id) : undefined);
-  const back = interactive ? nav.back : undefined;
-  // Apple Pay is an overlay over this screen, not a route — open it in place.
-  const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
-
-  // Email capture, with submit-time validation. Deliberately not validated as
-  // you type: the complaint here is "you haven't filled this in", which isn't
-  // true until you try to move on.
+  const seed = `${customer.email ?? ''}|${customer.signedIn ? 1 : 0}|${recognised ? 1 : 0}`;
+  const [email, setEmail] = useSeededState(seed, () => customer.email ?? '');
+  const [phase, setPhase] = useSeededState<'editing' | 'validating' | 'locked'>(seed, () =>
+    customer.email ? 'locked' : 'editing',
+  );
+  const [touched, setTouched] = useState(false);
   const emailId = useId();
-  // Prefilled for a recognised shopper (account-matched flows carry the email),
-  // empty for a guest — so an account journey is just "tap Continue".
-  const [emailInput, setEmailInput] = useState(customer.email ?? '');
-  const [emailMissing, setEmailMissing] = useState(false);
 
-  const continueWithEmail = () => {
-    if (!emailInput.trim()) {
-      setEmailMissing(true);
-      // Take the shopper to the problem. `role="alert"` on the message announces
-      // it; focus is what makes it reachable without hunting up the page.
-      document.getElementById(emailId)?.focus();
-      return;
-    }
-    // Carry it forward so the next screen opens with the email already in it —
-    // asking twice for something they just typed is its own kind of error.
-    // `nav.next()` follows the flow's screen order, so a guest lands on checkout
-    // while an account-matched journey lands on the one-time passcode page.
-    if (interactive) {
-      nav.patch('customer', { email: emailInput.trim() });
-      nav.next();
-    }
+  const timers = useRef<number[]>([]);
+  const clearTimers = () => {
+    timers.current.forEach((t) => window.clearTimeout(t));
+    timers.current = [];
   };
-  const treatment = auth.treatment ?? 'none';
-  const email = customer.email ?? 'alex_smith@next.co.uk';
-  const masked = email.replace(/^(.{4}).*(@.*)$/, '$1*******$2');
+  useEffect(() => clearTimers, []);
 
-  if (treatment === 'chooser') {
-    return (
-      <main className="co-screen co-screen--narrow">
-        <TitleBar title="Sign / Register" onBack={back} />
+  const valid = EMAIL_RE.test(email.trim());
 
-        <h2 className="co-lede">Hi {customer.firstName ?? 'Alex'}</h2>
-        <p className="co-lede__sub">Sign in securely without entering your password</p>
-
-        <div className="co-method">
-          <span className="co-method__flag">Recommended</span>
-          <div className="co-method__head">
-            <span className="co-method__badge">1234</span>
-            <div>
-              <div className="co-method__title">Sign in with one-time code</div>
-              <div className="co-method__meta">We’ll send it to {masked}</div>
-            </div>
-          </div>
-          <Button variant="contained" color="primary" size="large" fullWidth onClick={go('otp')}>
-            Send my code
-          </Button>
-        </div>
-
-        <OrRule />
-
-        <div className="co-method">
-          <div className="co-method__head">
-            <span className="co-method__badge">••••</span>
-            <div>
-              <div className="co-method__title">Sign in with your password</div>
-              <div className="co-method__meta">Use your existing account password</div>
-            </div>
-          </div>
-          <Button variant="outlined" color="secondary" size="large" fullWidth onClick={go('checkout')}>
-            Use password
-          </Button>
-        </div>
-
-        <p className="co-centre">
-          <Link href="#">Use different account</Link>
-        </p>
-      </main>
+  const commit = (value: string) => {
+    if (!interactive || !EMAIL_RE.test(value.trim())) return;
+    clearTimers();
+    setPhase('validating');
+    timers.current.push(
+      window.setTimeout(() => {
+        nav.patch('customer', { email: value.trim() });
+        // Guest → straight into checkout. Recognised → the re-seed locks the
+        // field and the verification step appears in place.
+        if (!recognised) nav.next();
+      }, CHECK_MS),
     );
-  }
+  };
 
-  if (treatment === 'password-first' || treatment === 'otp-first') {
-    const otpFirst = treatment === 'otp-first';
-    return (
-      <main className="co-screen co-screen--narrow">
-        <TitleBar title="Sign in" onBack={back} />
+  const onInput = (v: string) => {
+    setEmail(v);
+    setTouched(false);
+    if (!interactive || phase !== 'editing') return;
+    clearTimers();
+    if (EMAIL_RE.test(v.trim())) timers.current.push(window.setTimeout(() => commit(v), DEBOUNCE_MS));
+  };
+  const commitNow = () => {
+    if (interactive && valid && phase === 'editing') commit(email);
+  };
+  const onChangeEmail = () => {
+    if (!interactive) return;
+    clearTimers();
+    nav.patch('customer', { email: '', signedIn: false });
+  };
+  const onVerified = () => {
+    if (!interactive) return;
+    nav.patch('customer', { signedIn: true });
+    nav.next();
+  };
 
-        <h2 className="co-lede">Great, we have found an account for this email address</h2>
-        <p className="co-lede__sub">
-          {otpFirst
-            ? 'Please enter your one time passcode or password below'
-            : 'Please enter your password below or use one time passcode'}
-        </p>
+  const locked = phase === 'locked';
+  const validating = phase === 'validating';
+  const formatError = touched && email.trim().length > 0 && !valid;
+  const back = interactive ? nav.back : undefined;
 
-        <div className="co-emailrow">
-          <TextField size="large" defaultValue={email} readOnly />
-          <Button variant="outlined" color="secondary" size="large">
-            Change
-          </Button>
-        </div>
-
-        {otpFirst ? (
-          <>
-            <p className="co-field__label">Please enter your one time passcode below</p>
-            <OtpBoxes />
-            <p className="co-help">
-              Didn’t receive anything <Link href="#">Resend code</Link>
-            </p>
-            <OrRule />
-            <FormField label="Password" type="password" placeholder="Enter your password" />
-            <p className="co-help">
-              <Link href="#">Forgotten password</Link>
-            </p>
-            <Button variant="contained" color="primary" size="large" fullWidth onClick={go('checkout')}>
-              Continue
-            </Button>
-          </>
-        ) : (
-          <>
-            <FormField label="Password" type="password" value="Summer2026!" />
-            <p className="co-help">
-              <Link href="#">Forgotten password</Link>
-            </p>
-            <Button variant="contained" color="primary" size="large" fullWidth onClick={go('checkout')}>
-              Continue
-            </Button>
-            <Button variant="outlined" color="secondary" size="large" fullWidth onClick={go('checkout')}>
-              Sign in with passkey
-            </Button>
-            <OrRule />
-            <Button variant="outlined" color="secondary" size="large" fullWidth onClick={go('otp')}>
-              Sign in with one time passcode
-            </Button>
-            <p className="co-help">
-              We’ll send you a one time passcode via text message and email that will allow you to sign in
-            </p>
-          </>
-        )}
-      </main>
-    );
-  }
-
-  // Default: email capture, guest, express payment.
   return (
     <main className="co-screen co-screen--narrow">
       <TitleBar title="Sign / Register" onBack={back} />
 
       <h2 className="co-lede">Enter your email address to continue</h2>
-      <p className="co-lede__sub">We’ll check if you already have an account</p>
 
-      <FormField
-        id={emailId}
-        label="Email address"
-        hideLabel
-        type="email"
-        placeholder="you@example.com"
-        value={emailInput}
-        onChange={(e) => {
-          setEmailInput(e.target.value);
-          // Stop complaining the moment they start fixing it.
-          if (emailMissing) setEmailMissing(false);
-        }}
-        status={emailMissing ? 'error' : 'default'}
-        message={emailMissing ? 'Enter your email address to continue.' : undefined}
-      />
+      {locked ? (
+        <div className="co-committed">
+          <span className="co-committed__value">{email}</span>
+          <button
+            type="button"
+            className="co-committed__clear"
+            aria-label="Change email address"
+            onClick={interactive ? onChangeEmail : undefined}
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true">
+              <path d="M1 1l11 11M12 1L1 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        <FormField
+          id={emailId}
+          label="Email address"
+          hideLabel
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={email}
+          readOnly={!interactive || validating}
+          onChange={(e) => onInput(e.target.value)}
+          onBlur={() => {
+            setTouched(true);
+            commitNow();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              commitNow();
+            }
+          }}
+          endIcon={validating ? <Spinner size={18} label="Checking your email address" /> : undefined}
+          status={formatError ? 'error' : 'default'}
+          message={formatError ? 'Enter an email address in the format name@example.com' : undefined}
+        />
+      )}
 
-      <Button variant="contained" color="primary" size="large" fullWidth onClick={continueWithEmail}>
-        Continue
-      </Button>
+      {recognised && locked && !customer.signedIn && (
+        <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={onVerified} />
+      )}
 
-      <OrRule />
+      {!locked && (
+        <>
+          <OrRule />
 
-      <div className="co-guest">
-        <Button variant="outlined" color="secondary" size="large" fullWidth onClick={go('checkout')}>
-          Checkout as a guest
-        </Button>
+          <div className="co-guest">
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="large"
+              fullWidth
+              onClick={interactive ? () => nav.next() : undefined}
+            >
+              Checkout as a guest
+            </Button>
 
-        {flags.expressPayment && (
-          <>
-            <p className="co-guest__title">Checkout now with express payment</p>
-            <button type="button" className="co-express" onClick={openApplePay}>
-              Buy with <AppleMark /> Pay
-            </button>
-          </>
-        )}
+            {flags.expressPayment && (
+              <>
+                <p className="co-guest__title">Checkout now with express payment</p>
+                <button
+                  type="button"
+                  className="co-express"
+                  onClick={interactive ? () => nav.patch('overlay', { applePay: true }) : undefined}
+                >
+                  Buy with <AppleMark /> Pay
+                </button>
+              </>
+            )}
 
-        <LegalNote />
-      </div>
+            <LegalNote />
+          </div>
+        </>
+      )}
     </main>
-  );
-}
-
-/** Six passcode boxes. Presentational — the scamp shows them pre-filled or empty. */
-export function OtpBoxes({ code }: { code?: string }) {
-  const chars = (code ?? '').padEnd(6, ' ').slice(0, 6).split('');
-  return (
-    <div className="co-otp" role="group" aria-label="One-time passcode">
-      {chars.map((c, i) => (
-        <span key={i} className="co-otp__box">
-          {c.trim()}
-        </span>
-      ))}
-    </div>
   );
 }

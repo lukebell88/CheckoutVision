@@ -2,9 +2,7 @@ import { useId, type ChangeEvent } from 'react';
 import { useProjectRuntime } from '../../../../studio/runtime';
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
-import { Link } from '../../../../components/Link';
 import { useCheckoutConfig } from '../../checkoutConfig';
-import { OrRule } from '../parts';
 import { FormField } from '../../components/FormField';
 import { useSeededState } from '../useSeededState';
 
@@ -21,15 +19,15 @@ import { useSeededState } from '../useSeededState';
  * a fixture. In an inert runtime (the canvas) `patch` is a no-op and the section
  * renders whatever the flow or variant configured.
  *
- * The other interesting state is `auth.treatment === 'inline'`: the shopper typed
- * an email we recognise, so sign-in is offered right here rather than bouncing
- * them to a sign-in page. That in-place upgrade is the whole point of the scamp's
- * "Account Matched" row — losing it to a redirect would lose the idea.
+ * A recognised shopper is handled before they ever reach this section — the
+ * sign-in step (or the email-first block) verifies them and fills their details
+ * from the account — so Your Details is only ever the guest's own typing. When
+ * email-first has already captured the address up top, the email field here is
+ * hidden and only carried through on submit.
  */
 export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
-  const { customer, auth, flags } = useCheckoutConfig();
+  const { customer, flags } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
-  const matched = auth.treatment === 'inline' && !customer.signedIn;
 
   const seed = `${customer.email}|${customer.firstName}|${customer.lastName}`;
   const [form, setForm] = useSeededState(
@@ -118,34 +116,6 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
                 : undefined
           }
         />
-      )}
-
-      {matched && (
-        <div className="co-matched">
-          <p className="co-matched__lede">Looks like you already have an account with us</p>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            fullWidth
-            onClick={interactive ? () => nav.goTo('otp') : undefined}
-          >
-            Sign in with one time passcode
-          </Button>
-          <p className="co-help">
-            We’ll send you a one time passcode via text message and email that will allow you to sign in
-          </p>
-
-          <OrRule />
-
-          <FormField label="Password" hideLabel type="password" placeholder="Enter your password" />
-          <p className="co-help">
-            <Link href="#">Forgotten password</Link>
-          </p>
-          <Button variant="contained" color="primary" size="large" fullWidth onClick={submit}>
-            Sign in
-          </Button>
-        </div>
       )}
 
       <FormField

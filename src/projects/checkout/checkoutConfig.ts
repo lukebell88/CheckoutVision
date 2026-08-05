@@ -1,6 +1,5 @@
 import { useProjectRuntime } from '../../studio/runtime';
 import type { FlagState } from './flags';
-import type { AuthTreatment } from './flows';
 import type { SectionId } from './screens';
 
 /**
@@ -48,9 +47,6 @@ export interface ProgressInfo {
   section?: SectionId | 'complete';
   done?: SectionId[];
 }
-export interface AuthInfo {
-  treatment?: AuthTreatment;
-}
 /** Transient overlays that sit ON TOP of the current screen, not beside it. */
 export interface OverlayInfo {
   /** The Apple Pay sheet is open over whatever screen invoked it. */
@@ -63,7 +59,6 @@ export interface CheckoutConfig {
   delivery: DeliveryInfo;
   payment: PaymentInfo;
   progress: ProgressInfo;
-  auth: AuthInfo;
   overlay: OverlayInfo;
 }
 
@@ -76,7 +71,6 @@ export function useCheckoutConfig(): CheckoutConfig {
     delivery: (rt.data.delivery ?? {}) as DeliveryInfo,
     payment: (rt.data.payment ?? {}) as PaymentInfo,
     progress: (rt.data.progress ?? {}) as ProgressInfo,
-    auth: (rt.data.auth ?? {}) as AuthInfo,
     overlay: (rt.data.overlay ?? {}) as OverlayInfo,
   };
 }

@@ -32,7 +32,7 @@ import { useEmailFirst } from './useEmailFirst';
  * that's the one piece of layout it doesn't dictate.
  */
 export function OnePageCheckout() {
-  const { customer, progress, auth, delivery } = useCheckoutConfig();
+  const { customer, progress, delivery } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const { total, delivery: deliveryCost } = cartTotals(delivery.method);
 
@@ -68,7 +68,7 @@ export function OnePageCheckout() {
    * to use a different address. Reopening it would offer to edit an account's
    * name inside a checkout, which isn't a thing this journey can do.
    */
-  const detailsFromAccount = !!customer.signedIn || (auth.treatment ?? 'none') !== 'none';
+  const detailsFromAccount = !!customer.signedIn;
 
   const change = (id: SectionId) => {
     if (!interactive) return undefined;

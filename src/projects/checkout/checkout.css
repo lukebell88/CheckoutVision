@@ -161,24 +161,103 @@
 .co-emailgate { margin-bottom: 20px; }
 .co-emailgate .co-lede { margin-top: 0; }
 
-.co-emailgate__locklabel {
-  display: block;
-  margin-bottom: 6px;
-  font-size: var(--global-body-3-font-size, 0.8125rem);
-  color: var(--text-secondary, #555);
+/* Committed email: a filled, read-only field showing the address with a round
+ * ✕ to clear it and start over (Figma "committed" state). */
+.co-committed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  border: 1px solid var(--border-subtle, #e3e3e3);
+  border-radius: 6px;
+  background: var(--surface-subtle, #f5f5f5);
 }
-/* In this form context the chip fills the row, pushing Change to the edge. */
-.co-emailgate__locked .co-chip { display: flex; width: 100%; }
-.co-emailgate__locked .co-chip__label { flex: 1 1 auto; }
+.co-committed__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--global-body-1-font-size, 0.875rem);
+}
+.co-committed__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-subtle, #d8d8d8);
+  border-radius: 50%;
+  background: var(--surface-default, #fff);
+  color: var(--text-secondary, #555);
+  cursor: pointer;
+}
 
-.co-emailgate__verify {
-  margin-top: 16px;
-  padding-top: 16px;
+.co-emailgate__express { margin-top: 20px; }
+
+/* ---------- Confirm it's you (verification) ---------- */
+.co-confirm {
+  margin-top: 20px;
+  padding-top: 4px;
+}
+.co-confirm__title {
+  margin: 0 0 4px;
+  font-family: var(--global-h5-font-family, inherit);
+  font-size: var(--global-h5-font-size, 0.9375rem);
+  font-weight: var(--global-h5-font-weight, 700);
+}
+.co-confirm__sub { margin: 0 0 16px; color: var(--text-secondary, #555); }
+.co-confirm__action { margin: 12px 0 0; text-align: center; font-weight: 700; }
+.co-confirm__passkey { display: flex; justify-content: center; padding: 20px 0; }
+
+/* Method switcher: the two other ways to verify, divided down the middle. */
+.co-confirm__switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid var(--border-subtle, #e3e3e3);
 }
-.co-emailgate__verify .fab-btn + .fab-btn { margin-top: 10px; }
+.co-confirm__method {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--text-primary, #111);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.co-confirm__sep {
+  width: 1px;
+  height: 22px;
+  background: var(--border-subtle, #d8d8d8);
+}
 
-.co-emailgate__express { margin-top: 4px; }
+/* Skeleton shown while switching methods — same footprint, so nothing jumps. */
+.co-confirm__skeleton { display: flex; flex-direction: column; gap: 12px; }
+.co-skel {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #ececec 25%, #f5f5f5 37%, #ececec 63%);
+  background-size: 400% 100%;
+  animation: co-skel-shimmer 1.2s ease-in-out infinite;
+}
+.co-skel--line { width: 70%; height: 14px; }
+.co-skel--field { width: 100%; height: 52px; }
+.co-skel--link { width: 40%; height: 14px; margin: 0 auto; }
+@keyframes co-skel-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .co-skel { animation: none; }
+}
 
 /* ---------- OTP ---------- */
 .co-otp { position: relative; display: flex; gap: 8px; margin: 12px 0; }
@@ -207,8 +286,17 @@
   aspect-ratio: 1 / 1;
   max-width: 52px;
   border: 1px solid var(--border-strong, #111);
+  border-radius: 6px;
   font-size: var(--global-h4-font-size, 1.25rem);
   font-weight: 700;
+}
+/* The dash between the two groups of three (Figma 3 · 3 grouping). */
+.co-otp__dash {
+  align-self: center;
+  flex: none;
+  width: 10px;
+  height: 1.5px;
+  background: var(--border-strong, #111);
 }
 /* The push notification behaves like an iOS banner: fixed over everything at the
  * top, slides in, holds, then slides back out on its own. */
