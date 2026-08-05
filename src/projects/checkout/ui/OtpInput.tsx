@@ -49,7 +49,7 @@ export function OtpInput({
         onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, LENGTH))}
       />
       {[0, 1, 2].map(box)}
-      <span className="co-otp__dash" aria-hidden="true" />
+      <span className="co-otp__dash" aria-hidden="true">-</span>
       {[3, 4, 5].map(box)}
     </div>
   );

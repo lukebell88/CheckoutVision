@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { useProjectRuntime } from '../../../studio/runtime';
+import { Icon } from '../../../components/Icon';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { FormField } from '../components/FormField';
 import { Spinner } from '../components/Spinner';
@@ -37,20 +38,18 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
         {ef.status}
       </p>
 
-      <h2 className="co-lede">Enter your email address to continue</h2>
+      <h2 className="co-h3">Enter your email address to continue</h2>
 
       {locked ? (
-        <div className="co-committed">
-          <span className="co-committed__value">{ef.email}</span>
+        <div className="co-emailfield">
+          <span className="co-emailfield__value">{ef.email}</span>
           <button
             type="button"
-            className="co-committed__clear"
+            className="co-emailfield__clear"
             aria-label="Change email address"
             onClick={interactive ? ef.onChangeEmail : undefined}
           >
-            <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true">
-              <path d="M1 1l11 11M12 1L1 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
+            <Icon name="clear" size={24} />
           </button>
         </div>
       ) : (
