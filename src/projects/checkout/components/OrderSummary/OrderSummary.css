@@ -3,19 +3,42 @@
  *
  * Appearance only. Where the summary sits and whether it's visible belong to the
  * page (`.co-orderslot` in checkout.css) — this file must not position it, or it
- * can't be reused anywhere the layout differs. */
+ * can't be reused anywhere the layout differs.
+ *
+ * Every value reads a Fabric token so it re-themes per brand and matches the
+ * Figma "Your Order" card exactly: #f7f7f7 card, 12px padding, 4px radius; H3
+ * title with a Body-1 count; product cards (56×75 image, #eee hairlines,
+ * Body-3 name/price, Body-2 label + Body-4 value); Body-1 totals with an H3
+ * grand total. */
 
-.co-ordersummary__title {
-  margin: 0;
-  font-family: var(--global-h5-font-family, inherit);
-  font-size: var(--global-h5-font-size, 0.9375rem);
-  font-weight: 700;
+.co-ordersummary {
+  background: var(--background-main, #f7f7f7);
+  padding: 12px;
+  border-radius: 4px;
 }
 
-.co-ordersummary__caption {
-  margin: 2px 0 12px;
-  color: var(--text-secondary, #555);
-  font-size: var(--global-body-3-font-size, 0.8125rem);
+/* Title row: "Your Order" (H3) + count (Body 1, secondary), inline. */
+.co-ordersummary__titlerow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 0;
+}
+.co-ordersummary__title {
+  margin: 0;
+  font-family: var(--global-h3-font-family, inherit);
+  font-size: var(--global-h3-font-size, 0.9375rem);
+  font-weight: var(--global-h3-font-weight, 700);
+  line-height: var(--global-h3-line-height, 1.5);
+  letter-spacing: var(--global-h3-letter-spacing, 0);
+  color: var(--text-primary, #000);
+}
+.co-ordersummary__count {
+  font-family: var(--global-body-1-font-family, inherit);
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  font-weight: var(--global-body-1-font-weight, 400);
+  line-height: var(--global-body-1-line-height, 1.5);
+  color: var(--text-secondary, #616161);
 }
 
 .co-ordersummary__lines {
@@ -24,18 +47,21 @@
   padding: 0;
 }
 
+/* Each product card: image + details, split by a hairline (Figma OrderCard). */
 .co-ordersummary__line {
   display: flex;
   gap: 12px;
-  padding: 10px 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--components-divider-default-border-color, #eee);
 }
 
 .co-ordersummary__thumb {
   flex: none;
   width: 56px;
-  height: 68px;
+  height: 75px;
   object-fit: cover;
-  background: var(--surface-subtle, #eee);
+  /* Placeholder where a product image would sit — a shade off the card fill. */
+  background: var(--components-divider-default-border-color, #eee);
 }
 
 .co-ordersummary__body {
@@ -43,80 +69,104 @@
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  gap: 2px;
+  gap: 4px;
+  color: var(--text-primary, #000);
 }
 
-/* Title and price share a row, price pushed right. `gap` rather than
- * justify-content alone so a long title wraps against the price instead of
- * running under it. */
+/* Name + price — Body 3. Price is right-aligned, title ellipsises before it. */
 .co-ordersummary__head {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 12px;
+  font-family: var(--global-body-3-font-family, inherit);
+  font-size: var(--global-body-3-font-size, 0.875rem);
+  font-weight: var(--global-body-3-font-weight, 700);
+  line-height: var(--global-body-3-line-height, 1.5);
 }
-
 .co-ordersummary__name {
+  flex: 1 1 0;
   min-width: 0;
-  font-weight: 700;
-  font-size: var(--global-body-2-font-size, 0.8125rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 .co-ordersummary__price {
   flex: none;
-  font-weight: 700;
-  font-size: var(--global-body-2-font-size, 0.8125rem);
+  text-align: right;
+  white-space: nowrap;
 }
 
+/* Size / Qty — Body 2 label, Body 4 value, both text-primary. */
 .co-ordersummary__fields {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  margin: 2px 0 0;
-  gap: 2px;
+  margin: 0;
+  gap: 4px;
 }
-
 .co-ordersummary__field {
   display: flex;
-  gap: 4px;
-  font-size: var(--global-body-3-font-size, 0.8125rem);
+  align-items: center;
+  gap: 6px;
 }
-
-/* The colon is punctuation, not part of the label — so callers pass "Size", not
- * "Size:", and a label can be reused anywhere the separator differs. */
 .co-ordersummary__field dt {
   flex: none;
-  color: var(--text-secondary, #555);
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 0.75rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+  line-height: var(--global-body-2-line-height, 1.5);
+  color: var(--text-primary, #000);
 }
+/* The colon is punctuation, not part of the label — callers pass "Size". */
 .co-ordersummary__field dt::after { content: ':'; }
-
 .co-ordersummary__field dd {
   margin: 0;
   min-width: 0;
-  font-weight: 700;
+  font-family: var(--global-body-4-font-family, inherit);
+  font-size: var(--global-body-4-font-size, 0.75rem);
+  font-weight: var(--global-body-4-font-weight, 700);
+  line-height: var(--global-body-4-line-height, 1.5);
+  color: var(--text-primary, #000);
 }
 
+/* Promotional code row — 44px field + outlined APPLY button, 13px apart. */
 .co-ordersummary__promo {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 16px 0;
+}
+.co-ordersummary__promo .fab-textfield {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.co-ordersummary__promo .fab-btn {
+  flex: none;
 }
 
+/* Totals — Body 1 rows with an H3 grand total, above a top hairline. */
 .co-ordersummary__totals {
-  margin: 12px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-subtle, #e3e3e3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--components-divider-default-border-color, #eee);
+  color: var(--text-primary, #000);
 }
 .co-ordersummary__totals > div {
   display: flex;
   justify-content: space-between;
-  padding: 3px 0;
+  gap: 12px;
+  font-family: var(--global-body-1-font-family, inherit);
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  font-weight: var(--global-body-1-font-weight, 400);
+  line-height: var(--global-body-1-line-height, 1.5);
 }
 .co-ordersummary__totals dt,
 .co-ordersummary__totals dd { margin: 0; }
-
-.co-ordersummary__grand {
-  font-weight: 700;
-  font-size: var(--global-subtitle-1-font-size, 1rem);
+.co-ordersummary__totals > div.co-ordersummary__grand {
+  font-family: var(--global-h3-font-family, inherit);
+  font-size: var(--global-h3-font-size, 0.9375rem);
+  font-weight: var(--global-h3-font-weight, 700);
 }

@@ -457,11 +457,11 @@
  * The component owns how the summary LOOKS; these rules own where it sits and
  * whether it's shown. Mobile: a disclosure above the sections, opened by the
  * total bar's toggle. Desktop (below): a sticky second column, toggle hidden. */
+/* The slot only shows/hides and spaces the summary — the card's own fill,
+ * padding and radius come from `.co-ordersummary` (Figma "Your Order"). */
 .co-orderslot {
   display: none;
-  padding: 16px 0;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--border-subtle, #e3e3e3);
+  margin: 8px 0 16px;
 }
 .co-orderslot--open { display: block; }
 
@@ -560,10 +560,7 @@
     top: 24px;
     grid-column: 2;
     grid-row: 1 / span 2;
-    margin-bottom: 0;
-    padding: 20px;
-    border-bottom: 0;
-    background: var(--surface-subtle, #f4f4f4);
+    margin: 0;
   }
 
   .co-fieldrow { gap: 16px; }

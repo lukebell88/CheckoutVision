@@ -72,10 +72,10 @@ export interface OrderSummaryProps {
 export function OrderSummary({
   lines,
   totals,
-  title = 'Your order',
+  title = 'Your Order',
   caption,
   showPromoCode = false,
-  promoCodeLabel = 'Promotional code',
+  promoCodeLabel = 'Promotional Code',
   onApplyPromoCode,
   className,
 }: OrderSummaryProps) {
@@ -86,10 +86,12 @@ export function OrderSummary({
       className={['co-ordersummary', className].filter(Boolean).join(' ')}
       aria-label={typeof title === 'string' ? title : 'Order summary'}
     >
-      <h2 className="co-ordersummary__title">{title}</h2>
-      <p className="co-ordersummary__caption">
-        {caption ?? `${count} ${count === 1 ? 'item' : 'items'}`}
-      </p>
+      <div className="co-ordersummary__titlerow">
+        <h2 className="co-ordersummary__title">{title}</h2>
+        <span className="co-ordersummary__count">
+          {caption ?? `${count} ${count === 1 ? 'Item' : 'Items'}`}
+        </span>
+      </div>
 
       <ul className="co-ordersummary__lines">
         {lines.map((l) => (
@@ -125,7 +127,7 @@ export function OrderSummary({
       {showPromoCode && (
         <div className="co-ordersummary__promo">
           <TextField size="large" placeholder={promoCodeLabel} aria-label={promoCodeLabel} />
-          <Button variant="outlined" color="secondary" size="large" onClick={onApplyPromoCode}>
+          <Button variant="outlined" color="primary" size="large" onClick={onApplyPromoCode}>
             Apply
           </Button>
         </div>
