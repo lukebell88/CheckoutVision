@@ -432,9 +432,11 @@
 .co-section__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .co-section__title {
   margin: 0;
-  font-family: var(--global-h5-font-family, inherit);
-  font-size: var(--global-h5-font-size, 0.9375rem);
-  font-weight: 700;
+  font-family: var(--global-h2-font-family, inherit);
+  font-size: var(--global-h2-font-size, 1rem);
+  font-weight: var(--global-h2-font-weight, 700);
+  line-height: var(--global-h2-line-height, 1.5);
+  letter-spacing: var(--global-h2-letter-spacing, 0);
 }
 .co-section__num { margin-right: 4px; }
 .co-section__required { font-size: var(--global-body-3-font-size, 0.8125rem); color: var(--text-secondary, #555); }
