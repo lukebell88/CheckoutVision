@@ -11,7 +11,7 @@ import { DeliverySection } from './sections/DeliverySection';
 import { PaymentSection } from './sections/PaymentSection';
 import { OrderPanel, OrderToggle } from './OrderPanel';
 import { TitleBar } from '../components/TitleBar';
-import { EmailGate } from './EmailGate';
+import { IdentityStep } from './IdentityStep';
 import { useEmailFirst } from './useEmailFirst';
 
 /**
@@ -49,12 +49,23 @@ export function OnePageCheckout() {
   );
   const [orderOpen, setOrderOpen] = useState(false);
 
+  const emailLocked = ef.phase === 'locked';
+
   const advance = (from: SectionId) => {
     if (!interactive) return undefined;
     return () => {
       setDone((d) => (d.includes(from) ? d : [...d, from]));
       setSection(nextSection(from) ?? 'complete');
     };
+  };
+
+  // A recognised account verifies inside section 1: sign them in and let the
+  // account fill Details + Delivery, so the journey lands on Payment.
+  const onAccountVerified = () => {
+    if (!interactive) return;
+    ef.onVerified();
+    setDone(['details', 'delivery']);
+    setSection('payment');
   };
 
   /**
@@ -72,11 +83,20 @@ export function OnePageCheckout() {
 
   const change = (id: SectionId) => {
     if (!interactive) return undefined;
-    // Email-first has no sign-in page to return to — re-identifying means
-    // reopening the email chip at the top of the page.
-    if (id === 'details' && detailsFromAccount) {
-      return ef.active ? ef.onChangeEmail : () => nav.goTo('signin');
+    if (id === 'details' && ef.active) {
+      // Account: "that isn't me" — clear the email and reopen the email step.
+      // Guest: just reopen Your Details to edit the name (email kept).
+      if (detailsFromAccount) {
+        return () => {
+          ef.onChangeEmail();
+          setDone([]);
+          setSection('details');
+        };
+      }
+      return () => setSection('details');
     }
+    // No email-first, account details came from sign-in — send them back there.
+    if (id === 'details' && detailsFromAccount) return () => nav.goTo('signin');
     return () => setSection(id);
   };
 
@@ -88,7 +108,12 @@ export function OnePageCheckout() {
   const title = knownShopper ? 'Checkout' : 'Guest Checkout';
 
   const BODIES: Record<SectionId, ReactNode> = {
-    details: <DetailsSection onContinue={advance('details')} />,
+    // Email-first: section 1 is the identity step (email → verify / guest name).
+    details: ef.active ? (
+      <IdentityStep ef={ef} onGuestContinue={advance('details')} onAccountVerified={onAccountVerified} />
+    ) : (
+      <DetailsSection onContinue={advance('details')} />
+    ),
     delivery: <DeliverySection onContinue={advance('delivery')} />,
     payment: <PaymentSection onPay={interactive ? () => nav.goTo('confirmation') : undefined} />,
   };
@@ -96,6 +121,14 @@ export function OnePageCheckout() {
   const sectionNodes = SECTIONS.map((id, i) => {
     const isOpen = section === id;
     const complete = done.includes(id) || section === 'complete';
+    // The email-entry sub-state of section 1 carries a subtitle. "Required
+    // Fields" only belongs to a form the shopper fills — so under email-first
+    // it shows only on the guest name form, never on the email or verify steps.
+    const emailStep = ef.active && id === 'details' && isOpen && !emailLocked;
+    const detailsGuestForm =
+      ef.active && id === 'details' && emailLocked && !ef.recognised && !ef.checking;
+    const showRequired =
+      isOpen && !complete && (!ef.active || id !== 'details' || detailsGuestForm);
     return (
       <section
         key={id}
@@ -112,7 +145,7 @@ export function OnePageCheckout() {
           <h2 className="co-section__title">
             <span className="co-section__num">{i + 1}.</span> {SECTION_LABEL[id]}
           </h2>
-          {isOpen && !complete && (
+          {showRequired && (
             <span className="co-section__required">
               Required Fields<span className="co-req">*</span>
             </span>
@@ -123,6 +156,10 @@ export function OnePageCheckout() {
             </Link>
           )}
         </div>
+
+        {emailStep && (
+          <p className="co-section__sub">Enter your email address to continue</p>
+        )}
 
         {isOpen ? (
           <div className="co-section__body">{BODIES[id]}</div>
@@ -150,26 +187,12 @@ export function OnePageCheckout() {
       <div className="co-onepage">
         <OrderPanel open={orderOpen} />
 
-        <div className="co-sections">
-          {ef.active && <EmailGate ef={ef} />}
+        {/* The three numbered stages are always present — the current one open,
+            done ones collapsed with a Change link, and not-yet-reached ones
+            collapsed in the disabled colour (see checkout.css). */}
+        <div className="co-sections">{sectionNodes}</div>
 
-          {/* Email-first: while a guest's email is checked, the sections show a
-              skeleton in their place, then fill in. Otherwise they're the page
-              itself — rendered plainly. */}
-          {ef.active ? (
-            ef.sectionsSkeleton ? (
-              <div className="co-sections__list co-fadein">
-                <SectionsSkeleton />
-              </div>
-            ) : ef.sectionsVisible ? (
-              <div className="co-sections__list co-fadein">{sectionNodes}</div>
-            ) : null
-          ) : (
-            sectionNodes
-          )}
-        </div>
-
-        {ef.sectionsVisible && section === 'complete' && (
+        {section === 'complete' && (
           <div className="co-placeorder">
             <Button
               variant="contained"
@@ -225,19 +248,4 @@ function SectionSummary({ id }: { id: SectionId }) {
   }
 
   return <div>{payment.savedCard ?? 'Card ending 4567'}</div>;
-}
-
-/**
- * The placeholder shown in the sections' place while a guest's email is checked
- * — a form silhouette using the same skeleton language as the verify step.
- */
-function SectionsSkeleton() {
-  return (
-    <div className="co-skelform" aria-hidden="true">
-      <span className="co-skel co-skel--line" />
-      <span className="co-skel co-skel--field" />
-      <span className="co-skel co-skel--field" />
-      <span className="co-skel co-skel--field" />
-    </div>
-  );
 }

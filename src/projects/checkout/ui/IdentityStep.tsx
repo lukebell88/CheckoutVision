@@ -4,26 +4,34 @@ import { Icon } from '../../../components/Icon';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { FormField } from '../components/FormField';
 import { ConfirmIdentity } from './ConfirmIdentity';
+import { DetailsSection } from './sections/DetailsSection';
 import { OrRule, AppleMark, LegalNote } from './parts';
 import type { EmailFirst } from './useEmailFirst';
 
 /**
- * The email-first entry block, at the top of the one-pager.
+ * Section 1 "Your Details", email-first: the open body of the first step.
  *
- * Presentation for the machine in `useEmailFirst`: an email field that
- * auto-commits (no Continue button — a valid address fires on pause, blur or
- * Enter). On commit the email locks to a filled field with a ✕ to change it, and
- * the next step below shows a SKELETON while the account is checked, then fills
- * in — a recognised address resolves to the inline "Confirm it's you" step
- * (passcode / password / passkey). The skeleton reserves the space, so the step
- * fills in place rather than growing against a collapsing block. Apple Pay sits
- * below while editing as the email-free express path.
+ * The section header owns the "1. Your Details" title and the "Enter your email
+ * address to continue" subtitle; this renders what sits under it, by state:
  *
- * `role="status"` narrates each transition, because a keyboard/auto commit has
- * no button press for assistive tech to announce.
+ *   editing   · the email field (+ Apple Pay express below)
+ *   checking  · the email locked to a chip, and a skeleton for what's coming
+ *   recognised· the chip + the inline "Confirm it's you" verify step
+ *   guest     · the chip + the name form (DetailsSection, email already captured)
+ *
+ * When it resolves the step completes: a recognised shopper's account fills
+ * Details + Delivery (jump handled by the caller), a guest continues to Delivery.
  */
-export function EmailGate({ ef }: { ef: EmailFirst }) {
-  const { flags, customer } = useCheckoutConfig();
+export function IdentityStep({
+  ef,
+  onGuestContinue,
+  onAccountVerified,
+}: {
+  ef: EmailFirst;
+  onGuestContinue?: () => void;
+  onAccountVerified: () => void;
+}) {
+  const { customer, flags } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const emailId = useId();
   const [touched, setTouched] = useState(false);
@@ -32,13 +40,11 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
   const formatError = touched && ef.email.trim().length > 0 && !ef.valid;
 
   return (
-    <section className="co-emailgate" aria-label="Email">
+    <>
       {/* Live region: the auto-commit has no button, so each step is spoken. */}
       <p className="co-sr-only" role="status">
         {ef.status}
       </p>
-
-      <h2 className="co-h3">Enter your email address to continue</h2>
 
       {locked ? (
         <div className="co-emailfield">
@@ -82,21 +88,32 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
         />
       )}
 
-      {/* The verify step fills in below the committed email — it shows its own
-          skeleton while `checking`, then the passcode. */}
-      {ef.showVerify && (
+      {/* Recognised: the inline verify step (its own skeleton while checking). */}
+      {locked && ef.recognised && !ef.verified && (
         <div className="co-fadein">
           <ConfirmIdentity
             phone={customer.phone}
             interactive={interactive}
-            onVerified={ef.onVerified}
             loading={ef.checking}
+            onVerified={onAccountVerified}
           />
         </div>
       )}
 
-      {/* Express is offered only while editing — once the email commits, the
-          next step takes this space. */}
+      {/* Guest: the name form fills in after the check (skeleton meanwhile). */}
+      {locked && !ef.recognised &&
+        (ef.checking ? (
+          <div className="co-skelform co-fadein" aria-hidden="true">
+            <span className="co-skel co-skel--field" />
+            <span className="co-skel co-skel--field" />
+          </div>
+        ) : (
+          <div className="co-fadein">
+            <DetailsSection onContinue={onGuestContinue} />
+          </div>
+        ))}
+
+      {/* Express is offered only while editing the email. */}
       {!locked && flags.expressPayment && (
         <div className="co-emailgate__express">
           <OrRule />
@@ -111,6 +128,6 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
           <LegalNote />
         </div>
       )}
-    </section>
+    </>
   );
 }

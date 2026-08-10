@@ -42,12 +42,6 @@ export interface EmailFirst {
   verified: boolean;
   /** The account is being checked — the next step shows its skeleton. */
   checking: boolean;
-  /** Locked + recognised + not yet verified: show the inline verify step. */
-  showVerify: boolean;
-  /** Reveal the numbered checkout sections. */
-  sectionsVisible: boolean;
-  /** Guest, mid-check: show the sections skeleton in their place. */
-  sectionsSkeleton: boolean;
   /** Text for the block's `role="status"` region — the auto-commit has no button. */
   status: string;
   onInput: (v: string) => void;
@@ -122,14 +116,9 @@ export function useEmailFirst(): EmailFirst {
     nav.patch('customer', { signedIn: true });
   };
 
-  const showVerify = active && locked && recognised && !verified;
-  const sectionsSkeleton = active && locked && !recognised && !verified && checking;
-  const sectionsVisible =
-    !active || (locked && (verified || (!recognised && !checking)));
-
   const status = checking
     ? 'Checking your email address'
-    : showVerify
+    : locked && recognised && !verified
       ? 'We found your account. Enter the passcode we sent you.'
       : locked
         ? 'We’ll send your order confirmation to this email.'
@@ -144,9 +133,6 @@ export function useEmailFirst(): EmailFirst {
     recognised,
     verified,
     checking,
-    showVerify,
-    sectionsVisible,
-    sectionsSkeleton,
     status,
     onInput,
     onBlur,

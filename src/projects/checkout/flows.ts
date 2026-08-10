@@ -222,14 +222,14 @@ export const FLOWS: FlowDef[] = [
     flagOverrides: { emailFirstCheckout: true, savedPayment: true, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
     // The account is known (`recognised`) but not yet verified (`signedIn: false`)
     // and the email starts EMPTY so the tester types it and watches the check.
-    // Its account details wait behind verification: the saved address and card
-    // are seeded, but the sections stay hidden until it succeeds.
+    // The journey opens on section 1 (Your Details / the email step); its account
+    // address and card are seeded for once verification jumps it to Payment.
     prefill: {
       ...BLANK,
       customer: { ...ACCOUNT_CUSTOMER, email: '' },
       delivery: ACCOUNT_DELIVERY,
       payment: { ...BLANK.payment, method: 'saved', savedCard: 'Visa ending 4567' },
-      progress: { section: 'payment', done: ['details', 'delivery'] },
+      progress: { section: 'details', done: [] },
     },
   },
 ];

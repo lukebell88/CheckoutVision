@@ -444,7 +444,22 @@
 .co-summary__label,
 .co-summary__strong { font-weight: 700; color: var(--text-primary, #111); }
 /* A section that is neither open nor done is just its heading. */
-.co-section:not(.co-section--open):not(.co-section--done) .co-section__title { color: var(--text-secondary, #555); }
+/* Not yet reached (neither open nor done): the whole title, number included,
+ * sits in the disabled colour until the shopper progresses to it. */
+.co-section:not(.co-section--open):not(.co-section--done) .co-section__title {
+  color: var(--text-disabled, #b3b3b3);
+}
+
+/* Subtitle under a section title — e.g. "Enter your email address to continue"
+ * under Your Details. Body-1, secondary. */
+.co-section__sub {
+  margin: 4px 0 0;
+  font-family: var(--global-body-1-font-family, inherit);
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  font-weight: var(--global-body-1-font-weight, 400);
+  line-height: var(--global-body-1-line-height, 1.5);
+  color: var(--text-secondary, #616161);
+}
 
 .co-matched { padding: 16px; margin-bottom: 16px; background: var(--surface-subtle, #f0f0f0); }
 .co-matched__lede { margin: 0 0 12px; }
