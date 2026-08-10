@@ -141,8 +141,9 @@ export function SignInScreen() {
         <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={onVerified} />
       </Reveal>
 
-      {/* Guest / express options collapse away as the email commits. */}
-      <Reveal visible={!locked}>
+      {/* Guest / express options collapse away while the email is being checked
+          (the spinner phase), so they're gone before the verify step grows in. */}
+      <Reveal visible={phase === 'editing'}>
         <div className="co-signin__guest">
           <OrRule />
 

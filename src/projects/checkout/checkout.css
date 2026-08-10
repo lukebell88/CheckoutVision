@@ -321,8 +321,8 @@
   transition: grid-template-rows var(--co-reveal-ms, 350ms) ease-out;
 }
 .co-reveal--open { grid-template-rows: 1fr; }
-/* Once open, drop the grid track and clip so nested popovers can overflow. */
-.co-reveal--done { grid-template-rows: none; }
+/* Once open, release only the clip so nested popovers can overflow — keep the
+ * 1fr track (not `none`), otherwise a later collapse can't animate FROM it. */
 .co-reveal__clip { overflow: hidden; min-height: 0; }
 .co-reveal--done .co-reveal__clip { overflow: visible; }
 .co-reveal__inner {

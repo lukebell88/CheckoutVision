@@ -89,8 +89,10 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
         <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={ef.onVerified} />
       </Reveal>
 
-      {/* Express collapses away as the email commits. */}
-      <Reveal visible={!locked && flags.expressPayment}>
+      {/* Express collapses away while the email is being checked (the spinner
+          phase), so it's gone before the verify step grows in — the removal and
+          the reveal don't fight over the same space. */}
+      <Reveal visible={ef.phase === 'editing' && flags.expressPayment}>
         <div className="co-emailgate__express">
           <OrRule />
           <p className="co-guest__title">Check out now with express payment</p>
