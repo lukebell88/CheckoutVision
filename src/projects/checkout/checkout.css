@@ -312,6 +312,32 @@
   .co-skel { animation: none; }
 }
 
+/* ---------- Reveal (grow + fade) ---------- */
+/* A stage that grows in below when the email commits — the height animates via
+ * grid-template-rows and the contents fade + drift up. See ui/Reveal.tsx. */
+.co-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--co-reveal-ms, 350ms) ease-out;
+}
+.co-reveal--open { grid-template-rows: 1fr; }
+/* Once open, drop the grid track and clip so nested popovers can overflow. */
+.co-reveal--done { grid-template-rows: none; }
+.co-reveal__clip { overflow: hidden; min-height: 0; }
+.co-reveal--done .co-reveal__clip { overflow: visible; }
+.co-reveal__inner {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity var(--co-reveal-ms, 350ms) ease-out,
+    transform var(--co-reveal-ms, 350ms) ease-out;
+}
+.co-reveal--open .co-reveal__inner { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .co-reveal { transition: none; }
+  .co-reveal__inner { transition: none; opacity: 1; transform: none; }
+}
+
 /* ---------- OTP ---------- */
 /* Six fields split 3 · dash · 3, each a Large TextField (44px, 4px radius,
  * #949494 border), centred in the row (Figma). */
@@ -408,6 +434,7 @@
 
 .co-onepage { padding: 0 16px; }
 .co-sections { display: flex; flex-direction: column; }
+.co-sections__list { display: flex; flex-direction: column; }
 
 .co-section { padding: 20px 0; border-bottom: 1px solid var(--border-subtle, #e3e3e3); }
 .co-section:last-child { border-bottom: 0; }

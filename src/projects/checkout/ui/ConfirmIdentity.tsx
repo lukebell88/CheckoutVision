@@ -136,6 +136,7 @@ export function ConfirmIdentity({ phone, interactive = true, onVerified }: Confi
         <>
           <OtpInput
             value={code}
+            autoFocusDelay={420}
             onChange={(v) => {
               setCode(v);
               if (v.length === 6) verify();

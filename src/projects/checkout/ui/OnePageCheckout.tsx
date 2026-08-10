@@ -12,6 +12,7 @@ import { PaymentSection } from './sections/PaymentSection';
 import { OrderPanel, OrderToggle } from './OrderPanel';
 import { TitleBar } from '../components/TitleBar';
 import { EmailGate } from './EmailGate';
+import { Reveal } from './Reveal';
 import { useEmailFirst } from './useEmailFirst';
 
 /**
@@ -93,6 +94,48 @@ export function OnePageCheckout() {
     payment: <PaymentSection onPay={interactive ? () => nav.goTo('confirmation') : undefined} />,
   };
 
+  const sectionNodes = SECTIONS.map((id, i) => {
+    const isOpen = section === id;
+    const complete = done.includes(id) || section === 'complete';
+    return (
+      <section
+        key={id}
+        className={[
+          'co-section',
+          isOpen && 'co-section--open',
+          complete && !isOpen && 'co-section--done',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        aria-current={isOpen ? 'step' : undefined}
+      >
+        <div className="co-section__head">
+          <h2 className="co-section__title">
+            <span className="co-section__num">{i + 1}.</span> {SECTION_LABEL[id]}
+          </h2>
+          {isOpen && !complete && (
+            <span className="co-section__required">
+              Required Fields<span className="co-req">*</span>
+            </span>
+          )}
+          {complete && !isOpen && (
+            <Link href="#" onClick={(e) => { e.preventDefault(); change(id)?.(); }}>
+              Change
+            </Link>
+          )}
+        </div>
+
+        {isOpen ? (
+          <div className="co-section__body">{BODIES[id]}</div>
+        ) : complete ? (
+          <div className="co-section__summary">
+            <SectionSummary id={id} />
+          </div>
+        ) : null}
+      </section>
+    );
+  });
+
   return (
     <main className="co-screen co-screen--checkout">
       <TitleBar title={title} onBack={interactive ? nav.back : undefined} />
@@ -111,48 +154,15 @@ export function OnePageCheckout() {
         <div className="co-sections">
           {ef.active && <EmailGate ef={ef} />}
 
-          {ef.sectionsVisible &&
-            SECTIONS.map((id, i) => {
-            const isOpen = section === id;
-            const complete = done.includes(id) || section === 'complete';
-            return (
-              <section
-                key={id}
-                className={[
-                  'co-section',
-                  isOpen && 'co-section--open',
-                  complete && !isOpen && 'co-section--done',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                aria-current={isOpen ? 'step' : undefined}
-              >
-                <div className="co-section__head">
-                  <h2 className="co-section__title">
-                    <span className="co-section__num">{i + 1}.</span> {SECTION_LABEL[id]}
-                  </h2>
-                  {isOpen && !complete && (
-                    <span className="co-section__required">
-                      Required Fields<span className="co-req">*</span>
-                    </span>
-                  )}
-                  {complete && !isOpen && (
-                    <Link href="#" onClick={(e) => { e.preventDefault(); change(id)?.(); }}>
-                      Change
-                    </Link>
-                  )}
-                </div>
-
-                {isOpen ? (
-                  <div className="co-section__body">{BODIES[id]}</div>
-                ) : complete ? (
-                  <div className="co-section__summary">
-                    <SectionSummary id={id} />
-                  </div>
-                ) : null}
-              </section>
-            );
-          })}
+          {/* Email-first: the sections grow in once the email step is done.
+              Otherwise they're the page itself — rendered plainly. */}
+          {ef.active ? (
+            <Reveal visible={ef.sectionsVisible}>
+              <div className="co-sections__list">{sectionNodes}</div>
+            </Reveal>
+          ) : (
+            sectionNodes
+          )}
         </div>
 
         {ef.sectionsVisible && section === 'complete' && (

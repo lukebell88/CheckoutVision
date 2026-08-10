@@ -5,6 +5,7 @@ import { useCheckoutConfig } from '../checkoutConfig';
 import { FormField } from '../components/FormField';
 import { Spinner } from '../components/Spinner';
 import { ConfirmIdentity } from './ConfirmIdentity';
+import { Reveal } from './Reveal';
 import { OrRule, AppleMark, LegalNote } from './parts';
 import type { EmailFirst } from './useEmailFirst';
 
@@ -83,11 +84,13 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
         />
       )}
 
-      {ef.showVerify && (
+      {/* The verify step grows in below the committed email. */}
+      <Reveal visible={ef.showVerify}>
         <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={ef.onVerified} />
-      )}
+      </Reveal>
 
-      {!locked && flags.expressPayment && (
+      {/* Express collapses away as the email commits. */}
+      <Reveal visible={!locked && flags.expressPayment}>
         <div className="co-emailgate__express">
           <OrRule />
           <p className="co-guest__title">Check out now with express payment</p>
@@ -100,7 +103,7 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
           </button>
           <LegalNote />
         </div>
-      )}
+      </Reveal>
     </section>
   );
 }

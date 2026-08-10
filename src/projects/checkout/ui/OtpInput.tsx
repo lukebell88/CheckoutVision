@@ -15,17 +15,22 @@ export function OtpInput({
   value,
   onChange,
   autoFocus = true,
+  autoFocusDelay = 0,
 }: {
   value: string;
   onChange: (v: string) => void;
   autoFocus?: boolean;
+  /** Wait this long before grabbing focus — used to let a reveal finish first. */
+  autoFocusDelay?: number;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const chars = value.padEnd(LENGTH, ' ').slice(0, LENGTH).split('');
 
   useEffect(() => {
-    if (autoFocus) ref.current?.focus();
-  }, [autoFocus]);
+    if (!autoFocus) return;
+    const t = window.setTimeout(() => ref.current?.focus(), autoFocusDelay);
+    return () => window.clearTimeout(t);
+  }, [autoFocus, autoFocusDelay]);
 
   const box = (i: number) => (
     <span key={i} className={`co-otp__box ${i === value.length ? 'co-otp__box--active' : ''}`}>
@@ -42,8 +47,6 @@ export function OtpInput({
         inputMode="numeric"
         autoComplete="one-time-code"
         maxLength={LENGTH}
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus={autoFocus}
         aria-label="One-time passcode"
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, LENGTH))}

@@ -7,6 +7,7 @@ import { TitleBar } from '../components/TitleBar';
 import { FormField } from '../components/FormField';
 import { Spinner } from '../components/Spinner';
 import { ConfirmIdentity } from './ConfirmIdentity';
+import { Reveal } from './Reveal';
 import { OrRule, AppleMark, LegalNote } from './parts';
 import { useSeededState } from './useSeededState';
 
@@ -135,12 +136,14 @@ export function SignInScreen() {
         />
       )}
 
-      {recognised && locked && !customer.signedIn && (
+      {/* The verify step grows in below the committed email. */}
+      <Reveal visible={recognised && locked && !customer.signedIn}>
         <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={onVerified} />
-      )}
+      </Reveal>
 
-      {!locked && (
-        <>
+      {/* Guest / express options collapse away as the email commits. */}
+      <Reveal visible={!locked}>
+        <div className="co-signin__guest">
           <OrRule />
 
           <div className="co-guest">
@@ -169,8 +172,8 @@ export function SignInScreen() {
 
             <LegalNote />
           </div>
-        </>
-      )}
+        </div>
+      </Reveal>
     </main>
   );
 }
