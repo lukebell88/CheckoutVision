@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from '../../../components/Icon';
+import { Button } from '../../../components/Button';
 import { FormField } from '../components/FormField';
 import { Spinner } from '../components/Spinner';
 import { OtpInput } from './OtpInput';
@@ -160,6 +161,15 @@ export function ConfirmIdentity({ phone, interactive = true, onVerified }: Confi
               }
             }}
           />
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            fullWidth
+            onClick={interactive ? verify : undefined}
+          >
+            Sign In
+          </Button>
           <p className="co-confirm__resend">
             <button type="button" className="co-linklabel">
               Reset Your Password
