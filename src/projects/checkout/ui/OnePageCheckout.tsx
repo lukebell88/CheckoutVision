@@ -12,7 +12,6 @@ import { PaymentSection } from './sections/PaymentSection';
 import { OrderPanel, OrderToggle } from './OrderPanel';
 import { TitleBar } from '../components/TitleBar';
 import { EmailGate } from './EmailGate';
-import { Reveal } from './Reveal';
 import { useEmailFirst } from './useEmailFirst';
 
 /**
@@ -154,12 +153,17 @@ export function OnePageCheckout() {
         <div className="co-sections">
           {ef.active && <EmailGate ef={ef} />}
 
-          {/* Email-first: the sections grow in once the email step is done.
-              Otherwise they're the page itself — rendered plainly. */}
+          {/* Email-first: while a guest's email is checked, the sections show a
+              skeleton in their place, then fill in. Otherwise they're the page
+              itself — rendered plainly. */}
           {ef.active ? (
-            <Reveal visible={ef.sectionsVisible}>
-              <div className="co-sections__list">{sectionNodes}</div>
-            </Reveal>
+            ef.sectionsSkeleton ? (
+              <div className="co-sections__list co-fadein">
+                <SectionsSkeleton />
+              </div>
+            ) : ef.sectionsVisible ? (
+              <div className="co-sections__list co-fadein">{sectionNodes}</div>
+            ) : null
           ) : (
             sectionNodes
           )}
@@ -221,4 +225,19 @@ function SectionSummary({ id }: { id: SectionId }) {
   }
 
   return <div>{payment.savedCard ?? 'Card ending 4567'}</div>;
+}
+
+/**
+ * The placeholder shown in the sections' place while a guest's email is checked
+ * — a form silhouette using the same skeleton language as the verify step.
+ */
+function SectionsSkeleton() {
+  return (
+    <div className="co-skelform" aria-hidden="true">
+      <span className="co-skel co-skel--line" />
+      <span className="co-skel co-skel--field" />
+      <span className="co-skel co-skel--field" />
+      <span className="co-skel co-skel--field" />
+    </div>
+  );
 }

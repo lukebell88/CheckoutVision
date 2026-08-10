@@ -5,39 +5,38 @@ import { Icon } from '../../../components/Icon';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { TitleBar } from '../components/TitleBar';
 import { FormField } from '../components/FormField';
-import { Spinner } from '../components/Spinner';
 import { ConfirmIdentity } from './ConfirmIdentity';
-import { Reveal } from './Reveal';
+import { CHECK_MS } from './useEmailFirst';
 import { OrRule, AppleMark, LegalNote } from './parts';
 import { useSeededState } from './useSeededState';
 
 /**
  * Sign / Register — the standalone page, when the email-first flag is off.
  *
- * The same idea as the email-first block, as its own screen: an email field
- * that auto-commits (no Continue button — valid fires on pause/blur/Enter), a
- * spinner while the account check runs, then a committed field with a ✕ to
- * change it. A recognised email reveals the inline "Confirm it's you" step
- * (passcode / password / passkey); on success we move to the checkout. A guest
- * gets the "Checkout as a guest" and Apple Pay express paths below.
+ * The same idea as the email-first block, as its own screen: an email field that
+ * auto-commits (no Continue button — valid fires on pause/blur/Enter). On commit
+ * the email locks to a committed field with a ✕ to change it, and the next step
+ * shows a SKELETON while the account is checked, then fills in — a recognised
+ * email resolves to the inline "Confirm it's you" step (passcode / password /
+ * passkey) and, on success, moves to the checkout; a guest is taken to the
+ * checkout once the check completes. "Checkout as a guest" and Apple Pay sit
+ * below while editing.
  *
  * The old per-treatment faces (chooser / password-first / otp-first) are gone —
  * verification is one shared component now (see ConfirmIdentity).
  */
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const DEBOUNCE_MS = 800;
-const CHECK_MS = 900;
 
 export function SignInScreen() {
   const { flags, customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const recognised = !!customer.recognised;
+  const locked = !!customer.email;
 
   const seed = `${customer.email ?? ''}|${customer.signedIn ? 1 : 0}|${recognised ? 1 : 0}`;
   const [email, setEmail] = useSeededState(seed, () => customer.email ?? '');
-  const [phase, setPhase] = useSeededState<'editing' | 'validating' | 'locked'>(seed, () =>
-    customer.email ? 'locked' : 'editing',
-  );
+  const [checking, setChecking] = useState(false);
   const [touched, setTouched] = useState(false);
   const emailId = useId();
 
@@ -53,12 +52,13 @@ export function SignInScreen() {
   const commit = (value: string) => {
     if (!interactive || !EMAIL_RE.test(value.trim())) return;
     clearTimers();
-    setPhase('validating');
+    setChecking(true);
+    nav.patch('customer', { email: value.trim() });
     timers.current.push(
       window.setTimeout(() => {
-        nav.patch('customer', { email: value.trim() });
-        // Guest → straight into checkout. Recognised → the re-seed locks the
-        // field and the verification step appears in place.
+        setChecking(false);
+        // Guest → straight into checkout. Recognised → the verify step is now
+        // filled in below, in place.
         if (!recognised) nav.next();
       }, CHECK_MS),
     );
@@ -67,16 +67,17 @@ export function SignInScreen() {
   const onInput = (v: string) => {
     setEmail(v);
     setTouched(false);
-    if (!interactive || phase !== 'editing') return;
+    if (!interactive || locked) return;
     clearTimers();
     if (EMAIL_RE.test(v.trim())) timers.current.push(window.setTimeout(() => commit(v), DEBOUNCE_MS));
   };
   const commitNow = () => {
-    if (interactive && valid && phase === 'editing') commit(email);
+    if (interactive && valid && !locked) commit(email);
   };
   const onChangeEmail = () => {
     if (!interactive) return;
     clearTimers();
+    setChecking(false);
     nav.patch('customer', { email: '', signedIn: false });
   };
   const onVerified = () => {
@@ -85,8 +86,6 @@ export function SignInScreen() {
     nav.next();
   };
 
-  const locked = phase === 'locked';
-  const validating = phase === 'validating';
   const formatError = touched && email.trim().length > 0 && !valid;
   const back = interactive ? nav.back : undefined;
 
@@ -118,7 +117,7 @@ export function SignInScreen() {
           autoComplete="email"
           placeholder="you@example.com"
           value={email}
-          readOnly={!interactive || validating}
+          readOnly={!interactive}
           onChange={(e) => onInput(e.target.value)}
           onBlur={() => {
             setTouched(true);
@@ -130,20 +129,21 @@ export function SignInScreen() {
               commitNow();
             }
           }}
-          endIcon={validating ? <Spinner size={18} label="Checking your email address" /> : undefined}
           status={formatError ? 'error' : 'default'}
           message={formatError ? 'Enter an email address in the format name@example.com' : undefined}
         />
       )}
 
-      {/* The verify step grows in below the committed email. */}
-      <Reveal visible={recognised && locked && !customer.signedIn}>
-        <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={onVerified} />
-      </Reveal>
+      {/* The verify step fills in below the committed email — skeleton while
+          checking, then the passcode. */}
+      {recognised && locked && !customer.signedIn && (
+        <div className="co-fadein">
+          <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={onVerified} loading={checking} />
+        </div>
+      )}
 
-      {/* Guest / express options collapse away while the email is being checked
-          (the spinner phase), so they're gone before the verify step grows in. */}
-      <Reveal visible={phase === 'editing'}>
+      {/* Guest / express options are offered only while editing. */}
+      {!locked && (
         <div className="co-signin__guest">
           <OrRule />
 
@@ -174,7 +174,7 @@ export function SignInScreen() {
             <LegalNote />
           </div>
         </div>
-      </Reveal>
+      )}
     </main>
   );
 }

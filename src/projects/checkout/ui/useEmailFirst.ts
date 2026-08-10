@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useProjectRuntime } from '../../../studio/runtime';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { useSeededState } from './useSeededState';
@@ -9,23 +9,26 @@ import { useSeededState } from './useSeededState';
  * With `emailFirstCheckout` on, the sign-in page is gone and the one-pager owns
  * the email step: the shopper types their address at the top, and — with no
  * Continue button — a valid entry auto-commits on a short pause, on blur, or on
- * Enter. A spinner covers the "are you a known account?" check, then the email
- * locks to a chip. A recognised email reveals an inline passcode step; everyone
- * else drops straight into the numbered sections.
+ * Enter. The email locks to a chip straight away, and the next step below shows
+ * a SKELETON while we "check the account" (the same loading language the method
+ * switcher uses), then fills in: a recognised email resolves to the inline
+ * passcode step; everyone else drops into the numbered sections.
  *
- * State lives in three seeded values (phase, email, verified). Every real
- * transition is a `nav.patch` to the customer bucket, which re-seeds them — so
- * the machine has one source of truth and can't drift from the data a summary
- * or the sections read. The only purely-local step is the transient `validating`
- * window, which shows while the check timer runs before the email is committed.
+ * The skeleton reserves the space up front, so the reveal never animates its
+ * height against a collapsing block — the jank the grow/collapse version had.
+ *
+ * `email` (the editable text) is seeded so it resets on a flow/variant switch;
+ * the resting phase is derived from whether the committed `customer.email`
+ * exists. `checking` is deliberately NOT seeded — it's our own transient window
+ * and the commit patch (which changes the seed) must not clear it.
  */
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 /** Auto-commit once the address has been valid and idle this long. */
 const DEBOUNCE_MS = 800;
-/** How long the "checking your account" spinner shows before the email locks. */
-const CHECK_MS = 900;
+/** How long the "checking your account" skeleton shows before the step fills in. */
+export const CHECK_MS = 800;
 
-export type EmailPhase = 'editing' | 'validating' | 'locked';
+export type EmailPhase = 'editing' | 'locked';
 
 export interface EmailFirst {
   /** The flag is on — the caller renders the email block and gates its sections. */
@@ -37,10 +40,14 @@ export interface EmailFirst {
   valid: boolean;
   recognised: boolean;
   verified: boolean;
-  /** Locked + recognised + not yet verified: show the inline passcode step. */
+  /** The account is being checked — the next step shows its skeleton. */
+  checking: boolean;
+  /** Locked + recognised + not yet verified: show the inline verify step. */
   showVerify: boolean;
   /** Reveal the numbered checkout sections. */
   sectionsVisible: boolean;
+  /** Guest, mid-check: show the sections skeleton in their place. */
+  sectionsSkeleton: boolean;
   /** Text for the block's `role="status"` region — the auto-commit has no button. */
   status: string;
   onInput: (v: string) => void;
@@ -56,16 +63,14 @@ export function useEmailFirst(): EmailFirst {
 
   const active = !!flags.emailFirstCheckout;
   const recognised = !!customer.recognised;
+  const verified = !!customer.signedIn;
+  const locked = !!customer.email;
+  const phase: EmailPhase = locked ? 'locked' : 'editing';
 
-  // Re-seed whenever the scenario changes (flow/variant switch, or our own
-  // commit/verify patches). Email presence drives the resting phase, so a
-  // switched-in flow lands in the right state without an effect.
+  // The editable text resets when the scenario changes (flow/variant switch).
   const seed = `${active}|${customer.email ?? ''}|${customer.signedIn ? 1 : 0}|${recognised ? 1 : 0}`;
   const [email, setEmail] = useSeededState(seed, () => customer.email ?? '');
-  const [phase, setPhase] = useSeededState<EmailPhase>(seed, () =>
-    customer.email ? 'locked' : 'editing',
-  );
-  const [verified] = useSeededState(seed, () => !!customer.signedIn);
+  const [checking, setChecking] = useState(false);
 
   const debounce = useRef<number | undefined>(undefined);
   const check = useRef<number | undefined>(undefined);
@@ -77,20 +82,19 @@ export function useEmailFirst(): EmailFirst {
 
   const valid = EMAIL_RE.test(email.trim());
 
-  // Run the check: show the spinner, then commit the email — the patch re-seeds
-  // the phase to `locked`, so there's no second setPhase to keep in sync.
+  // Commit: lock the email immediately, then hold the checking window so the
+  // next step shows its skeleton before filling in.
   const startCheck = (value: string) => {
     if (!interactive || !EMAIL_RE.test(value.trim())) return;
     clearTimers();
-    setPhase('validating');
-    check.current = window.setTimeout(() => {
-      nav.patch('customer', { email: value.trim() });
-    }, CHECK_MS);
+    setChecking(true);
+    nav.patch('customer', { email: value.trim() });
+    check.current = window.setTimeout(() => setChecking(false), CHECK_MS);
   };
 
   const onInput = (v: string) => {
     setEmail(v);
-    if (!interactive || phase !== 'editing') return;
+    if (!interactive || locked) return;
     if (debounce.current) window.clearTimeout(debounce.current);
     if (EMAIL_RE.test(v.trim())) {
       debounce.current = window.setTimeout(() => startCheck(v), DEBOUNCE_MS);
@@ -98,17 +102,18 @@ export function useEmailFirst(): EmailFirst {
   };
 
   const onBlur = () => {
-    if (interactive && valid && phase === 'editing') startCheck(email);
+    if (interactive && valid && !locked) startCheck(email);
   };
   const onEnter = () => {
-    if (interactive && valid && phase === 'editing') startCheck(email);
+    if (interactive && valid && !locked) startCheck(email);
   };
 
   // Change is a full reset: clearing the address invalidates any match, so the
-  // sections re-collapse and the shopper starts from an empty field.
+  // step re-collapses and the shopper starts from an empty field.
   const onChangeEmail = () => {
     if (!interactive) return;
     clearTimers();
+    setChecking(false);
     nav.patch('customer', { email: '', signedIn: false });
   };
 
@@ -117,17 +122,18 @@ export function useEmailFirst(): EmailFirst {
     nav.patch('customer', { signedIn: true });
   };
 
-  const showVerify = active && phase === 'locked' && recognised && !verified;
-  const sectionsVisible = !active || (phase === 'locked' && (verified || !recognised));
+  const showVerify = active && locked && recognised && !verified;
+  const sectionsSkeleton = active && locked && !recognised && !verified && checking;
+  const sectionsVisible =
+    !active || (locked && (verified || (!recognised && !checking)));
 
-  const status =
-    phase === 'validating'
-      ? 'Checking your email address'
-      : showVerify
-        ? 'We found your account. Enter the passcode we sent you.'
-        : phase === 'locked'
-          ? 'We’ll send your order confirmation to this email.'
-          : '';
+  const status = checking
+    ? 'Checking your email address'
+    : showVerify
+      ? 'We found your account. Enter the passcode we sent you.'
+      : locked
+        ? 'We’ll send your order confirmation to this email.'
+        : '';
 
   return {
     active,
@@ -137,8 +143,10 @@ export function useEmailFirst(): EmailFirst {
     valid,
     recognised,
     verified,
+    checking,
     showVerify,
     sectionsVisible,
+    sectionsSkeleton,
     status,
     onInput,
     onBlur,

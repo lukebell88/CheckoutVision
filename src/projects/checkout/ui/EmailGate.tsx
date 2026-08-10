@@ -3,9 +3,7 @@ import { useProjectRuntime } from '../../../studio/runtime';
 import { Icon } from '../../../components/Icon';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { FormField } from '../components/FormField';
-import { Spinner } from '../components/Spinner';
 import { ConfirmIdentity } from './ConfirmIdentity';
-import { Reveal } from './Reveal';
 import { OrRule, AppleMark, LegalNote } from './parts';
 import type { EmailFirst } from './useEmailFirst';
 
@@ -14,10 +12,12 @@ import type { EmailFirst } from './useEmailFirst';
  *
  * Presentation for the machine in `useEmailFirst`: an email field that
  * auto-commits (no Continue button — a valid address fires on pause, blur or
- * Enter), a spinner while the account check runs, then the email locks to a
- * filled field with a ✕ to change it. A recognised address reveals the inline
- * "Confirm it's you" step (passcode / password / passkey); Apple Pay sits below
- * as the email-free express path.
+ * Enter). On commit the email locks to a filled field with a ✕ to change it, and
+ * the next step below shows a SKELETON while the account is checked, then fills
+ * in — a recognised address resolves to the inline "Confirm it's you" step
+ * (passcode / password / passkey). The skeleton reserves the space, so the step
+ * fills in place rather than growing against a collapsing block. Apple Pay sits
+ * below while editing as the email-free express path.
  *
  * `role="status"` narrates each transition, because a keyboard/auto commit has
  * no button press for assistive tech to announce.
@@ -29,7 +29,6 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
   const [touched, setTouched] = useState(false);
 
   const locked = ef.phase === 'locked';
-  const validating = ef.phase === 'validating';
   const formatError = touched && ef.email.trim().length > 0 && !ef.valid;
 
   return (
@@ -63,7 +62,7 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
           autoComplete="email"
           placeholder="you@example.com"
           value={ef.email}
-          readOnly={!interactive || validating}
+          readOnly={!interactive}
           onChange={(e) => {
             setTouched(false);
             ef.onInput(e.target.value);
@@ -78,21 +77,27 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
               ef.onEnter();
             }
           }}
-          endIcon={validating ? <Spinner size={18} label="Checking your email address" /> : undefined}
           status={formatError ? 'error' : 'default'}
           message={formatError ? 'Enter an email address in the format name@example.com' : undefined}
         />
       )}
 
-      {/* The verify step grows in below the committed email. */}
-      <Reveal visible={ef.showVerify}>
-        <ConfirmIdentity phone={customer.phone} interactive={interactive} onVerified={ef.onVerified} />
-      </Reveal>
+      {/* The verify step fills in below the committed email — it shows its own
+          skeleton while `checking`, then the passcode. */}
+      {ef.showVerify && (
+        <div className="co-fadein">
+          <ConfirmIdentity
+            phone={customer.phone}
+            interactive={interactive}
+            onVerified={ef.onVerified}
+            loading={ef.checking}
+          />
+        </div>
+      )}
 
-      {/* Express collapses away while the email is being checked (the spinner
-          phase), so it's gone before the verify step grows in — the removal and
-          the reveal don't fight over the same space. */}
-      <Reveal visible={ef.phase === 'editing' && flags.expressPayment}>
+      {/* Express is offered only while editing — once the email commits, the
+          next step takes this space. */}
+      {!locked && flags.expressPayment && (
         <div className="co-emailgate__express">
           <OrRule />
           <p className="co-guest__title">Check out now with express payment</p>
@@ -105,7 +110,7 @@ export function EmailGate({ ef }: { ef: EmailFirst }) {
           </button>
           <LegalNote />
         </div>
-      </Reveal>
+      )}
     </section>
   );
 }

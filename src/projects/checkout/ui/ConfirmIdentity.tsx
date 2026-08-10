@@ -66,13 +66,25 @@ export interface ConfirmIdentityProps {
   phone?: string;
   interactive?: boolean;
   onVerified?: () => void;
+  /** While true, the body shows its skeleton — used as the initial "checking"
+   *  state so this reuses the exact loading language of a method switch. */
+  loading?: boolean;
 }
 
-export function ConfirmIdentity({ phone, interactive = true, onVerified }: ConfirmIdentityProps) {
+export function ConfirmIdentity({
+  phone,
+  interactive = true,
+  onVerified,
+  loading = false,
+}: ConfirmIdentityProps) {
   const [method, setMethod] = useState<Method>('passcode');
   const [switching, setSwitching] = useState(false);
   const [code, setCode] = useState('');
   const timers = useRef<number[]>([]);
+
+  // The body is a skeleton while the account is being checked (loading) or a
+  // method is being switched — one loading treatment for both.
+  const skeleton = loading || switching;
 
   const clearTimers = () => {
     timers.current.forEach((t) => window.clearTimeout(t));
@@ -99,12 +111,12 @@ export function ConfirmIdentity({ phone, interactive = true, onVerified }: Confi
 
   // Passkey resolves on its own once its spinner is showing (the OS prompt).
   useEffect(() => {
-    if (method !== 'passkey' || switching || !interactive) return;
+    if (method !== 'passkey' || skeleton || !interactive) return;
     const t = window.setTimeout(verify, PASSKEY_MS);
     timers.current.push(t);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, switching, interactive]);
+  }, [method, skeleton, interactive]);
 
   const others = SWITCH[method];
 
@@ -123,10 +135,10 @@ export function ConfirmIdentity({ phone, interactive = true, onVerified }: Confi
     <section className="co-confirm" aria-label="Confirm it's you">
       <div className="co-confirm__head">
         <h3 className="co-h3">Confirm it’s you</h3>
-        {!switching && <p className="co-confirm__sub">{sub}</p>}
+        {!skeleton && <p className="co-confirm__sub">{sub}</p>}
       </div>
 
-      {switching ? (
+      {skeleton ? (
         <div className="co-confirm__skeleton" aria-hidden="true">
           <span className="co-skel co-skel--line" />
           <span className="co-skel co-skel--field" />
@@ -136,7 +148,6 @@ export function ConfirmIdentity({ phone, interactive = true, onVerified }: Confi
         <>
           <OtpInput
             value={code}
-            autoFocusDelay={420}
             onChange={(v) => {
               setCode(v);
               if (v.length === 6) verify();

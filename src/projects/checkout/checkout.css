@@ -308,34 +308,25 @@
   from { background-position: 100% 0; }
   to { background-position: 0 0; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .co-skel { animation: none; }
+
+/* Sections placeholder while a guest's email is checked — a form silhouette. */
+.co-skelform {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 0;
 }
 
-/* ---------- Reveal (grow + fade) ---------- */
-/* A stage that grows in below when the email commits — the height animates via
- * grid-template-rows and the contents fade + drift up. See ui/Reveal.tsx. */
-.co-reveal {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows var(--co-reveal-ms, 350ms) ease-out;
+/* A block filling into place fades in gently — the skeleton reserves the height,
+ * so this is a fade only, never a height animation. */
+.co-fadein { animation: co-fadein 220ms ease-out; }
+@keyframes co-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.co-reveal--open { grid-template-rows: 1fr; }
-/* Once open, release only the clip so nested popovers can overflow — keep the
- * 1fr track (not `none`), otherwise a later collapse can't animate FROM it. */
-.co-reveal__clip { overflow: hidden; min-height: 0; }
-.co-reveal--done .co-reveal__clip { overflow: visible; }
-.co-reveal__inner {
-  opacity: 0;
-  transform: translateY(-8px);
-  transition:
-    opacity var(--co-reveal-ms, 350ms) ease-out,
-    transform var(--co-reveal-ms, 350ms) ease-out;
-}
-.co-reveal--open .co-reveal__inner { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
-  .co-reveal { transition: none; }
-  .co-reveal__inner { transition: none; opacity: 1; transform: none; }
+  .co-skel { animation: none; }
+  .co-fadein { animation: none; }
 }
 
 /* ---------- OTP ---------- */
