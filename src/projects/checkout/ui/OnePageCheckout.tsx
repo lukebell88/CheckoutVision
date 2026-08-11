@@ -219,8 +219,10 @@ export function OnePageCheckout() {
 
       <div className="co-totalbar">
         <span className="co-totalbar__total">
-          Total: <strong>{money(total)}</strong>{' '}
-          {deliveryCost === 0 ? '(FREE delivery)' : `(inc ${money(deliveryCost)} delivery)`}
+          <span className="co-totalbar__amount">Total: {money(total)}</span>{' '}
+          <span className="co-totalbar__delivery">
+            {deliveryCost === 0 ? '(FREE delivery)' : `(inc ${money(deliveryCost)} delivery)`}
+          </span>
         </span>
         <OrderToggle open={orderOpen} onToggle={() => setOrderOpen((v) => !v)} />
       </div>

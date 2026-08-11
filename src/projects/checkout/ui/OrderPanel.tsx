@@ -1,4 +1,3 @@
-import { Button } from '../../../components/Button';
 import { OrderSummary } from '../components/OrderSummary';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { CART, cartTotals, deliveryLabel, money } from '../cart';
@@ -18,16 +17,14 @@ import { CART, cartTotals, deliveryLabel, money } from '../cart';
  */
 export function OrderToggle({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   return (
-    <Button
-      className="co-orderslot__toggle"
-      variant="outlined"
-      color="secondary"
-      size="medium"
+    <button
+      type="button"
+      className="co-orderlink co-orderslot__toggle"
       aria-expanded={open}
       onClick={onToggle}
     >
       {open ? 'Hide order' : 'View order'}
-    </Button>
+    </button>
   );
 }
 
@@ -35,27 +32,35 @@ export function OrderPanel({ open }: { open: boolean }) {
   const { flags, delivery: deliveryInfo } = useCheckoutConfig();
   const { subtotal, delivery, total } = cartTotals(deliveryInfo.method);
 
+  // On mobile the slot is a smooth height reveal (grid-template-rows 0fr→1fr, so
+  // the summary animates to its natural height); the inner clips during the
+  // transition. At desktop the slot becomes the permanent column — see
+  // checkout.css.
   return (
-    <OrderSummary
-      className={`co-orderslot ${open ? 'co-orderslot--open' : ''}`}
-      // Size and Qty are labelled; colour deliberately isn't shown at all — the
-      // basket already pictures the product, so the colour name is redundant
-      // where the size isn't.
-      lines={CART.map((l) => ({
-        id: l.name,
-        name: l.name,
-        price: money(l.price * l.qty),
-        fields: [
-          { label: 'Size', value: l.size },
-          { label: 'Qty', value: String(l.qty) },
-        ],
-      }))}
-      totals={[
-        { label: 'Subtotal', value: money(subtotal) },
-        { label: 'Delivery', value: deliveryLabel(delivery) },
-        { label: 'Total', value: money(total), grand: true },
-      ]}
-      showPromoCode={flags.promoCode}
-    />
+    <div className={`co-orderslot ${open ? 'co-orderslot--open' : ''}`}>
+      <div className="co-orderslot__inner">
+        <OrderSummary
+          className="co-orderslot__summary"
+          // Size and Qty are labelled; colour deliberately isn't shown at all —
+          // the basket already pictures the product, so the colour name is
+          // redundant where the size isn't.
+          lines={CART.map((l) => ({
+            id: l.name,
+            name: l.name,
+            price: money(l.price * l.qty),
+            fields: [
+              { label: 'Size', value: l.size },
+              { label: 'Qty', value: String(l.qty) },
+            ],
+          }))}
+          totals={[
+            { label: 'Subtotal', value: money(subtotal) },
+            { label: 'Delivery', value: deliveryLabel(delivery) },
+            { label: 'Total', value: money(total), grand: true },
+          ]}
+          showPromoCode={flags.promoCode}
+        />
+      </div>
+    </div>
   );
 }

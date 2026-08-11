@@ -474,9 +474,34 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  background: var(--surface-subtle, #f0f0f0);
+  background: var(--background-main, #f7f7f7);
 }
-.co-totalbar__total { font-size: var(--global-body-2-font-size, 0.8125rem); }
+/* "Total: £118.95" is Body 3; the "(inc … delivery)" qualifier is Body 2. */
+.co-totalbar__amount {
+  font-family: var(--global-body-3-font-family, inherit);
+  font-size: var(--global-body-3-font-size, 0.875rem);
+  font-weight: var(--global-body-3-font-weight, 700);
+  line-height: var(--global-body-3-line-height, 1.5);
+}
+.co-totalbar__delivery {
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 0.75rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+}
+
+/* "View order" reads as a Body 3 underlined link rather than a button. */
+.co-orderlink {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--global-body-3-font-family, inherit);
+  font-size: var(--global-body-3-font-size, 0.875rem);
+  font-weight: var(--global-body-3-font-weight, 700);
+  line-height: var(--global-body-3-line-height, 1.5);
+  color: var(--components-link-primary-enabled-text-color, #000);
+  text-decoration: underline;
+}
 
 .co-onepage { padding: 0 16px; }
 .co-sections { display: flex; flex-direction: column; }
@@ -547,13 +572,25 @@
  * The component owns how the summary LOOKS; these rules own where it sits and
  * whether it's shown. Mobile: a disclosure above the sections, opened by the
  * total bar's toggle. Desktop (below): a sticky second column, toggle hidden. */
-/* The slot only shows/hides and spaces the summary — the card's own fill,
- * padding and radius come from `.co-ordersummary` (Figma "Your Order"). */
+/* The slot reveals/hides and spaces the summary — the card's own fill,
+ * padding and radius come from `.co-ordersummary` (Figma "Your Order").
+ *
+ * Mobile: a smooth height reveal. The grid track animates 0fr→1fr so the
+ * summary grows to its natural height; the inner clips during the transition.
+ * The slot runs edge-to-edge (negative margin cancels .co-onepage's padding),
+ * and the card drops its side radius so it meets both screen edges. */
 .co-orderslot {
-  display: none;
-  margin: 8px 0 16px;
+  display: grid;
+  grid-template-rows: 0fr;
+  margin: 0 -16px;
+  transition: grid-template-rows 320ms ease;
 }
-.co-orderslot--open { display: block; }
+.co-orderslot--open { grid-template-rows: 1fr; }
+.co-orderslot__inner { min-height: 0; overflow: hidden; }
+.co-orderslot__summary { margin: 8px 0 16px; border-radius: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .co-orderslot { transition: none; }
+}
 
 /* ---------- Order complete ---------- */
 .co-complete__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -622,6 +659,8 @@
   .co-screen--checkout { padding-left: 0; padding-right: 0; }
   .co-onepage { padding: 0 24px; }
   .co-totalbar { padding: 14px 24px; }
+  /* Edge-to-edge still: cancel the wider page padding at this breakpoint. */
+  .co-orderslot { margin: 0 -24px; }
   .co-recs__grid { grid-template-columns: repeat(4, 1fr); }
   .co-otp__box { max-width: 60px; }
   .co-screen--narrow { padding-top: 16px; }
@@ -646,6 +685,8 @@
   /* The running total is a mobile-only header — the permanent basket column
      already shows it on desktop, so drop the bar entirely here. */
   .co-totalbar { display: none; }
+  /* The mobile reveal becomes a static, always-open sticky column: no height
+     animation, no edge-to-edge, and the card gets its radius back. */
   .co-orderslot {
     display: block;
     position: sticky;
@@ -654,6 +695,8 @@
     grid-row: 1 / span 2;
     margin: 0;
   }
+  .co-orderslot__inner { overflow: visible; }
+  .co-orderslot__summary { margin: 0; border-radius: 4px; }
 
   .co-fieldrow { gap: 16px; }
 }
