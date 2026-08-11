@@ -102,17 +102,15 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     </Button>
   );
 
-  // The CTA a chosen method reveals. PayPal and Apple Pay swap in their own
-  // wallet buttons; every other method keeps "Pay now" for now (more method
-  // states to follow).
-  const payCta = (id: string) =>
-    id === 'paypal' ? (
-      <PayPalButton onClick={onPay} />
-    ) : id === 'apple' ? (
-      <ApplePayButton onClick={openApplePay} />
-    ) : (
-      payButton
-    );
+  // One pay button sits at the bottom of the method list and follows the
+  // selection: PayPal and Apple Pay swap in their own wallet buttons, every
+  // other method keeps "Pay now" (more method states to follow). Nothing
+  // selected (guest, before they choose) shows no button.
+  const bottomPay =
+    sel === '' ? null
+    : sel === 'paypal' ? <PayPalButton onClick={onPay} />
+    : sel === 'apple' ? <ApplePayButton onClick={openApplePay} />
+    : payButton;
 
   const cardForm = (
     <>
@@ -137,7 +135,6 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
           />
         </div>
       )}
-      {payButton}
       <p className="co-help">
         We only accept payments from cards that are registered at your billing address
       </p>
@@ -148,7 +145,6 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     <>
       <FormField label="Gift Card Number" required placeholder="1234 5678 9012 3456" inputMode="numeric" />
       <FormField label="PIN" required placeholder="1234" inputMode="numeric" />
-      {payButton}
     </>
   );
 
@@ -163,12 +159,15 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     );
   }
 
+  // Only card and gift card open (they carry a form). Handoff methods — saved,
+  // nextpay, pay in 3, Apple Pay, PayPal — are plain radio rows; the bottom
+  // button pays for whichever is selected.
   const options: PaymentOption[] = methods.map((m) => ({
     id: m.id,
     title: m.id === 'saved' ? (payment.savedCard || 'Saved card') : m.title,
     meta: m.meta,
     mark: <PaymentMark method={m.id} />,
-    content: m.id === 'card' ? cardForm : m.id === 'giftcard' ? giftCardForm : payCta(m.id),
+    content: m.id === 'card' ? cardForm : m.id === 'giftcard' ? giftCardForm : undefined,
   }));
 
   // Collapsed: the remembered method as a summary, the rest of the wallet as a
@@ -202,5 +201,10 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     );
   }
 
-  return <PaymentSelection options={options} value={sel} onChange={setSel} />;
+  return (
+    <>
+      <PaymentSelection options={options} value={sel} onChange={setSel} />
+      {bottomPay && <div className="co-payment__pay">{bottomPay}</div>}
+    </>
+  );
 }

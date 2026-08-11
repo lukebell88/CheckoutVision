@@ -63,3 +63,7 @@
 /* Indented to the head's padding so the revealed form lines up with the title
  * rather than the radio. */
 .co-payment__content { padding: 0 14px 14px; }
+
+/* The single pay button under the list — one CTA that restyles for the selected
+ * method (Pay now / PayPal / Apple Pay), rather than a button per row. */
+.co-payment__pay { margin-top: 6px; }
