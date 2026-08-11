@@ -67,3 +67,25 @@
 /* The single pay button under the list — one CTA that restyles for the selected
  * method (Pay now / PayPal / Apple Pay), rather than a button per row. */
 .co-payment__pay { margin-top: 6px; }
+
+/* The remembered saved-card row: a Body 2 secondary label over the card number
+ * (which stays bold, inheriting .co-payment__title). */
+.co-payment__saved {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.co-payment__savedlabel {
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 0.75rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+  color: var(--text-secondary, #555);
+}
+
+/* A section heading between rows, e.g. "Other payment methods". */
+.co-payment__grouplabel {
+  margin: 4px 0 10px;
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 0.75rem);
+  color: var(--text-secondary, #555);
+}

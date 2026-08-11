@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Radio } from '../../../../components/Radio';
 import './PaymentSelection.css';
 
@@ -29,6 +29,8 @@ export interface PaymentOption {
   mark?: ReactNode;
   /** Revealed beneath the row while this option is selected. */
   content?: ReactNode;
+  /** A section label rendered above this option, e.g. "Other payment methods". */
+  sectionLabel?: string;
 }
 
 export interface PaymentSelectionProps {
@@ -57,28 +59,31 @@ export function PaymentSelection({
       {options.map((o) => {
         const on = o.id === value;
         return (
-          <div key={o.id} className={`co-payment__option ${on ? 'co-payment__option--on' : ''}`}>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={on}
-              className="co-payment__head"
-              onClick={() => onChange(o.id)}
-            >
-              <Radio checked={on} />
-              <span className="co-payment__body">
-                <span className="co-payment__title">{o.title}</span>
-                {o.meta?.map((line) => (
-                  <span key={line} className="co-payment__meta">
-                    {line}
-                  </span>
-                ))}
-              </span>
-              {o.mark && <span className="co-payment__mark">{o.mark}</span>}
-            </button>
+          <Fragment key={o.id}>
+            {o.sectionLabel && <p className="co-payment__grouplabel">{o.sectionLabel}</p>}
+            <div className={`co-payment__option ${on ? 'co-payment__option--on' : ''}`}>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={on}
+                className="co-payment__head"
+                onClick={() => onChange(o.id)}
+              >
+                <Radio checked={on} />
+                <span className="co-payment__body">
+                  <span className="co-payment__title">{o.title}</span>
+                  {o.meta?.map((line) => (
+                    <span key={line} className="co-payment__meta">
+                      {line}
+                    </span>
+                  ))}
+                </span>
+                {o.mark && <span className="co-payment__mark">{o.mark}</span>}
+              </button>
 
-            {on && o.content && <div className="co-payment__content">{o.content}</div>}
-          </div>
+              {on && o.content && <div className="co-payment__content">{o.content}</div>}
+            </div>
+          </Fragment>
         );
       })}
     </div>

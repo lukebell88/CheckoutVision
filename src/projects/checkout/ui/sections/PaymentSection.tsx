@@ -39,7 +39,7 @@ function PaymentMark({ method }: { method: string }) {
 /** The scheme logo for a remembered card (e.g. "mastercard" → payment-mastercard). */
 function SchemeMark({ scheme }: { scheme?: string }) {
   if (!scheme) return null;
-  return <Icon name={`payment-${scheme}`} category="common" brand="payment" />;
+  return <Icon name={`payment-${scheme}`} category="common" brand="payment" className="co-payment__logo" />;
 }
 
 /**
@@ -76,19 +76,29 @@ const COMPLETE_LABEL: Record<string, string> = {
   payin3: 'Pay In 3',
 };
 
+/** The remembered-card row at the top of a returning shopper's expanded list. */
+const PREFERRED_ID = 'preferred';
+
 export function PaymentSection({ onPay }: { onPay?: () => void }) {
   const { flags, payment } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const methods = METHODS.filter((m) => !m.flag || flags[m.flag]);
 
-  // `payment.method` preselects a method — '' means none selected (guest).
-  // Undefined falls back to the saved-card-or-new-card default.
-  const defaultMethod = payment.method !== undefined ? payment.method : flags.savedPayment ? 'saved' : 'card';
-  const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
-
   // A returning shopper opens collapsed on their remembered method, with a
   // Change link to the full list — resets to collapsed if the scenario changes.
   const hasPreferred = !!payment.preferred && !payment.only;
+
+  // `payment.method` preselects a method — '' means none selected (guest).
+  // Undefined falls back to the saved-card-or-new-card default. When a card is
+  // remembered, the expanded list opens on that saved-card row (`PREFERRED_ID`).
+  const defaultMethod = hasPreferred
+    ? PREFERRED_ID
+    : payment.method !== undefined
+      ? payment.method
+      : flags.savedPayment
+        ? 'saved'
+        : 'card';
+  const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
   const [changing, setChanging] = useSeededState<boolean>(
     `${payment.preferred ?? ''}|${payment.card ?? ''}`,
     () => false,
@@ -161,14 +171,33 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
 
   // Only card and gift card open (they carry a form). Handoff methods — saved,
   // nextpay, pay in 3, Apple Pay, PayPal — are plain radio rows; the bottom
-  // button pays for whichever is selected.
-  const options: PaymentOption[] = methods.map((m) => ({
+  // button pays for whichever is selected. When a card is remembered, these sit
+  // under an "Other payment methods" heading below the saved-card row.
+  const methodOptions: PaymentOption[] = methods.map((m, i) => ({
     id: m.id,
     title: m.id === 'saved' ? (payment.savedCard || 'Saved card') : m.title,
     meta: m.meta,
     mark: <PaymentMark method={m.id} />,
     content: m.id === 'card' ? cardForm : m.id === 'giftcard' ? giftCardForm : undefined,
+    sectionLabel: hasPreferred && i === 0 ? 'Other payment methods' : undefined,
   }));
+
+  // The remembered card as its own preselected row: a "Debit/Credit card" label
+  // over the card number, with the scheme logo on the right like every other row.
+  const preferredOption: PaymentOption = {
+    id: PREFERRED_ID,
+    title: (
+      <span className="co-payment__saved">
+        <span className="co-payment__savedlabel">Debit/Credit card</span>
+        <span className="co-payment__savednum">{payment.card || 'Card'}</span>
+      </span>
+    ),
+    mark: <SchemeMark scheme={payment.scheme} />,
+  };
+
+  const options: PaymentOption[] = hasPreferred
+    ? [preferredOption, ...methodOptions]
+    : methodOptions;
 
   // Collapsed: the remembered method as a summary, the rest of the wallet as a
   // quiet row, and the pay button. Change (or tapping another method) reveals
