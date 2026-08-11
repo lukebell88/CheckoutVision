@@ -90,24 +90,28 @@ export function PaymentSection({
   /** Expand from the collapsed preferred view to the list (owned by the header). */
   onExpand?: () => void;
 }) {
-  const { flags, payment } = useCheckoutConfig();
+  const { flags, payment, choices } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const methods = METHODS.filter((m) => !m.flag || flags[m.flag]);
 
-  // A returning shopper opens collapsed on their remembered method, with a
-  // Change link (in the section header) to the full list.
-  const hasPreferred = !!payment.preferred && !payment.only;
+  // The choice drives how Payment presents itself; the payment DATA supplies the
+  // specifics (which card, its scheme). A single-CTA presentation short-circuits
+  // the whole list — see the early return below.
+  const presentation = choices.paymentPresentation;
+  const single = presentation === 'nextpay' || presentation === 'payin3' ? presentation : undefined;
 
-  // `payment.method` preselects a method — '' means none selected (guest).
-  // Undefined falls back to the saved-card-or-new-card default. When a card is
-  // remembered, the expanded list opens on that saved-card row (`PREFERRED_ID`).
+  // "Preferred" needs a remembered card to show; without one it falls back to the
+  // list. "None" opens the list with nothing selected (an unknown shopper).
+  const hasPreferred = presentation === 'preferred' && !!payment.card;
+  const noneSelected = presentation === 'none';
+
+  // When a card is remembered the list opens on that saved-card row
+  // (`PREFERRED_ID`); otherwise on the seeded method, or the saved/new-card default.
   const defaultMethod = hasPreferred
     ? PREFERRED_ID
-    : payment.method !== undefined
-      ? payment.method
-      : flags.savedPayment
-        ? 'saved'
-        : 'card';
+    : noneSelected
+      ? ''
+      : payment.method || (flags.savedPayment ? 'saved' : 'card');
   const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
 
   const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
@@ -164,14 +168,16 @@ export function PaymentSection({
     </>
   );
 
-  // Dedicated single-method journeys (nextpay / pay in 3): the shopper sees no
-  // method list, just one CTA that completes the order.
-  if (payment.only) {
-    const label = COMPLETE_LABEL[payment.only] ?? payment.only;
+  // Single-CTA presentation (nextpay / pay in 3): no method list, just one button
+  // that completes the order.
+  if (single) {
     return (
-      <Button variant="contained" color="primary" size="large" fullWidth onClick={onPay}>
-        Complete With {label}
-      </Button>
+      <>
+        <Button variant="contained" color="primary" size="large" fullWidth onClick={onPay}>
+          Complete With {COMPLETE_LABEL[single]}
+        </Button>
+        <PaymentLegal />
+      </>
     );
   }
 

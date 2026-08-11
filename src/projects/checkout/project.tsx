@@ -3,6 +3,7 @@ import meta from './meta';
 import { CHECKOUT_SCREENS } from './screens';
 import { FLOWS } from './flows';
 import { FLAGS } from './flags';
+import { CHOICES } from './choices';
 import { VARIANT_GROUPS } from './variants';
 import { CheckoutRoot } from './CheckoutRoot';
 
@@ -25,6 +26,7 @@ const checkoutProject: ProjectDef = {
   screens: CHECKOUT_SCREENS,
   flows: FLOWS,
   flags: FLAGS,
+  choices: CHOICES,
   variants: VARIANT_GROUPS,
   render: () => <CheckoutRoot />,
 };

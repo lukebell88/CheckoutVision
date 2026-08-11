@@ -77,6 +77,14 @@ export type ProjectData = { [bucket: string]: Record<string, unknown> | undefine
 /** Flag state, keyed by flag id. Projects narrow this to their own union. */
 export type FlagValues = Record<string, boolean>;
 
+/**
+ * Choice state, keyed by choice id. A choice is an ENUM control — the multi-way
+ * counterpart to a boolean flag, for a setting whose options are mutually
+ * exclusive (e.g. how the payment step is presented). Projects narrow this to
+ * their own unions, exactly as they do with flags.
+ */
+export type ChoiceValues = Record<string, string>;
+
 /** A journey: an ordered subset of screens plus the state it presents. */
 export interface ProjectFlow {
   id: string;
@@ -85,6 +93,8 @@ export interface ProjectFlow {
   screens: FlowScreen[];
   /** Applied on top of the flag defaults when this flow is selected. */
   flagOverrides?: FlagValues;
+  /** Applied on top of the choice defaults when this flow is selected. */
+  choiceOverrides?: ChoiceValues;
   /** Seed data merged into the data buckets when this flow is selected. */
   prefill?: ProjectData;
 }
@@ -97,6 +107,27 @@ export interface ProjectFlag {
   /** Free-form grouping label used by the sidebar and Config board. */
   group: string;
   default: boolean;
+}
+
+/** One selectable value of a ProjectChoice. */
+export interface ChoiceOption {
+  value: string;
+  label: string;
+}
+
+/**
+ * An enum control the project exposes to the studio — the multi-way counterpart
+ * to ProjectFlag. The scenario tray and any sidebar render these generically, so
+ * the studio never needs to know what the options mean.
+ */
+export interface ProjectChoice {
+  id: string;
+  name: string;
+  description: string;
+  /** Free-form grouping label. */
+  group: string;
+  options: ChoiceOption[];
+  default: string;
 }
 
 /** One variant of a single screen (an error state, a payment type, …). */
@@ -137,6 +168,8 @@ export interface ProjectRuntime {
   /** Screens already advanced past. */
   completed: string[];
   flags: FlagValues;
+  /** Enum-control state, keyed by choice id. */
+  choices: ChoiceValues;
   data: ProjectData;
   /** The active brand. */
   brand: ClientDef;
@@ -156,6 +189,8 @@ export interface ProjectDef extends ProjectMeta {
   screens: Record<string, ScreenDef>;
   flows: ProjectFlow[];
   flags: ProjectFlag[];
+  /** Enum controls, surfaced by the studio and the scenario tray. */
+  choices?: ProjectChoice[];
   variants?: VariantGroup[];
   /**
    * Render one screen. Simple projects can read the passed runtime directly;
@@ -192,6 +227,16 @@ export const defaultFlags = (project: ProjectDef): FlagValues =>
 export const flagsForFlow = (project: ProjectDef, flow: ProjectFlow): FlagValues => ({
   ...defaultFlags(project),
   ...(flow.flagOverrides ?? {}),
+});
+
+/** Baseline choice state from the project's declared defaults. */
+export const defaultChoices = (project: ProjectDef): ChoiceValues =>
+  (project.choices ?? []).reduce<ChoiceValues>((acc, c) => ({ ...acc, [c.id]: c.default }), {});
+
+/** Choice defaults with a flow's overrides applied. */
+export const choicesForFlow = (project: ProjectDef, flow: ProjectFlow): ChoiceValues => ({
+  ...defaultChoices(project),
+  ...(flow.choiceOverrides ?? {}),
 });
 
 /** Merge a flow's prefill over existing data (prefill wins, so the scenario is coherent). */

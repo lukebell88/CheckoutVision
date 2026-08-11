@@ -9,10 +9,12 @@ import {
 } from '../config/headerConfig';
 import { DEFAULT_PROJECT_ID, loadedProject } from './registry';
 import {
+  choicesForFlow,
   flagsForFlow,
   flowById,
   flowScreens,
   mergeData,
+  type ChoiceValues,
   type FlagValues,
   type ProjectData,
   type ProjectDef,
@@ -47,6 +49,8 @@ export interface ProjectState {
   /** Screens the customer has advanced past via the normal progression. */
   completed: string[];
   flags: FlagValues;
+  /** Enum-control state, keyed by choice id. */
+  choices: ChoiceValues;
   data: ProjectData;
   /** Selected variant group in the Pages view. */
   variantId: string;
@@ -115,6 +119,7 @@ interface StudioState {
   toggleFlag: (id: string) => void;
   setFlag: (id: string, value: boolean) => void;
   setFlags: (flags: FlagValues) => void;
+  setChoice: (id: string, value: string) => void;
   patchData: (bucket: string, values: Record<string, unknown>) => void;
 
   /** Restore the active project to its defaults. Studio preferences are kept. */
@@ -125,7 +130,7 @@ interface StudioState {
 export function initialProjectState(project: ProjectDef): ProjectState {
   const flow = project.flows[0];
   if (!flow) {
-    return { flowId: '', screen: '', completed: [], flags: {}, data: {}, variantId: '' };
+    return { flowId: '', screen: '', completed: [], flags: {}, choices: {}, data: {}, variantId: '' };
   }
   const flags = flagsForFlow(project, flow);
   return {
@@ -133,6 +138,7 @@ export function initialProjectState(project: ProjectDef): ProjectState {
     screen: flowScreens(flow, flags)[0]?.id ?? '',
     completed: [],
     flags,
+    choices: choicesForFlow(project, flow),
     data: mergeData({}, flow.prefill),
     variantId: project.variants?.[0]?.id ?? '',
   };
@@ -156,6 +162,7 @@ const EMPTY_PROJECT_STATE: ProjectState = {
   screen: '',
   completed: [],
   flags: {},
+  choices: {},
   data: {},
   variantId: '',
 };
@@ -266,6 +273,7 @@ export const useStore = create<StudioState>()(
             screen: screens[0]?.id ?? '',
             completed: ps.completed.filter((s) => valid.has(s)),
             flags,
+            choices: choicesForFlow(a.project, flow),
             // Prefill wins over entered data so the presented scenario is coherent.
             data: mergeData(ps.data, flow.prefill),
           }));
@@ -328,6 +336,8 @@ export const useStore = create<StudioState>()(
           if (!a) return;
           patch((ps) => withFlags(a.project, ps, flags));
         },
+        // Choices don't gate screens, so this is a plain slice update.
+        setChoice: (id, value) => patch((ps) => ({ choices: { ...ps.choices, [id]: value } })),
         patchData: (bucket, values) =>
           patch((ps) => ({ data: { ...ps.data, [bucket]: { ...(ps.data[bucket] ?? {}), ...values } } })),
 

@@ -1,5 +1,7 @@
 import { useProjectRuntime } from '../../studio/runtime';
 import type { FlagState } from './flags';
+import type { ChoiceState, PaymentPresentation } from './choices';
+import { CHOICES } from './choices';
 import type { SectionId } from './screens';
 
 /**
@@ -45,12 +47,6 @@ export interface PaymentInfo {
   card?: string;
   /** The preferred card's scheme logo, e.g. "mastercard" (common/payment icon). */
   scheme?: string;
-  /**
-   * When set to a method id, the payment section shows ONLY a single
-   * "Complete With <method>" button instead of the method list — the dedicated
-   * nextpay / pay-in-3 journeys.
-   */
-  only?: string;
 }
 /** Which section of the one-pager is open, and which are behind us. */
 export interface ProgressInfo {
@@ -65,6 +61,7 @@ export interface OverlayInfo {
 
 export interface CheckoutConfig {
   flags: FlagState;
+  choices: ChoiceState;
   customer: CustomerInfo;
   delivery: DeliveryInfo;
   payment: PaymentInfo;
@@ -72,11 +69,16 @@ export interface CheckoutConfig {
   overlay: OverlayInfo;
 }
 
+/** The paymentPresentation default, so a runtime without choices still resolves. */
+const PRESENTATION_DEFAULT = CHOICES[0].default;
+
 /** The active checkout config for the surrounding rendered instance. */
 export function useCheckoutConfig(): CheckoutConfig {
   const rt = useProjectRuntime();
+  const paymentPresentation = (rt.choices?.paymentPresentation ?? PRESENTATION_DEFAULT) as PaymentPresentation;
   return {
     flags: rt.flags as FlagState,
+    choices: { paymentPresentation },
     customer: (rt.data.customer ?? {}) as CustomerInfo,
     delivery: (rt.data.delivery ?? {}) as DeliveryInfo,
     payment: (rt.data.payment ?? {}) as PaymentInfo,

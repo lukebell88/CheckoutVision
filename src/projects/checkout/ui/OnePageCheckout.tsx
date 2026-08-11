@@ -32,16 +32,17 @@ import { useEmailFirst } from './useEmailFirst';
  * that's the one piece of layout it doesn't dictate.
  */
 export function OnePageCheckout() {
-  const { customer, progress, delivery, payment } = useCheckoutConfig();
+  const { customer, progress, delivery, payment, choices } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const { total, delivery: deliveryCost } = cartTotals(delivery.method);
 
   // A returning shopper's Payment section opens collapsed on their remembered
   // card, with a Change link in the section header (like Details/Delivery) that
-  // expands the full method list. Kept here so the header owns the link.
-  const hasPreferred = !!payment.preferred && !payment.only;
+  // expands the full method list. Kept here so the header owns the link. Driven
+  // by the payment-presentation choice, matching PaymentSection.
+  const hasPreferred = choices.paymentPresentation === 'preferred' && !!payment.card;
   const [payExpanded, setPayExpanded] = useSeededState<boolean>(
-    `${payment.preferred ?? ''}|${payment.card ?? ''}`,
+    `${choices.paymentPresentation}|${payment.card ?? ''}`,
     () => false,
   );
 

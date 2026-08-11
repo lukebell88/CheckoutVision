@@ -2,7 +2,15 @@ import { useMemo } from 'react';
 import { clientById } from '../config/clients';
 import { useStore, selectProjectState } from './store';
 import { INERT_NAV, useProject } from './runtime';
-import { defaultFlags, flowById, flowScreens, mergeData, type ProjectRuntime, type Variant } from './project';
+import {
+  defaultChoices,
+  defaultFlags,
+  flowById,
+  flowScreens,
+  mergeData,
+  type ProjectRuntime,
+  type Variant,
+} from './project';
 
 /**
  * Runtime builders.
@@ -33,6 +41,8 @@ export function useStoreRuntime(screen: string, interactive: boolean): ProjectRu
       screens: flowScreens(flow, ps.flags),
       completed: ps.completed,
       flags: ps.flags,
+      // Slices persisted before choices existed have none — fall back to defaults.
+      choices: ps.choices ?? defaultChoices(project),
       data: ps.data,
       brand: clientById(clientId),
       interactive,
@@ -55,6 +65,7 @@ export function useVariantRuntime(screen: string, variant: Variant): ProjectRunt
       screens: flowScreens(flow, flags),
       completed: [],
       flags,
+      choices: defaultChoices(project),
       data: mergeData({}, variant.data),
       brand: clientById(clientId),
       interactive: false,
