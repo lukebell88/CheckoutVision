@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Divider } from '../../../components/Divider';
 import { Link } from '../../../components/Link';
+import { Icon } from '../../../components/Icon';
 
 /**
  * Small shared pieces of checkout chrome.
@@ -45,5 +46,32 @@ export function AppleMark({ size = 18 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M16.4 12.8c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8c-1.5 0-2.9.9-3.7 2.3-1.6 2.7-.4 6.8 1.1 9 .8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.2 0 2-1.1 2.8-2.2.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.5-1-2.5-3.6zM14.2 5.9c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.8 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z" />
     </svg>
+  );
+}
+
+/**
+ * The Apple Pay CTA — the black "Buy with  Pay" button the wallet uses. Shown
+ * as the pay button when Apple Pay is the chosen method (and as the express
+ * option at the top of the email-first block).
+ */
+export function ApplePayButton({ onClick }: { onClick?: () => void }) {
+  return (
+    <button type="button" className="co-express" onClick={onClick}>
+      Buy with <AppleMark /> Pay
+    </button>
+  );
+}
+
+/**
+ * The PayPal CTA — the wallet's gold pill carrying only the PayPal logo, shown
+ * as the pay button when PayPal is the chosen method. The logo lives in the
+ * common/payment set, which the payment section already loads for its method
+ * marks, so referencing it here adds nothing to the critical path.
+ */
+export function PayPalButton({ onClick }: { onClick?: () => void }) {
+  return (
+    <button type="button" className="co-paypalbtn" onClick={onClick} aria-label="Pay with PayPal">
+      <Icon name="payment-paypal" category="common" brand="payment" className="co-paypalbtn__logo" />
+    </button>
   );
 }

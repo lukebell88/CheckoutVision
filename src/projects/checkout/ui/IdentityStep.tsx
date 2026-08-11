@@ -6,7 +6,7 @@ import { FormField } from '../components/FormField';
 import { Spinner } from '../components/Spinner';
 import { ConfirmIdentity } from './ConfirmIdentity';
 import { DetailsSection } from './sections/DetailsSection';
-import { OrRule, AppleMark, LegalNote } from './parts';
+import { OrRule, ApplePayButton, LegalNote } from './parts';
 import type { EmailFirst } from './useEmailFirst';
 
 /**
@@ -127,13 +127,9 @@ export function IdentityStep({
         <div className="co-emailgate__express">
           <OrRule />
           <p className="co-guest__title">Check out now with express payment</p>
-          <button
-            type="button"
-            className="co-express"
+          <ApplePayButton
             onClick={interactive ? () => nav.patch('overlay', { applePay: true }) : undefined}
-          >
-            Buy with <AppleMark /> Pay
-          </button>
+          />
           <LegalNote />
         </div>
       )}

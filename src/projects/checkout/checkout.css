@@ -155,6 +155,29 @@
   cursor: pointer;
 }
 
+/* PayPal CTA — the wallet's gold pill carrying only the PayPal logo. Fully
+   rounded, brand colour fixed (not themed) to read as the real PayPal button. */
+.co-paypalbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  padding: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #f3bb37;
+  cursor: pointer;
+}
+.co-paypalbtn__logo {
+  width: auto !important;
+  height: 20px !important;
+}
+.co-paypalbtn__logo svg {
+  width: auto;
+  height: 100%;
+}
+
 /* ---------- Email-first gate ---------- */
 /* The top-of-page email step when the sign-in page is removed. Sits above the
  * numbered sections and owns email capture + inline verification.

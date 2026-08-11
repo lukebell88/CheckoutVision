@@ -21,6 +21,7 @@ export type FlowId =
   | 'apple-pay'
   | 'guest'
   | 'account-cash'
+  | 'account-preferred'
   | 'account-nextpay'
   | 'account-payin3'
   | 'email-first';
@@ -66,7 +67,7 @@ export type CheckoutPrefill = ProjectData & {
     postcode: string;
     date: string;
   }>;
-  payment?: Partial<{ savedCard: string; method: string; only: string }>;
+  payment?: Partial<{ savedCard: string; method: string; only: string; preferred: string; card: string; scheme: string }>;
   /** Which of the one-pager's sections is open, and which are done. */
   progress?: Partial<{ section: SectionId | 'complete'; done: SectionId[] }>;
   /** Overlays sitting on top of the current screen (the Apple Pay sheet). */
@@ -94,7 +95,7 @@ export interface FlowDef extends ProjectFlow {
 const BLANK: CheckoutPrefill = {
   customer: { email: '', firstName: '', lastName: '', phone: '', signedIn: false, recognised: false },
   delivery: { line1: '', line2: '', city: '', postcode: '', store: '', date: '' },
-  payment: { savedCard: '', method: '', only: '' },
+  payment: { savedCard: '', method: '', only: '', preferred: '', card: '', scheme: '' },
   // Reset the overlay too: without this, a flow that doesn't mention it would
   // keep the last flow's open Apple Pay sheet (see the merge note above).
   overlay: { applePay: false },
@@ -171,6 +172,23 @@ export const FLOWS: FlowDef[] = [
       customer: ACCOUNT_CUSTOMER,
       delivery: ACCOUNT_DELIVERY,
       payment: { ...BLANK.payment, method: 'saved', savedCard: 'Visa ending 4567' },
+      progress: { section: 'payment', done: ['details', 'delivery'] },
+    },
+  },
+  {
+    id: 'account-preferred',
+    name: 'Account Matched - Preferred Card',
+    description: 'Recognised shopper whose previously-chosen debit card is remembered: Payment opens collapsed on that card with a Change link and a row of other methods, like Details and Delivery collapse to a summary.',
+    customerType: 'matched',
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
+    // `preferred: 'card'` opens Payment collapsed on the remembered card; the
+    // Change link then reveals the standard method list.
+    prefill: {
+      ...BLANK,
+      customer: ACCOUNT_CUSTOMER,
+      delivery: ACCOUNT_DELIVERY,
+      payment: { ...BLANK.payment, method: 'card', preferred: 'card', card: 'Monzo •••• 1234', scheme: 'mastercard' },
       progress: { section: 'payment', done: ['details', 'delivery'] },
     },
   },

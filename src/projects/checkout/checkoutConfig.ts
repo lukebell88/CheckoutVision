@@ -36,6 +36,16 @@ export interface PaymentInfo {
   savedCard?: string;
   promoCode?: string;
   /**
+   * A returning shopper's previously-chosen method. When set, the payment
+   * section opens collapsed on that method with a Change link (rather than the
+   * full list), the way Details and Delivery collapse to a summary.
+   */
+  preferred?: string;
+  /** The preferred card's display label, e.g. "Monzo •••• 1234". */
+  card?: string;
+  /** The preferred card's scheme logo, e.g. "mastercard" (common/payment icon). */
+  scheme?: string;
+  /**
    * When set to a method id, the payment section shows ONLY a single
    * "Complete With <method>" button instead of the method list — the dedicated
    * nextpay / pay-in-3 journeys.

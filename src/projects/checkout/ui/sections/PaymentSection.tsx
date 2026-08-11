@@ -1,9 +1,12 @@
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
 import { Icon } from '../../../../components/Icon';
+import { useProjectRuntime } from '../../../../studio/runtime';
 import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
 import { PaymentSelection, type PaymentOption } from '../../components/PaymentSelection';
+import { PreferredPayment, type PreferredOther } from '../../components/PreferredPayment';
+import { ApplePayButton, PayPalButton } from '../parts';
 import { useSeededState } from '../useSeededState';
 
 /**
@@ -31,6 +34,12 @@ function PaymentMark({ method }: { method: string }) {
     default:
       return null;
   }
+}
+
+/** The scheme logo for a remembered card (e.g. "mastercard" → payment-mastercard). */
+function SchemeMark({ scheme }: { scheme?: string }) {
+  if (!scheme) return null;
+  return <Icon name={`payment-${scheme}`} category="common" brand="payment" />;
 }
 
 /**
@@ -69,6 +78,7 @@ const COMPLETE_LABEL: Record<string, string> = {
 
 export function PaymentSection({ onPay }: { onPay?: () => void }) {
   const { flags, payment } = useCheckoutConfig();
+  const { interactive, nav } = useProjectRuntime();
   const methods = METHODS.filter((m) => !m.flag || flags[m.flag]);
 
   // `payment.method` preselects a method — '' means none selected (guest).
@@ -76,11 +86,33 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
   const defaultMethod = payment.method !== undefined ? payment.method : flags.savedPayment ? 'saved' : 'card';
   const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
 
+  // A returning shopper opens collapsed on their remembered method, with a
+  // Change link to the full list — resets to collapsed if the scenario changes.
+  const hasPreferred = !!payment.preferred && !payment.only;
+  const [changing, setChanging] = useSeededState<boolean>(
+    `${payment.preferred ?? ''}|${payment.card ?? ''}`,
+    () => false,
+  );
+
+  const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
+
   const payButton = (
     <Button variant="contained" color="primary" size="large" fullWidth onClick={onPay}>
       Pay now
     </Button>
   );
+
+  // The CTA a chosen method reveals. PayPal and Apple Pay swap in their own
+  // wallet buttons; every other method keeps "Pay now" for now (more method
+  // states to follow).
+  const payCta = (id: string) =>
+    id === 'paypal' ? (
+      <PayPalButton onClick={onPay} />
+    ) : id === 'apple' ? (
+      <ApplePayButton onClick={openApplePay} />
+    ) : (
+      payButton
+    );
 
   const cardForm = (
     <>
@@ -136,8 +168,39 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     title: m.id === 'saved' ? (payment.savedCard || 'Saved card') : m.title,
     meta: m.meta,
     mark: <PaymentMark method={m.id} />,
-    content: m.id === 'card' ? cardForm : m.id === 'giftcard' ? giftCardForm : payButton,
+    content: m.id === 'card' ? cardForm : m.id === 'giftcard' ? giftCardForm : payCta(m.id),
   }));
+
+  // Collapsed: the remembered method as a summary, the rest of the wallet as a
+  // quiet row, and the pay button. Change (or tapping another method) reveals
+  // the full list already selected on that method.
+  if (hasPreferred && !changing) {
+    const others: PreferredOther[] = methods
+      .filter((m) => m.id !== payment.preferred && m.id !== 'saved')
+      .map((m) => ({
+        id: m.id,
+        mark: <PaymentMark method={m.id} />,
+        label: m.id === 'giftcard' ? 'Gift Card' : undefined,
+      }));
+
+    const openList = (id?: string) => {
+      if (!interactive) return;
+      if (id) setSel(id);
+      setChanging(true);
+    };
+
+    return (
+      <PreferredPayment
+        label="Debit / Credit Card"
+        cardLabel={payment.card || 'Card'}
+        cardMark={<SchemeMark scheme={payment.scheme} />}
+        others={others}
+        onChange={interactive ? () => openList() : undefined}
+        onSelectOther={interactive ? (id) => openList(id) : undefined}
+        pay={payButton}
+      />
+    );
+  }
 
   return <PaymentSelection options={options} value={sel} onChange={setSel} />;
 }
