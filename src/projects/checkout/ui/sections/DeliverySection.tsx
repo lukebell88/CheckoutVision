@@ -37,15 +37,6 @@ const DATES = [
   { day: 'Mon', date: '17th', label: 'Mon 17th July' },
 ];
 
-/** The single result an address lookup offers, so a guest can reach the dates
- *  step without typing four fields. Selecting it fills the whole address. */
-const SAMPLE_ADDRESS = {
-  line1: '2 Hickling Close',
-  line2: 'Long Eaton',
-  city: 'Nottingham',
-  postcode: 'NG10 3TE',
-};
-
 /** Delivery dates depend on the address, so they can't be shown until it's
  *  entered — this is how long the "loading dates for your address" skeleton
  *  shows after the address is confirmed. */
@@ -97,19 +88,6 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const [datesLoading, setDatesLoading] = useState(false);
   const datesTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(datesTimer.current), []);
-
-  // Address lookup: offer the sample result once a GUEST starts typing, so they
-  // can fill the whole address in one tap. Gated on there being no address on
-  // file (`!delivery.line1`) so it never offers the canned sample to an account
-  // shopper editing their own saved address.
-  const showSuggest =
-    flags.addressLookup &&
-    twoStep &&
-    !confirmed &&
-    !delivery.line1 &&
-    form.line1.trim().length >= 2 &&
-    form.line1 !== SAMPLE_ADDRESS.line1;
-  const fillSample = () => setForm((f) => ({ ...f, ...SAMPLE_ADDRESS }));
 
   const ids = useId();
 
@@ -198,28 +176,15 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const addressFields = (
     <>
       <p className="co-section__lede">Tell us where you would like your orders to be delivered.</p>
-      <div className="co-addrfield">
-        <FormField
-          id={`${ids}-line1`}
-          label="Address Line 1"
-          required
-          placeholder="Start typing your address"
-          value={form.line1}
-          onChange={set('line1')}
-          endIcon={flags.addressLookup ? <Icon name="search" category="feature" size={20} /> : undefined}
-          hint={flags.addressLookup ? 'Start typing your address and select from the list' : undefined}
-        />
-        {showSuggest && (
-          <ul className="co-addrsuggest" role="listbox" aria-label="Address suggestions">
-            <li>
-              <button type="button" className="co-addrsuggest__item" onClick={fillSample}>
-                <Icon name="location" category="feature" size={18} className="co-addrsuggest__pin" />
-                {SAMPLE_ADDRESS.line1}, {SAMPLE_ADDRESS.line2}, {SAMPLE_ADDRESS.city}, {SAMPLE_ADDRESS.postcode}
-              </button>
-            </li>
-          </ul>
-        )}
-      </div>
+      <FormField
+        id={`${ids}-line1`}
+        label="Address Line 1"
+        required
+        placeholder="Start typing your address"
+        value={form.line1}
+        onChange={set('line1')}
+        endIcon={flags.addressLookup ? <Icon name="search" category="feature" size={20} /> : undefined}
+      />
       <FormField label="Address Line 2" required value={form.line2} onChange={set('line2')} />
       <div className="co-fieldrow">
         <FormField label="City" required value={form.city} onChange={set('city')} />

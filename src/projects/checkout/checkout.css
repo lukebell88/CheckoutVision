@@ -615,34 +615,6 @@
   gap: 12px;
 }
 .co-deliverto__addr { margin-top: 4px; color: var(--text-primary, #111); }
-
-/* Address-lookup result under Address Line 1. */
-.co-addrfield { position: relative; }
-.co-addrsuggest {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  border: 1px solid var(--border-subtle, #d5d5d5);
-  border-radius: var(--global-text-field-large-border-radius, 4px);
-  background: var(--surface-card, #fff);
-  overflow: hidden;
-}
-.co-addrsuggest__item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  border: 0;
-  background: none;
-  font: inherit;
-  font-size: var(--global-body-3-font-size, 0.8125rem);
-  text-align: left;
-  color: var(--text-primary, #111);
-  cursor: pointer;
-}
-.co-addrsuggest__item:hover { background: var(--background-main, #f7f7f7); }
-.co-addrsuggest__pin { flex: none; }
 /* The Collection store finder is its own component — see components/StorePicker. */
 
 /* ---------- Order summary placement ----------
