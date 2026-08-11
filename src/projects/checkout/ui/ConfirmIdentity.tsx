@@ -150,13 +150,23 @@ export function ConfirmIdentity({
       <div className="co-confirm__head">
         <h3 className="co-h3">Confirm it’s you</h3>
         {!skeleton && !finalising && <p className="co-confirm__sub">{sub}</p>}
+        {finalising && (
+          <span className="co-skel co-skel--line" aria-hidden="true" />
+        )}
       </div>
 
       {finalising ? (
-        <div className="co-confirm__finalising" role="status">
-          <Spinner size={34} label="Signing you in" />
-          <p className="co-confirm__finalisingtext">Signing you in…</p>
-        </div>
+        // Keep the passcode layout: a spinner the height of the code boxes where
+        // they were, and the rest of the view as skeleton, so the account-lookup
+        // reads in place rather than a jump.
+        <>
+          <div className="co-otp co-otp--finalising" role="status" aria-label="Signing you in">
+            <Spinner size={28} label="Signing you in" />
+          </div>
+          <p className="co-confirm__resend" aria-hidden="true">
+            <span className="co-skel co-skel--link" />
+          </p>
+        </>
       ) : skeleton ? (
         <div className="co-confirm__skeleton" aria-hidden="true">
           <span className="co-skel co-skel--line" />
@@ -213,20 +223,26 @@ export function ConfirmIdentity({
         </div>
       )}
 
-      {!finalising && <div className="co-confirm__hr" />}
+      <div className="co-confirm__hr" />
 
-      {!finalising && (
-      <div className="co-confirm__switch">
-        <button type="button" className="co-confirm__method" onClick={() => switchTo(others[0])}>
-          <MethodIcon method={others[0]} />
-          <span className="co-linklabel">{LABEL[others[0]]}</span>
-        </button>
-        <span className="co-confirm__vdiv" aria-hidden="true" />
-        <button type="button" className="co-confirm__method" onClick={() => switchTo(others[1])}>
-          <MethodIcon method={others[1]} />
-          <span className="co-linklabel">{LABEL[others[1]]}</span>
-        </button>
-      </div>
+      {finalising ? (
+        <div className="co-confirm__switch" aria-hidden="true">
+          <span className="co-skel co-skel--link" />
+          <span className="co-confirm__vdiv" />
+          <span className="co-skel co-skel--link" />
+        </div>
+      ) : (
+        <div className="co-confirm__switch">
+          <button type="button" className="co-confirm__method" onClick={() => switchTo(others[0])}>
+            <MethodIcon method={others[0]} />
+            <span className="co-linklabel">{LABEL[others[0]]}</span>
+          </button>
+          <span className="co-confirm__vdiv" aria-hidden="true" />
+          <button type="button" className="co-confirm__method" onClick={() => switchTo(others[1])}>
+            <MethodIcon method={others[1]} />
+            <span className="co-linklabel">{LABEL[others[1]]}</span>
+          </button>
+        </div>
       )}
     </section>
   );
