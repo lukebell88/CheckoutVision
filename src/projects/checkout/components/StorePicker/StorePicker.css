@@ -1,7 +1,9 @@
 /* StorePicker — a dropdown of enriched store options.
  * Colours, radius and type all read the same tokens as <Select> and the rest of
  * checkout, so it themes with the active brand. */
-.co-storepicker { position: relative; }
+/* Match a FormField's bottom margin so the field beneath (Phone) sits on the
+ * same 14px rhythm as every other field, rather than tight against the picker. */
+.co-storepicker { position: relative; margin-bottom: 14px; }
 
 .co-storepicker__label {
   display: block;
