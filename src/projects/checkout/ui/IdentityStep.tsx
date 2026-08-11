@@ -3,6 +3,7 @@ import { useProjectRuntime } from '../../../studio/runtime';
 import { Icon } from '../../../components/Icon';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { FormField } from '../components/FormField';
+import { Spinner } from '../components/Spinner';
 import { ConfirmIdentity } from './ConfirmIdentity';
 import { DetailsSection } from './sections/DetailsSection';
 import { OrRule, AppleMark, LegalNote } from './parts';
@@ -49,14 +50,22 @@ export function IdentityStep({
       {locked ? (
         <div className="co-emailfield">
           <span className="co-emailfield__value">{ef.email}</span>
-          <button
-            type="button"
-            className="co-emailfield__clear"
-            aria-label="Change email address"
-            onClick={interactive ? ef.onChangeEmail : undefined}
-          >
-            <Icon name="clear" size={24} />
-          </button>
+          {ef.checking ? (
+            // While the account is checked, the right of the input shows a
+            // spinner — the same loading language as the skeleton below it.
+            <span className="co-emailfield__spinner">
+              <Spinner size={20} label="Checking your email address" />
+            </span>
+          ) : (
+            <button
+              type="button"
+              className="co-emailfield__clear"
+              aria-label="Change email address"
+              onClick={interactive ? ef.onChangeEmail : undefined}
+            >
+              <Icon name="clear" size={24} />
+            </button>
+          )}
         </div>
       ) : (
         <FormField

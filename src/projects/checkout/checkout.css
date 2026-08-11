@@ -221,6 +221,17 @@
   cursor: pointer;
 }
 
+/* Checking: a spinner sits where the clear button is, same 44px footprint so
+   the chip doesn't shift when the check resolves and the ✕ returns. */
+.co-emailfield__spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+}
+
 .co-emailgate__express { margin-top: 20px; }
 
 /* ---------- Confirm it's you (verification) ---------- */
