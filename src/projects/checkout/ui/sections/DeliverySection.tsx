@@ -193,7 +193,9 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
     </>
   );
 
-  const phoneField = (
+  // A signed-in shopper's phone is already on the account (it's how they got
+  // their passcode), so Delivery doesn't ask for it again — only a guest does.
+  const phoneField = detailsFromAccount ? null : (
     <FormField
       label="Phone Number"
       required
