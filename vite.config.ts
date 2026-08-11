@@ -12,18 +12,6 @@ export default defineConfig(({ command }) => ({
   server: {
     port: 5180,
     open: true,
-    // next.co.uk only allows its own origin cross-origin, so in dev we proxy the
-    // store-stock endpoint through the dev server (same-origin to the browser).
-    // Production (static GitHub Pages) has no server — see src/projects/checkout/
-    // stores.ts, which routes through a public CORS proxy there instead.
-    proxy: {
-      '/next-api': {
-        target: 'https://www.next.co.uk',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/next-api/, ''),
-      },
-    },
   },
   build: {
     rollupOptions: {

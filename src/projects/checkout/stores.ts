@@ -1,102 +1,44 @@
 /**
  * Store lookup for the Collection delivery method.
  *
- * Wraps Next's real "collect in store" stock endpoint, which the PDP uses to
- * check branch stock: `/CollectInStoreEnquiry?location=<city|postcode>`. It
- * returns nearby branches ordered by distance — plenty for the prototype's
- * "Find a Store" step.
- *
- * Cross-origin is the catch: the endpoint only sends
- * `Access-Control-Allow-Origin: https://www.next.co.uk`, so a browser on any
- * other origin can't read it directly. Two routes around that:
- *
- *   · dev  — the Vite dev server proxies `/next-api/*` → www.next.co.uk, so the
- *            browser makes a same-origin request (see vite.config.ts).
- *   · prod — GitHub Pages is static with no server, so requests go through a
- *            public CORS relay. Relays are best-effort (rate limits, downtime),
- *            so we try a few in turn and the caller surfaces an error if all
- *            fail rather than showing stale data.
+ * This used to wrap Next's live "collect in store" endpoint, but that endpoint
+ * only allows its own origin cross-origin — so the static GitHub Pages build had
+ * to route through public CORS relays, which were flaky and slow. It now reads
+ * frozen sample data (see storeData.ts) in the same shape the API returned, so
+ * the step is instant and works offline. Kept async so the "Find a Store"
+ * loading state still shows.
  */
+import { LEICESTER_STORES, NOTTINGHAM_STORES } from './storeData';
+
 export interface Store {
   branchNumber: string;
   name: string;
   address: string;
   postcode: string;
   distanceMiles: number;
-  /** e.g. "09:00 - 20:00", straight from the API. */
+  /** e.g. "09:00 - 20:00". */
   openingMessage: string;
   isOpen: boolean;
 }
 
-/** Public CORS relays, tried in order in production. Each wraps a full URL. */
-const CORS_PROXIES: ((url: string) => string)[] = [
-  (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-  (u) => `https://api.codetabs.com/v1/proxy/?quest=${u}`,
-];
-
-async function fetchEnquiry(location: string): Promise<unknown> {
-  const path = `CollectInStoreEnquiry?location=${encodeURIComponent(location)}`;
-
-  if (import.meta.env.DEV) {
-    const res = await fetch(`/next-api/${path}`);
-    if (!res.ok) throw new Error(`Store lookup failed (${res.status})`);
-    return res.json();
-  }
-
-  const target = `https://www.next.co.uk/${path}`;
-  let lastError: unknown;
-  for (const wrap of CORS_PROXIES) {
-    try {
-      const res = await fetch(wrap(target));
-      if (!res.ok) throw new Error(`status ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      lastError = err;
-    }
-  }
-  throw new Error(`Store lookup failed: ${String(lastError)}`);
-}
-
-/** Narrow the API's nested shape to the fields the store list renders. */
-interface RawBranch {
-  BranchNumber?: string;
-  IsOpen?: boolean;
-  BranchData?: {
-    BranchName?: string;
-    BranchDisplayAddress?: string;
-    BranchPostcode?: string;
-    Distance?: string;
-    CistOpeningMessage?: string;
-  };
-}
+/** A brief pause so the search reads as a lookup rather than an instant swap. */
+const LOOKUP_MS = 350;
+const delay = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 
 /**
  * Look up stores near a typed city or postcode. Returns nearest first; an empty
- * query yields no results without a network call. Throws if the lookup fails so
- * the caller can show an error state.
+ * query yields no results. With only two cities on file, a Leicester query (the
+ * word or an LE postcode) returns the Leicester branches and everything else
+ * falls back to Nottingham, so the step never dead-ends.
  */
 export async function searchStores(query: string): Promise<Store[]> {
   const location = query.trim();
   if (!location) return [];
 
-  const data = fetchEnquiryResult(await fetchEnquiry(location));
-  return data
-    .map((b) => ({
-      branchNumber: b.BranchNumber ?? '',
-      name: b.BranchData?.BranchName ?? '',
-      address: b.BranchData?.BranchDisplayAddress ?? '',
-      postcode: b.BranchData?.BranchPostcode ?? '',
-      distanceMiles: Number(b.BranchData?.Distance ?? 0),
-      openingMessage: b.BranchData?.CistOpeningMessage ?? '',
-      isOpen: !!b.IsOpen,
-    }))
-    .sort((a, b) => a.distanceMiles - b.distanceMiles);
-}
-
-function fetchEnquiryResult(data: unknown): RawBranch[] {
-  const options = (data as { ItemOptions?: { Branches?: RawBranch[] }[] })?.ItemOptions;
-  return options?.[0]?.Branches ?? [];
+  await delay(LOOKUP_MS);
+  const leicester = /leicester|\ble\d/i.test(location);
+  const set = leicester ? LEICESTER_STORES : NOTTINGHAM_STORES;
+  return [...set].sort((a, b) => a.distanceMiles - b.distanceMiles);
 }
 
 /**
