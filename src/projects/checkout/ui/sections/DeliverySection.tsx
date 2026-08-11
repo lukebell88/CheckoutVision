@@ -98,10 +98,17 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const datesTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(datesTimer.current), []);
 
-  // Address lookup: offer the sample result once they start typing, so a guest
-  // can fill the whole address in one tap rather than four fields.
+  // Address lookup: offer the sample result once a GUEST starts typing, so they
+  // can fill the whole address in one tap. Gated on there being no address on
+  // file (`!delivery.line1`) so it never offers the canned sample to an account
+  // shopper editing their own saved address.
   const showSuggest =
-    flags.addressLookup && twoStep && !confirmed && form.line1.trim().length >= 2 && form.line1 !== SAMPLE_ADDRESS.line1;
+    flags.addressLookup &&
+    twoStep &&
+    !confirmed &&
+    !delivery.line1 &&
+    form.line1.trim().length >= 2 &&
+    form.line1 !== SAMPLE_ADDRESS.line1;
   const fillSample = () => setForm((f) => ({ ...f, ...SAMPLE_ADDRESS }));
 
   const ids = useId();
