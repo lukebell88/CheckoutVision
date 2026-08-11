@@ -78,8 +78,8 @@ export function PreferredPayment({
               aria-label={`Pay with ${o.label ?? o.id}`}
               onClick={() => onSelectOther?.(o.id)}
             >
-              <span className="co-preferred__othermark">{o.mark}</span>
               {o.label && <span className="co-preferred__otherlabel">{o.label}</span>}
+              <span className="co-preferred__othermark">{o.mark}</span>
             </button>
           ))}
         </div>

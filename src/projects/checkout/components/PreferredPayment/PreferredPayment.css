@@ -9,9 +9,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px;
-  border: 2px solid var(--border-strong, #111);
-  background: var(--surface-card, #fff);
+  padding: 0 0 4px;
 }
 
 .co-preferred__cardbody {
@@ -69,21 +67,19 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
 }
 
+/* Borderless — the wallet logos read as a plain row, in keeping with the rest
+   of the summary UI. Gift Card is the one method with no wordmark logo, so it
+   carries its caption to the left of its icon. */
 .co-preferred__other {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-width: 56px;
-  height: 44px;
-  padding: 6px 10px;
-  border: 1px solid var(--border-subtle, #d5d5d5);
-  border-radius: var(--global-text-field-large-border-radius, 4px);
-  background: var(--surface-card, #fff);
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: pointer;
 }
 
@@ -93,7 +89,7 @@
 }
 .co-preferred__othermark .fab-icon {
   width: auto !important;
-  height: 18px !important;
+  height: 22px !important;
 }
 .co-preferred__othermark .fab-icon svg {
   width: auto;
@@ -105,9 +101,4 @@
   font-size: var(--global-body-2-font-size, 0.8125rem);
   line-height: 1;
   color: var(--text-primary, #000);
-}
-/* Gift Card carries a caption, so its tile is taller — let it grow past 44px. */
-.co-preferred__other:has(.co-preferred__otherlabel) {
-  height: auto;
-  min-height: 44px;
 }
