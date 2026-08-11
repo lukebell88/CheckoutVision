@@ -1,10 +1,14 @@
-import { useId, type ChangeEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { useProjectRuntime } from '../../../../studio/runtime';
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
 import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
 import { useSeededState } from '../useSeededState';
+
+/** The Continue button holds a brief loading state before advancing, so the
+ *  press registers and bridges into the section's landing transition. */
+const CONTINUE_MS = 650;
 
 /**
  * 1. Your Details.
@@ -67,7 +71,14 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
   const ids = useId();
   const fieldId = (k: keyof typeof form) => `${ids}-${k}`;
 
+  // On submit the button shows a spinner and disables for a short beat before the
+  // section advances — the press feedback that leads into the landing.
+  const [submitting, setSubmitting] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
   const submit = () => {
+    if (submitting) return;
     if (firstInvalid) {
       setTried(true);
       // Send them to the first thing that needs fixing rather than leaving them
@@ -75,8 +86,13 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
       document.getElementById(fieldId(firstInvalid))?.focus();
       return;
     }
-    if (interactive) nav.patch('customer', form);
-    onContinue?.();
+    if (!interactive) {
+      onContinue?.();
+      return;
+    }
+    nav.patch('customer', form);
+    setSubmitting(true);
+    timer.current = window.setTimeout(() => onContinue?.(), CONTINUE_MS);
   };
 
   /**
@@ -154,7 +170,14 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
         <Checkbox label="Keep me updated with offers and new arrivals" onChange={() => {}} />
       </div>
 
-      <Button variant="contained" color="primary" size="large" fullWidth onClick={submit}>
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        fullWidth
+        loading={submitting}
+        onClick={submit}
+      >
         Continue
       </Button>
     </>

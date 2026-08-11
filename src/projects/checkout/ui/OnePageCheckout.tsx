@@ -59,18 +59,22 @@ export function OnePageCheckout() {
   );
   const [orderOpen, setOrderOpen] = useState(false);
 
-  // The verify→Payment landing: once a recognised shopper is signed in, the
-  // resolved sections fade in and Payment scrolls into view, so it reads as
-  // being moved to the next step rather than the sections popping open. Reset
-  // after the beat so ordinary opens elsewhere don't inherit the fade.
+  // The "landing": on any advance (guest Continue, verify→Payment, …) the
+  // resolved sections fade in and the newly-opened section scrolls into view, so
+  // it reads as being moved to the next step rather than the tall form collapsing
+  // and everything below jumping up. Reset after the beat so ordinary opens don't
+  // inherit the fade.
   const [landing, setLanding] = useState(false);
-  const payRef = useRef<HTMLElement>(null);
+  const sectionEls = useRef<Record<string, HTMLElement | null>>({});
 
   const emailLocked = ef.phase === 'locked';
 
   useEffect(() => {
-    if (!landing || section !== 'payment') return;
-    payRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!landing) return;
+    // 'complete' has no section to scroll to — the place-order button is inline.
+    if (section !== 'complete') {
+      sectionEls.current[section]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     const t = window.setTimeout(() => setLanding(false), 500);
     return () => window.clearTimeout(t);
   }, [landing, section]);
@@ -80,6 +84,7 @@ export function OnePageCheckout() {
     return () => {
       setDone((d) => (d.includes(from) ? d : [...d, from]));
       setSection(nextSection(from) ?? 'complete');
+      setLanding(true);
     };
   };
 
@@ -165,7 +170,9 @@ export function OnePageCheckout() {
     return (
       <section
         key={id}
-        ref={id === 'payment' ? payRef : undefined}
+        ref={(el) => {
+          sectionEls.current[id] = el;
+        }}
         className={[
           'co-section',
           isOpen && 'co-section--open',
