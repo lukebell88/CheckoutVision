@@ -4,6 +4,7 @@ import { ProjectProvider, RenderedProject } from '../studio/runtime';
 import { useActiveProject } from '../studio/useActiveProject';
 import { useStoreRuntime } from '../studio/useRuntime';
 import { isProjectId } from '../studio/registry';
+import { ScenarioTray } from '../app/shell/ScenarioTray';
 import { readLiveParams, flagsFromLink } from './liveUrl';
 import './live.css';
 
@@ -74,11 +75,28 @@ function LiveStage() {
   const screen = useStore(selectProjectState).screen;
   const runtime = useStoreRuntime(screen, true);
 
+  // A review link (?review=1) gets the ⌘J scenario tray; a plain tester link
+  // stays locked to its URL scenario, so it reproduces identically.
+  const review = readLiveParams().review;
+  const toggleTray = useStore((s) => s.toggleTray);
+  useEffect(() => {
+    if (!review) return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'j' || e.key === 'J')) {
+        e.preventDefault();
+        toggleTray();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [review, toggleTray]);
+
   return (
     <div className="live" data-client={clientId}>
       <div className="live__web">
         <RenderedProject runtime={runtime} />
       </div>
+      {review && <ScenarioTray />}
     </div>
   );
 }

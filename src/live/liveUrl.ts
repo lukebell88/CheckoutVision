@@ -23,6 +23,13 @@ export interface LiveParams {
   screen?: string;
   /** null = not specified (use flow defaults); otherwise the exact enabled set. */
   enabledFlags: Set<string> | null;
+  /**
+   * A REVIEW link (`?review=1`) opts into the in-preview scenario tray (⌘J), so
+   * the reviewer can flip journey / payment live. A plain tester link stays
+   * locked to its URL scenario — that's the reproducibility guarantee — so the
+   * tray is gated to this flag rather than every live link.
+   */
+  review: boolean;
 }
 
 export function readLiveParams(search = window.location.search): LiveParams {
@@ -40,6 +47,7 @@ export function readLiveParams(search = window.location.search): LiveParams {
     // `page` is the pre-multi-project spelling; still honoured so older links work.
     screen: p.get('screen') ?? p.get('page') ?? undefined,
     enabledFlags,
+    review: p.get('review') === '1',
   };
 }
 

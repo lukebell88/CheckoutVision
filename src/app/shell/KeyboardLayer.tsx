@@ -6,7 +6,7 @@ import type { DeviceId } from '../../config/devices';
 
 /**
  * Global keyboard shortcuts (renders nothing):
- *   ⌘K  command palette · ⌘\  toggle panel · Esc  exit present mode
+ *   ⌘K  command palette · ⌘J  scenario tray · ⌘\  toggle panel · Esc  exit present mode
  *   1/2/3  device · [ ]  cycle client · { }  cycle flow
  * Single-key shortcuts are ignored while typing or when the palette is open.
  */
@@ -21,6 +21,7 @@ export function KeyboardLayer() {
       const meta = e.metaKey || e.ctrlKey;
 
       if (meta && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); s.togglePalette(); return; }
+      if (meta && (e.key === 'j' || e.key === 'J')) { e.preventDefault(); s.toggleTray(); return; }
       if (meta && e.key === '\\') { e.preventDefault(); s.toggleSidebar(); return; }
       if (e.key === 'Escape' && s.presentMode) { s.setPresent(false); return; }
 

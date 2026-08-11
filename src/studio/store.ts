@@ -70,6 +70,8 @@ interface StudioState {
   presentMode: boolean;
   /** ⌘K command palette. */
   paletteOpen: boolean;
+  /** ⌘J scenario tray (journey + choices), available in the studio and review links. */
+  trayOpen: boolean;
   /** Keyboard-shortcuts help overlay. */
   shortcutsOpen: boolean;
   /** When true, a single screen is shown as an interactive walkthrough. */
@@ -95,6 +97,8 @@ interface StudioState {
   setView: (v: StudioView) => void;
   setPalette: (v: boolean) => void;
   togglePalette: () => void;
+  setTray: (v: boolean) => void;
+  toggleTray: () => void;
   setPresent: (v: boolean) => void;
   togglePresent: () => void;
   setShortcuts: (v: boolean) => void;
@@ -178,6 +182,7 @@ function initialState() {
     navMini: false,
     presentMode: false,
     paletteOpen: false,
+    trayOpen: false,
     shortcutsOpen: false,
     focused: false,
     headerConfigByClient: defaultHeaderConfigByClient(),
@@ -220,6 +225,8 @@ export const useStore = create<StudioState>()(
         setView: (v) => set({ view: v }),
         setPalette: (v) => set({ paletteOpen: v }),
         togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),
+        setTray: (v) => set({ trayOpen: v }),
+        toggleTray: () => set((s) => ({ trayOpen: !s.trayOpen })),
         setPresent: (v) => set({ presentMode: v }),
         togglePresent: () => set((s) => ({ presentMode: !s.presentMode })),
         setShortcuts: (v) => set({ shortcutsOpen: v }),
@@ -363,6 +370,7 @@ export const useStore = create<StudioState>()(
       partialize: (s) => {
         const rest = { ...s } as Record<string, unknown>;
         delete rest.paletteOpen;
+        delete rest.trayOpen;
         delete rest.presentMode;
         delete rest.shortcutsOpen;
         delete rest.focused;

@@ -1,0 +1,104 @@
+/* Scenario tray — a self-contained left drawer, no MUI, so it can mount in the
+ * lean live bundle. Sits above everything (MUI modal level is 1300). */
+.scentray__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.scentray {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1301;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 280px;
+  max-width: 84vw;
+  height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 8px 40px rgb(0 0 0 / 0.24);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  transform: translateX(-100%);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.scentray--open {
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scentray {
+    transition: none;
+  }
+}
+
+.scentray__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.scentray__title {
+  font-size: 15px;
+  font-weight: 700;
+}
+.scentray__close {
+  border: none;
+  background: none;
+  padding: 4px;
+  font-size: 15px;
+  line-height: 1;
+  color: #666;
+  cursor: pointer;
+}
+
+.scentray__group {
+  padding: 8px 0;
+  border-top: 1px solid #eee;
+}
+.scentray__grouptitle {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #888;
+}
+.scentray__items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scentray__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #e3e3e3;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  color: #111;
+  cursor: pointer;
+}
+.scentray__item:hover {
+  border-color: #bbb;
+}
+.scentray__item--on {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+
+.scentray__hint {
+  margin: 12px 0 0;
+  font-size: 11px;
+  color: #999;
+}

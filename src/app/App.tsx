@@ -10,6 +10,7 @@ import { Canvas } from './shell/Canvas';
 import { PagesCanvas } from './shell/PagesCanvas';
 import { FocusView } from './shell/FocusView';
 import { CommandPalette } from './shell/CommandPalette';
+import { ScenarioTray } from './shell/ScenarioTray';
 import { KeyboardLayer } from './shell/KeyboardLayer';
 import { ShortcutsHelp } from './shell/ShortcutsHelp';
 import { ComponentsBrowser } from './components-view/ComponentsBrowser';
@@ -114,6 +115,7 @@ function StudioShell() {
 
         {focused && view === 'flows' && <FocusView />}
         <CommandPalette />
+        <ScenarioTray />
         <ShortcutsHelp />
         <KeyboardLayer />
       </StudioFrame>
