@@ -169,13 +169,10 @@
   background: #f3bb37;
   cursor: pointer;
 }
-.co-paypalbtn__logo {
-  width: auto !important;
-  height: 20px !important;
-}
-.co-paypalbtn__logo svg {
+.co-paypalbtn svg {
+  display: block;
   width: auto;
-  height: 100%;
+  height: 20px;
 }
 
 /* ---------- Email-first gate ---------- */
