@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { Button } from '../../../../components/Button';
 import { Icon } from '../../../../components/Icon';
 import { Link } from '../../../../components/Link';
@@ -37,6 +37,20 @@ const DATES = [
   { day: 'Mon', date: '17th', label: 'Mon 17th July' },
 ];
 
+/** The single result an address lookup offers, so a guest can reach the dates
+ *  step without typing four fields. Selecting it fills the whole address. */
+const SAMPLE_ADDRESS = {
+  line1: '2 Hickling Close',
+  line2: 'Long Eaton',
+  city: 'Nottingham',
+  postcode: 'NG10 3TE',
+};
+
+/** Delivery dates depend on the address, so they can't be shown until it's
+ *  entered — this is how long the "loading dates for your address" skeleton
+ *  shows after the address is confirmed. */
+const DATES_MS = 900;
+
 export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const { flags, delivery, customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
@@ -66,6 +80,31 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
 
   const methods = flags.collectionOptions ? METHODS : METHODS.filter((m) => m.id === 'home');
   const collection = method === 'collection';
+
+  // Two-step home delivery: dates depend on the address, so they can't show
+  // until it's entered. Step A takes the address; Step B collapses it to a
+  // "Deliver to" summary and reveals the dates (skeleton first). Only when the
+  // date picker is in play — with it off, Delivery is one step, as before.
+  const twoStep = flags.deliveryDates && !collection;
+  const addrSeed = `${delivery.line1}|${delivery.city}|${delivery.postcode}`;
+  // `editing` lets Change reopen the form without clearing the saved address;
+  // seeded so it resets on a flow switch and after the address is committed.
+  const [editing, setEditing] = useSeededState(addrSeed, () => false);
+  const confirmed = !!delivery.line1 && !editing;
+
+  // The dates skeleton runs only on the address→dates transition; an account
+  // whose address is already known opens on the dates with none.
+  const [datesLoading, setDatesLoading] = useState(false);
+  const datesTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(datesTimer.current), []);
+
+  // Address lookup: offer the sample result once they start typing, so a guest
+  // can fill the whole address in one tap rather than four fields.
+  const showSuggest =
+    flags.addressLookup && twoStep && !confirmed && form.line1.trim().length >= 2 && form.line1 !== SAMPLE_ADDRESS.line1;
+  const fillSample = () => setForm((f) => ({ ...f, ...SAMPLE_ADDRESS }));
+
+  const ids = useId();
 
   // Store finder (Collection). `form.store` holds the chosen store's label (what
   // the summary shows); `storeQuery` is the search box; `selectedStore` keeps the
@@ -111,6 +150,27 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collection, accountPostcode]);
 
+  // Step A → Step B: commit the address so it collapses to the "Deliver to"
+  // summary, then hold the dates skeleton while they "load for the address".
+  const confirmAddress = () => {
+    if (!form.line1.trim()) {
+      document.getElementById(`${ids}-line1`)?.focus();
+      return;
+    }
+    if (interactive) {
+      const { phone, ...address } = form;
+      nav.patch('delivery', { ...address, method });
+      nav.patch('customer', { phone });
+    }
+    setEditing(false);
+    setDatesLoading(true);
+    datesTimer.current = window.setTimeout(() => setDatesLoading(false), DATES_MS);
+  };
+
+  // Change on the "Deliver to" summary reopens the address form (the saved
+  // address stays; the form is seeded from it).
+  const changeAddress = () => setEditing(true);
+
   const submit = () => {
     if (interactive) {
       const { phone, ...address } = form;
@@ -127,64 +187,146 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
     onContinue?.();
   };
 
+  // Reusable pieces — the address form (Step A / single-step) and the phone.
+  const addressFields = (
+    <>
+      <p className="co-section__lede">Tell us where you would like your orders to be delivered.</p>
+      <div className="co-addrfield">
+        <FormField
+          id={`${ids}-line1`}
+          label="Address Line 1"
+          required
+          placeholder="Start typing your address"
+          value={form.line1}
+          onChange={set('line1')}
+          endIcon={flags.addressLookup ? <Icon name="search" category="feature" size={20} /> : undefined}
+          hint={flags.addressLookup ? 'Start typing your address and select from the list' : undefined}
+        />
+        {showSuggest && (
+          <ul className="co-addrsuggest" role="listbox" aria-label="Address suggestions">
+            <li>
+              <button type="button" className="co-addrsuggest__item" onClick={fillSample}>
+                <Icon name="location" category="feature" size={18} className="co-addrsuggest__pin" />
+                {SAMPLE_ADDRESS.line1}, {SAMPLE_ADDRESS.line2}, {SAMPLE_ADDRESS.city}, {SAMPLE_ADDRESS.postcode}
+              </button>
+            </li>
+          </ul>
+        )}
+      </div>
+      <FormField label="Address Line 2" required value={form.line2} onChange={set('line2')} />
+      <div className="co-fieldrow">
+        <FormField label="City" required value={form.city} onChange={set('city')} />
+        <FormField label="Postcode" required value={form.postcode} onChange={set('postcode')} />
+      </div>
+    </>
+  );
+
+  const phoneField = (
+    <FormField
+      label="Phone Number"
+      required
+      type="tel"
+      placeholder="07000 000000"
+      value={form.phone}
+      onChange={set('phone')}
+      hint={
+        <>
+          Incase we need to contact you about your order. Also this will enable{' '}
+          <Link href="#">One Time Passcode</Link> for easy login next time
+        </>
+      }
+    />
+  );
+
+  const continueBtn = (onClick: () => void, disabled = false) => (
+    <Button
+      variant="contained"
+      color="primary"
+      size="large"
+      fullWidth
+      disabled={disabled}
+      onClick={onClick}
+    >
+      Continue
+    </Button>
+  );
+
+  // Collection: store finder, single step (no dates depend on an address here).
+  if (collection) {
+    return (
+      <>
+        <DeliverySelection options={methods} value={method} onChange={chooseMethod} />
+        <p className="co-section__lede">Tell us where you would like to collect your order.</p>
+        <StorePicker
+          label="Find a Store"
+          stores={stores}
+          selected={selectedStore}
+          loading={searchState === 'loading'}
+          error={searchState === 'error'}
+          query={storeQuery}
+          onQueryChange={setStoreQuery}
+          onSearch={runSearch}
+          onSelect={selectStore}
+        />
+        {phoneField}
+        {continueBtn(submit)}
+      </>
+    );
+  }
+
+  // Home / Parcel, dates off: one step, as before.
+  if (!twoStep) {
+    return (
+      <>
+        <DeliverySelection options={methods} value={method} onChange={chooseMethod} />
+        {addressFields}
+        {phoneField}
+        {continueBtn(submit)}
+      </>
+    );
+  }
+
+  // Step A — enter the address (dates can't be shown yet).
+  if (!confirmed) {
+    return (
+      <>
+        <DeliverySelection options={methods} value={method} onChange={chooseMethod} />
+        {addressFields}
+        {phoneField}
+        {continueBtn(confirmAddress)}
+      </>
+    );
+  }
+
+  // Step B — address collapses to a "Deliver to" summary below the method cards,
+  // and the dates load in (skeleton first). Continue waits for the dates.
+  const address = [delivery.line1, delivery.line2, delivery.city, delivery.postcode]
+    .filter(Boolean)
+    .join(', ');
   return (
     <>
       <DeliverySelection options={methods} value={method} onChange={chooseMethod} />
 
-      {collection ? (
-        <>
-          <p className="co-section__lede">Tell us where you would like to collect your order.</p>
-          <StorePicker
-            label="Find a Store"
-            stores={stores}
-            selected={selectedStore}
-            loading={searchState === 'loading'}
-            error={searchState === 'error'}
-            query={storeQuery}
-            onQueryChange={setStoreQuery}
-            onSearch={runSearch}
-            onSelect={selectStore}
-          />
-        </>
+      <div className="co-deliverto">
+        <div className="co-deliverto__head">
+          <span className="co-summary__label">Deliver to:</span>
+          <Link href="#" onClick={(e) => { e.preventDefault(); changeAddress(); }}>
+            Change
+          </Link>
+        </div>
+        <div className="co-deliverto__addr">{address}</div>
+      </div>
+
+      <p className="co-strong-note">Select Your Delivery Date</p>
+      {datesLoading ? (
+        <div className="co-dates co-fadein" aria-hidden="true">
+          {DATES.map((_, i) => (
+            <span key={i} className="co-skel co-date--skel" />
+          ))}
+        </div>
       ) : (
         <>
-          <p className="co-section__lede">Tell us where you would like your orders to be delivered.</p>
-          <FormField
-            label="Address Line 1"
-            required
-            placeholder="Start typing your address"
-            value={form.line1}
-            onChange={set('line1')}
-            endIcon={flags.addressLookup ? <Icon name="search" category="feature" size={20} /> : undefined}
-            hint={flags.addressLookup ? 'Start typing your address and select from the list' : undefined}
-          />
-          <FormField label="Address Line 2" required value={form.line2} onChange={set('line2')} />
-          <div className="co-fieldrow">
-            <FormField label="City" required value={form.city} onChange={set('city')} />
-            <FormField label="Postcode" required value={form.postcode} onChange={set('postcode')} />
-          </div>
-        </>
-      )}
-
-      <FormField
-        label="Phone Number"
-        required
-        type="tel"
-        placeholder="07000 000000"
-        value={form.phone}
-        onChange={set('phone')}
-        hint={
-          <>
-            Incase we need to contact you about your order. Also this will enable{' '}
-            <Link href="#">One Time Passcode</Link> for easy login next time
-          </>
-        }
-      />
-
-      {flags.deliveryDates && !collection && (
-        <>
-          <p className="co-strong-note">Select Your Delivery Date</p>
-          <div className="co-dates" role="radiogroup" aria-label="Delivery date">
+          <div className="co-dates co-fadein" role="radiogroup" aria-label="Delivery date">
             {DATES.map((d, i) => (
               <button
                 type="button"
@@ -205,9 +347,7 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
         </>
       )}
 
-      <Button variant="contained" color="primary" size="large" fullWidth onClick={submit}>
-        Continue
-      </Button>
+      {continueBtn(submit, datesLoading)}
     </>
   );
 }

@@ -602,6 +602,47 @@
 .co-date--on { border-color: var(--border-strong, #111); border-width: 2px; }
 .co-date__day { font-weight: 700; font-size: var(--global-body-3-font-size, 0.8125rem); }
 .co-date__num { font-size: var(--global-caption-font-size, 0.75rem); }
+/* Skeleton circle while the dates load for the entered address. */
+.co-date--skel { width: 58px; height: 58px; border-radius: 50%; }
+
+/* "Deliver to" summary shown in Step B, below the method cards — the address
+   fields collapse to this once confirmed, with a Change link to reopen them. */
+.co-deliverto { margin: 16px 0; }
+.co-deliverto__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.co-deliverto__addr { margin-top: 4px; color: var(--text-primary, #111); }
+
+/* Address-lookup result under Address Line 1. */
+.co-addrfield { position: relative; }
+.co-addrsuggest {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 1px solid var(--border-subtle, #d5d5d5);
+  border-radius: var(--global-text-field-large-border-radius, 4px);
+  background: var(--surface-card, #fff);
+  overflow: hidden;
+}
+.co-addrsuggest__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  text-align: left;
+  color: var(--text-primary, #111);
+  cursor: pointer;
+}
+.co-addrsuggest__item:hover { background: var(--background-main, #f7f7f7); }
+.co-addrsuggest__pin { flex: none; }
 /* The Collection store finder is its own component — see components/StorePicker. */
 
 /* ---------- Order summary placement ----------
