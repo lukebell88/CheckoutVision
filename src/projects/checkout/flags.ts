@@ -45,7 +45,7 @@ export const FLAGS: FlagDef[] = [
   { id: 'savedPayment', name: 'Saved payment methods', description: 'Offer a stored card for returning customers.', group: 'Payment', default: false },
   { id: 'creditOptions', name: 'Credit payment options', description: 'Show nextpay and pay in 3 in the payment list.', group: 'Payment', default: true },
   { id: 'saveCardPrompt', name: 'Save card prompt', description: '“Checkout faster” — offer to store the card for next time.', group: 'Payment', default: true },
-  { id: 'promoCode', name: 'Promotional code', description: 'Show a promo/voucher code entry in the order panel.', group: 'Payment', default: true },
+  { id: 'promoCode', name: 'Promotional code', description: 'Show a promo/voucher code entry in the order panel.', group: 'Payment', default: false },
 
   { id: 'emailFirstCheckout', name: 'No sign-in page', description: 'Drop the sign-in page — capture email (and express pay) at the top of checkout; recognised shoppers verify inline.', group: 'Account', default: false },
   { id: 'guestRegistration', name: 'Guest registration', description: 'Offer account creation to guests on the confirmation.', group: 'Account', default: true },
