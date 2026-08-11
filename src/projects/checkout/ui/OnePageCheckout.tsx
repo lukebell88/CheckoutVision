@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSeededState } from './useSeededState';
 import { useProjectRuntime } from '../../../studio/runtime';
 import { Button } from '../../../components/Button';
@@ -49,7 +49,21 @@ export function OnePageCheckout() {
   );
   const [orderOpen, setOrderOpen] = useState(false);
 
+  // The verify→Payment landing: once a recognised shopper is signed in, the
+  // resolved sections fade in and Payment scrolls into view, so it reads as
+  // being moved to the next step rather than the sections popping open. Reset
+  // after the beat so ordinary opens elsewhere don't inherit the fade.
+  const [landing, setLanding] = useState(false);
+  const payRef = useRef<HTMLElement>(null);
+
   const emailLocked = ef.phase === 'locked';
+
+  useEffect(() => {
+    if (!landing || section !== 'payment') return;
+    payRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const t = window.setTimeout(() => setLanding(false), 500);
+    return () => window.clearTimeout(t);
+  }, [landing, section]);
 
   const advance = (from: SectionId) => {
     if (!interactive) return undefined;
@@ -66,6 +80,7 @@ export function OnePageCheckout() {
     ef.onVerified();
     setDone(['details', 'delivery']);
     setSection('payment');
+    setLanding(true);
   };
 
   /**
@@ -132,6 +147,7 @@ export function OnePageCheckout() {
     return (
       <section
         key={id}
+        ref={id === 'payment' ? payRef : undefined}
         className={[
           'co-section',
           isOpen && 'co-section--open',
@@ -162,9 +178,9 @@ export function OnePageCheckout() {
         )}
 
         {isOpen ? (
-          <div className="co-section__body">{BODIES[id]}</div>
+          <div className={`co-section__body${landing ? ' co-fadein' : ''}`}>{BODIES[id]}</div>
         ) : complete ? (
-          <div className="co-section__summary">
+          <div className={`co-section__summary${landing ? ' co-fadein' : ''}`}>
             <SectionSummary id={id} />
           </div>
         ) : null}

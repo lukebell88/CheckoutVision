@@ -243,6 +243,24 @@
 .co-confirm__resend { display: flex; justify-content: center; }
 .co-confirm__passkey { display: flex; justify-content: center; padding: 8px 0; }
 
+/* "Signing you in…" — the account-lookup beat after a passcode/password submit,
+   before the journey lands on Payment. Centred spinner + label, in place of the
+   method body, so the transition reads as being signed in rather than a pop. */
+.co-confirm__finalising {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0;
+}
+.co-confirm__finalisingtext {
+  margin: 0;
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 1rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+  color: var(--text-secondary, #767676);
+}
+
 /* Re-send / method labels: Body 3, link colour, no underline (per Figma). */
 .co-linklabel {
   border: none;

@@ -24,6 +24,8 @@ type Method = 'passcode' | 'password' | 'passkey';
 const SKELETON_MS = 350;
 /** How long the passkey spinner shows before it resolves (the OS prompt). */
 const PASSKEY_MS = 1400;
+/** The "Signing you in…" account-lookup beat after a passcode/password submit. */
+const FINALISE_MS = 800;
 
 const LABEL: Record<Method, string> = {
   passcode: 'Text me a code',
@@ -79,6 +81,7 @@ export function ConfirmIdentity({
 }: ConfirmIdentityProps) {
   const [method, setMethod] = useState<Method>('passcode');
   const [switching, setSwitching] = useState(false);
+  const [finalising, setFinalising] = useState(false);
   const [code, setCode] = useState('');
   const timers = useRef<number[]>([]);
 
@@ -94,6 +97,17 @@ export function ConfirmIdentity({
 
   const verify = () => {
     if (interactive) onVerified?.();
+  };
+
+  // A submitted passcode/password isn't instant: it's an account lookup. Show a
+  // "Signing you in…" beat so the jump to Payment reads as being signed in,
+  // rather than the sections popping open with no feedback. (Passkey has its own
+  // OS-prompt spinner and resolves through `verify` directly.)
+  const finalise = () => {
+    if (!interactive || finalising) return;
+    clearTimers();
+    setFinalising(true);
+    timers.current.push(window.setTimeout(verify, FINALISE_MS));
   };
 
   const switchTo = (next: Method) => {
@@ -135,10 +149,15 @@ export function ConfirmIdentity({
     <section className="co-confirm" aria-label="Confirm it's you">
       <div className="co-confirm__head">
         <h3 className="co-h3">Confirm it’s you</h3>
-        {!skeleton && <p className="co-confirm__sub">{sub}</p>}
+        {!skeleton && !finalising && <p className="co-confirm__sub">{sub}</p>}
       </div>
 
-      {skeleton ? (
+      {finalising ? (
+        <div className="co-confirm__finalising" role="status">
+          <Spinner size={34} label="Signing you in" />
+          <p className="co-confirm__finalisingtext">Signing you in…</p>
+        </div>
+      ) : skeleton ? (
         <div className="co-confirm__skeleton" aria-hidden="true">
           <span className="co-skel co-skel--line" />
           <span className="co-skel co-skel--field" />
@@ -150,7 +169,7 @@ export function ConfirmIdentity({
             value={code}
             onChange={(v) => {
               setCode(v);
-              if (v.length === 6) verify();
+              if (v.length === 6) finalise();
             }}
           />
           <p className="co-confirm__resend">
@@ -169,7 +188,7 @@ export function ConfirmIdentity({
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                verify();
+                finalise();
               }
             }}
           />
@@ -178,7 +197,7 @@ export function ConfirmIdentity({
             color="primary"
             size="large"
             fullWidth
-            onClick={interactive ? verify : undefined}
+            onClick={interactive ? finalise : undefined}
           >
             Sign In
           </Button>
@@ -194,8 +213,9 @@ export function ConfirmIdentity({
         </div>
       )}
 
-      <div className="co-confirm__hr" />
+      {!finalising && <div className="co-confirm__hr" />}
 
+      {!finalising && (
       <div className="co-confirm__switch">
         <button type="button" className="co-confirm__method" onClick={() => switchTo(others[0])}>
           <MethodIcon method={others[0]} />
@@ -207,6 +227,7 @@ export function ConfirmIdentity({
           <span className="co-linklabel">{LABEL[others[1]]}</span>
         </button>
       </div>
+      )}
     </section>
   );
 }
