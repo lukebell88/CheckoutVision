@@ -55,6 +55,12 @@ export function CheckoutRoot() {
         )}
 
         <CheckoutPage />
+
+        {/* Sits at the bottom of every page — a full-width band with a divider
+            across the top, pushed down by the flex-1 screen above it. */}
+        <footer className="co-footer">
+          <p className="co-footer__text">©2026 {brand.name}. All Rights Reserved.</p>
+        </footer>
       </div>
     </IconProvider>
   );

@@ -41,6 +41,26 @@
 .co-screen--checkout { max-width: 760px; padding: 0 0 64px; }
 .co-screen--wide { max-width: 1100px; padding-top: 16px; }
 
+/* ---------- Footer ---------- */
+/* A full-width band at the bottom of every page — background-main with a divider
+ * across the top. The flex-1 screen above pushes it down on short pages. */
+.co-footer {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--background-main, #f7f7f7);
+  border-top: 1px solid var(--components-divider-default-border-color, #eee);
+  text-align: center;
+}
+.co-footer__text {
+  margin: 0;
+  font-family: var(--global-body-1-font-family, inherit);
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  font-weight: var(--global-body-1-font-weight, 400);
+  line-height: var(--global-body-1-line-height, 1.5);
+  color: var(--text-primary, #000);
+}
+
 .co-sr-only {
   position: absolute;
   width: 1px; height: 1px;
