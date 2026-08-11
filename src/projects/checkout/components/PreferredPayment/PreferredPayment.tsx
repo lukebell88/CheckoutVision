@@ -56,15 +56,17 @@ export function PreferredPayment({
             <span className="co-preferred__cardmark">{cardMark}</span>
           </span>
         </div>
-        <Link
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            onChange?.();
-          }}
-        >
-          Change
-        </Link>
+        {onChange && (
+          <Link
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              onChange();
+            }}
+          >
+            Change
+          </Link>
+        )}
       </div>
 
       <div className="co-preferred__others">

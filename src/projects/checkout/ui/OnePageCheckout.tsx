@@ -32,9 +32,18 @@ import { useEmailFirst } from './useEmailFirst';
  * that's the one piece of layout it doesn't dictate.
  */
 export function OnePageCheckout() {
-  const { customer, progress, delivery } = useCheckoutConfig();
+  const { customer, progress, delivery, payment } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const { total, delivery: deliveryCost } = cartTotals(delivery.method);
+
+  // A returning shopper's Payment section opens collapsed on their remembered
+  // card, with a Change link in the section header (like Details/Delivery) that
+  // expands the full method list. Kept here so the header owns the link.
+  const hasPreferred = !!payment.preferred && !payment.only;
+  const [payExpanded, setPayExpanded] = useSeededState<boolean>(
+    `${payment.preferred ?? ''}|${payment.card ?? ''}`,
+    () => false,
+  );
 
   // Email-first: the sign-in page is gone, so the one-pager captures the email
   // (and verifies a recognised shopper) up top before revealing the sections.
@@ -130,7 +139,13 @@ export function OnePageCheckout() {
       <DetailsSection onContinue={advance('details')} />
     ),
     delivery: <DeliverySection onContinue={advance('delivery')} />,
-    payment: <PaymentSection onPay={interactive ? () => nav.goTo('confirmation') : undefined} />,
+    payment: (
+      <PaymentSection
+        onPay={interactive ? () => nav.goTo('confirmation') : undefined}
+        changing={payExpanded}
+        onExpand={interactive ? () => setPayExpanded(true) : undefined}
+      />
+    ),
   };
 
   const sectionNodes = SECTIONS.map((id, i) => {
@@ -142,8 +157,13 @@ export function OnePageCheckout() {
     const emailStep = ef.active && id === 'details' && isOpen && !emailLocked;
     const detailsGuestForm =
       ef.active && id === 'details' && emailLocked && !ef.recognised && !ef.checking;
+    // Payment carries its own per-method "Required Fields" inside the card form,
+    // so the section header never repeats it.
     const showRequired =
-      isOpen && !complete && (!ef.active || id !== 'details' || detailsGuestForm);
+      isOpen && !complete && id !== 'payment' && (!ef.active || id !== 'details' || detailsGuestForm);
+    // Payment's collapsed preferred state gets a Change link in the header, in
+    // line with the title like the done sections above it.
+    const payChange = id === 'payment' && isOpen && hasPreferred && !payExpanded && interactive;
     return (
       <section
         key={id}
@@ -168,6 +188,11 @@ export function OnePageCheckout() {
           )}
           {complete && !isOpen && (
             <Link href="#" onClick={(e) => { e.preventDefault(); change(id)?.(); }}>
+              Change
+            </Link>
+          )}
+          {payChange && (
+            <Link href="#" onClick={(e) => { e.preventDefault(); setPayExpanded(true); }}>
               Change
             </Link>
           )}

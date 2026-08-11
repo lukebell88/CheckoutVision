@@ -79,13 +79,23 @@ const COMPLETE_LABEL: Record<string, string> = {
 /** The remembered-card row at the top of a returning shopper's expanded list. */
 const PREFERRED_ID = 'preferred';
 
-export function PaymentSection({ onPay }: { onPay?: () => void }) {
+export function PaymentSection({
+  onPay,
+  changing = false,
+  onExpand,
+}: {
+  onPay?: () => void;
+  /** A remembered-card shopper has tapped Change — show the full method list. */
+  changing?: boolean;
+  /** Expand from the collapsed preferred view to the list (owned by the header). */
+  onExpand?: () => void;
+}) {
   const { flags, payment } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const methods = METHODS.filter((m) => !m.flag || flags[m.flag]);
 
   // A returning shopper opens collapsed on their remembered method, with a
-  // Change link to the full list — resets to collapsed if the scenario changes.
+  // Change link (in the section header) to the full list.
   const hasPreferred = !!payment.preferred && !payment.only;
 
   // `payment.method` preselects a method — '' means none selected (guest).
@@ -99,10 +109,6 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
         ? 'saved'
         : 'card';
   const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
-  const [changing, setChanging] = useSeededState<boolean>(
-    `${payment.preferred ?? ''}|${payment.card ?? ''}`,
-    () => false,
-  );
 
   const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
 
@@ -214,7 +220,7 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     const openList = (id?: string) => {
       if (!interactive) return;
       if (id) setSel(id);
-      setChanging(true);
+      onExpand?.();
     };
 
     return (
@@ -224,7 +230,6 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
           cardLabel={payment.card || 'Card'}
           cardMark={<SchemeMark scheme={payment.scheme} />}
           others={others}
-          onChange={interactive ? () => openList() : undefined}
           onSelectOther={interactive ? (id) => openList(id) : undefined}
           pay={payButton}
         />
