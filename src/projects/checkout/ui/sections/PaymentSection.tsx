@@ -6,7 +6,7 @@ import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
 import { PaymentSelection, type PaymentOption } from '../../components/PaymentSelection';
 import { PreferredPayment, type PreferredOther } from '../../components/PreferredPayment';
-import { ApplePayButton, PayPalButton } from '../parts';
+import { ApplePayButton, PayPalButton, PaymentLegal } from '../parts';
 import { useSeededState } from '../useSeededState';
 
 /**
@@ -189,22 +189,30 @@ export function PaymentSection({ onPay }: { onPay?: () => void }) {
     };
 
     return (
-      <PreferredPayment
-        label="Debit / Credit Card"
-        cardLabel={payment.card || 'Card'}
-        cardMark={<SchemeMark scheme={payment.scheme} />}
-        others={others}
-        onChange={interactive ? () => openList() : undefined}
-        onSelectOther={interactive ? (id) => openList(id) : undefined}
-        pay={payButton}
-      />
+      <>
+        <PreferredPayment
+          label="Debit / Credit Card"
+          cardLabel={payment.card || 'Card'}
+          cardMark={<SchemeMark scheme={payment.scheme} />}
+          others={others}
+          onChange={interactive ? () => openList() : undefined}
+          onSelectOther={interactive ? (id) => openList(id) : undefined}
+          pay={payButton}
+        />
+        <PaymentLegal />
+      </>
     );
   }
 
   return (
     <>
       <PaymentSelection options={options} value={sel} onChange={setSel} />
-      {bottomPay && <div className="co-payment__pay">{bottomPay}</div>}
+      {bottomPay && (
+        <>
+          <div className="co-payment__pay">{bottomPay}</div>
+          <PaymentLegal />
+        </>
+      )}
     </>
   );
 }

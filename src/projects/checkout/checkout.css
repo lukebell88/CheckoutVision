@@ -76,6 +76,24 @@
   font-size: var(--global-caption-font-size, 0.75rem);
   color: var(--text-secondary, #555);
 }
+
+/* Legal fine print under the pay button: Body 2 paragraphs (the policy links
+   render as Body 4 via the Link component), separated by a divider. */
+.co-paylegal {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.co-paylegal__p {
+  margin: 0;
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 0.75rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+  line-height: var(--global-body-2-line-height, 1.5);
+  color: var(--text-secondary, #555);
+}
+.co-paylegal__divider { margin: 4px 0; }
 .co-req { color: var(--brand-error-default-text-color, #c00); margin-left: 2px; }
 
 /* ---------- Fields ----------

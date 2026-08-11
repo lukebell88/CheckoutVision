@@ -33,6 +33,33 @@ export function LegalNote() {
 }
 
 /**
+ * The legal fine print under the pay button. Body 2 copy with the policy links
+ * as Body 4 (the design-system Link's default text style), a company line, and
+ * the payment-consent note below a divider.
+ */
+export function PaymentLegal() {
+  return (
+    <div className="co-paylegal">
+      <p className="co-paylegal__p">
+        We will request payment for the full amount on completion of your order. By selecting a
+        payment option you confirm that you have read, understood and accept our{' '}
+        <Link href="#">Terms &amp; Conditions</Link>, <Link href="#">Returns Policy</Link> and{' '}
+        <Link href="#">Privacy Policy</Link>.
+      </p>
+      <p className="co-paylegal__p">
+        Next Online is a trading name of Next Retail Ltd, Leicester LE19 4AT
+      </p>
+      <Divider className="co-paylegal__divider" />
+      <p className="co-paylegal__p">
+        * By proceeding with your payment, you agree to the{' '}
+        <Link href="#">Terms and Conditions</Link>. To find out how we process your personal data
+        please see our <Link href="#">Privacy and Cookie Policy</Link>.
+      </p>
+    </div>
+  );
+}
+
+/**
  * The Apple mark, inline.
  *
  * Deliberately NOT `<Icon category="common" brand="payment">`: that folder is
