@@ -193,6 +193,17 @@
   height: 20px;
 }
 
+/* Scheme logo inside the "Complete With …" button — height-pinned, width auto,
+   so the wide chip keeps its aspect (!important beats Icon.css's svg width). */
+.co-paylogo {
+  width: auto !important;
+  height: 20px !important;
+}
+.co-paylogo svg {
+  width: auto !important;
+  height: 100% !important;
+}
+
 /* ---------- Email-first gate ---------- */
 /* The top-of-page email step when the sign-in page is removed. Sits above the
  * numbered sections and owns email capture + inline verification.
@@ -271,6 +282,11 @@
 }
 
 .co-emailgate__express { margin-top: 20px; }
+
+/* The guest name form fills in below the committed email chip — give it the same
+   top space the checking skeleton reserved, so the reveal doesn't sit tight
+   against the email and doesn't jump when the skeleton is replaced. */
+.co-emailgate__guest { padding-top: 20px; }
 
 /* ---------- Confirm it's you (verification) ---------- */
 .co-confirm {

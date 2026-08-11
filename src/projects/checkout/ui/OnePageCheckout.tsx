@@ -125,12 +125,9 @@ export function OnePageCheckout() {
     return () => setSection(id);
   };
 
-  // A shopper whose details came from their account sees "Checkout"; a guest
-  // typing everything in sees "Guest Checkout". Under email-first a recognised
-  // shopper counts as known even before the passcode step, so the title doesn't
-  // read "Guest" while they're verifying an account we've already matched.
-  const knownShopper = detailsFromAccount || (ef.active && !!customer.recognised);
-  const title = knownShopper ? 'Checkout' : 'Guest Checkout';
+  // The page is always titled "Checkout" — it never switches to "Guest Checkout",
+  // which read as a downgrade the moment a shopper started entering details.
+  const title = 'Checkout';
 
   const BODIES: Record<SectionId, ReactNode> = {
     // Email-first: section 1 is the identity step (email → verify / guest name).

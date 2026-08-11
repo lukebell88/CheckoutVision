@@ -117,7 +117,7 @@ export function IdentityStep({
             <span className="co-skel co-skel--field" />
           </div>
         ) : (
-          <div className="co-fadein">
+          <div className="co-fadein co-emailgate__guest">
             <DetailsSection onContinue={onGuestContinue} />
           </div>
         ))}

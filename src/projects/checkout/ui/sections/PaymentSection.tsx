@@ -70,10 +70,14 @@ const METHODS: Method[] = [
   { id: 'giftcard', title: 'Gift Card' },
 ];
 
-/** How each single-CTA method reads on its "Complete With …" button. */
+/** The single-CTA button reads "Complete With <logo>" — name for a11y, logo shown. */
 const COMPLETE_LABEL: Record<string, string> = {
   nextpay: 'Nextpay',
   payin3: 'Pay In 3',
+};
+const COMPLETE_LOGO: Record<string, string> = {
+  nextpay: 'payment-next-pay-v2-contained',
+  payin3: 'payment-pay-in-3-contained',
 };
 
 /** The remembered-card row at the top of a returning shopper's expanded list. */
@@ -169,12 +173,22 @@ export function PaymentSection({
   );
 
   // Single-CTA presentation (nextpay / pay in 3): no method list, just one button
-  // that completes the order.
+  // that completes the order, carrying the scheme's own logo.
   if (single) {
     return (
       <>
-        <Button variant="contained" color="primary" size="large" fullWidth onClick={onPay}>
-          Complete With {COMPLETE_LABEL[single]}
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          fullWidth
+          onClick={onPay}
+          aria-label={`Complete With ${COMPLETE_LABEL[single]}`}
+          endIcon={
+            <Icon name={COMPLETE_LOGO[single]} category="common" brand="payment" className="co-paylogo" />
+          }
+        >
+          Complete With
         </Button>
         <PaymentLegal />
       </>
