@@ -7,12 +7,12 @@ import './PreferredPayment.css';
  * PreferredPayment — the collapsed entry to the payment step for a returning
  * shopper whose card is remembered.
  *
- * The saved card leads: its scheme logo, the "Debit / Credit Card" label and the
- * masked number, with an "Add New Card" link beneath it, then the Pay now button.
- * Below the fold sit the quieter alternatives — a gift-card / eVoucher link, an
- * OR rule, a "Choose Another Payment Method" button (which reveals the full
- * method list, exactly like the header Change link), and a row of the other
- * wallet logos that opens the list already on that method.
+ * The saved card leads: its scheme logo (boxed) beside the masked number, with
+ * an "Add New Card" link beneath it, then the Pay now button. Below the fold sit
+ * the quieter alternatives — a gift-card / eVoucher link, an OR rule, a "Choose
+ * Another Payment Method" button (which reveals the full method list, exactly
+ * like the header Change link), and a centred row of the other wallet logos that
+ * opens the list already on that method.
  *
  * Presentation only — the labels, marks and the pay button are the caller's.
  */
@@ -24,8 +24,6 @@ export interface PreferredOther {
 }
 
 export interface PreferredPaymentProps {
-  /** The method's name, e.g. "Debit / Credit Card". */
-  label: string;
   /** The remembered card, e.g. "Monzo •••• 1234". */
   cardLabel: string;
   /** The scheme logo shown to the left of the card. */
@@ -45,7 +43,6 @@ export interface PreferredPaymentProps {
 }
 
 export function PreferredPayment({
-  label,
   cardLabel,
   cardMark,
   others,
@@ -60,7 +57,6 @@ export function PreferredPayment({
       <div className="co-preferred__card">
         <span className="co-preferred__cardmark">{cardMark}</span>
         <div className="co-preferred__cardbody">
-          <span className="co-preferred__label">{label}</span>
           <span className="co-preferred__cardnum">{cardLabel}</span>
           {onAddCard && (
             <Link

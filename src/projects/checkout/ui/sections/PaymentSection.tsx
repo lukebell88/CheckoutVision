@@ -249,7 +249,6 @@ export function PaymentSection({
     return (
       <>
         <PreferredPayment
-          label="Debit / Credit Card"
           cardLabel={payment.card || 'Card'}
           cardMark={<SchemeMark scheme={payment.scheme} />}
           others={others}

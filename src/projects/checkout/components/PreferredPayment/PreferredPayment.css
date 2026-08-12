@@ -19,12 +19,6 @@
   min-width: 0;
 }
 
-.co-preferred__label {
-  font-family: var(--global-body-2-font-family, inherit);
-  font-size: var(--global-body-2-font-size, 0.8125rem);
-  color: var(--text-secondary, #555);
-}
-
 .co-preferred__cardnum {
   font-weight: 700;
   color: var(--text-primary, #000);
@@ -39,6 +33,9 @@
   display: inline-flex;
   align-items: center;
   flex: none;
+  padding: 8px;
+  border: 1px solid var(--components-divider-default-border-color, #e3e3e3);
+  border-radius: 4px;
 }
 .co-preferred__cardmark .fab-icon {
   width: auto !important;
@@ -51,8 +48,9 @@
 
 /* ---------- Gift card / eVoucher link ---------- */
 .co-preferred__giftlink {
-  display: inline-block;
+  display: block;
   margin: 16px 0 0;
+  text-align: center;
 }
 
 /* ---------- OR rule (matches .co-or, but scoped to the component) ---------- */
@@ -82,6 +80,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 20px;
 }
 
