@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '../../../components/Button';
 import { Link } from '../../../components/Link';
 import { Radio } from '../../../components/Radio';
@@ -18,6 +18,8 @@ import { money } from '../cart';
  * product thumbnails).
  */
 const MOCK_BALANCE = 50;
+/** The Pay now button holds a spinner for this long before the discount lands. */
+const REDEEM_MS = 800;
 
 const HELP_IMAGES = [
   {
@@ -35,10 +37,28 @@ export function GiftCardForm({ onRedeem }: { onRedeem?: (amount: number) => void
   const [amount, setAmount] = useState<'full' | 'other'>('full');
   const [other, setOther] = useState('');
   const [helpOpen, setHelpOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
   const groupId = useId();
 
   const redeemAmount =
     amount === 'full' ? MOCK_BALANCE : Math.min(parseFloat(other) || 0, MOCK_BALANCE);
+
+  // Pay now holds a spinner, then applies the discount and returns the form to
+  // its default state — the redeem block collapses and the summary shows the
+  // gift card.
+  const redeem = () => {
+    if (submitting) return;
+    setSubmitting(true);
+    timer.current = window.setTimeout(() => {
+      onRedeem?.(redeemAmount);
+      setSubmitting(false);
+      setChecked(false);
+      setAmount('full');
+      setOther('');
+    }, REDEEM_MS);
+  };
 
   return (
     <div className="co-giftcard">
@@ -127,7 +147,8 @@ export function GiftCardForm({ onRedeem }: { onRedeem?: (amount: number) => void
               color="primary"
               size="large"
               fullWidth
-              onClick={() => onRedeem?.(redeemAmount)}
+              loading={submitting}
+              onClick={redeem}
             >
               Pay now
             </Button>

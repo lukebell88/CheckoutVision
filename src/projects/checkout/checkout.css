@@ -168,10 +168,11 @@
 .co-giftcard__prefix { color: var(--text-secondary, #555); }
 .co-giftcard__helplink {
   display: inline-block;
-  padding-top: 8px;
+  padding-bottom: 12px;
 }
 .co-giftcard__help {
   margin-top: 12px;
+  padding-bottom: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
