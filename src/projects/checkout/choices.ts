@@ -17,6 +17,8 @@ export type ChoiceId = 'paymentPresentation';
 /** How the Payment step presents itself. */
 export type PaymentPresentation =
   | 'preferred' // a remembered card, collapsed with a Change link
+  | 'applepay' // a remembered Apple Pay wallet, collapsed with its own button
+  | 'paypal' // a remembered PayPal wallet, collapsed with its own button
   | 'standard' // the full method list, a sensible default selected
   | 'none' // the full method list, nothing selected (an unknown shopper)
   | 'nextpay' // a single "Complete With Nextpay" CTA
@@ -36,6 +38,8 @@ export const CHOICES: ChoiceDef[] = [
     group: 'Payment',
     options: [
       { value: 'preferred', label: 'Preferred card' },
+      { value: 'applepay', label: 'Apple Pay' },
+      { value: 'paypal', label: 'PayPal' },
       { value: 'standard', label: 'Standard list' },
       { value: 'none', label: 'Nothing selected' },
       { value: 'nextpay', label: 'Nextpay only' },

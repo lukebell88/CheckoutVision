@@ -115,18 +115,25 @@ export function PaymentSection({
   const presentation = choices.paymentPresentation;
   const single = presentation === 'nextpay' || presentation === 'payin3' ? presentation : undefined;
 
-  // "Preferred" needs a remembered card to show; without one it falls back to the
-  // list. "None" opens the list with nothing selected (an unknown shopper).
-  const hasPreferred = presentation === 'preferred' && !!payment.card;
+  // A remembered method collapses to a summary with a Change link. "Preferred"
+  // is a saved card (needs one in the data); Apple Pay / PayPal are remembered
+  // wallets that stand alone. "None" opens the list with nothing selected.
+  const walletPreferred =
+    presentation === 'applepay' ? 'apple' : presentation === 'paypal' ? 'paypal' : undefined;
+  const cardPreferred = presentation === 'preferred' && !!payment.card;
+  const hasPreferred = cardPreferred || !!walletPreferred;
   const noneSelected = presentation === 'none';
 
   // When a card is remembered the list opens on that saved-card row
-  // (`PREFERRED_ID`); otherwise on the seeded method, or the saved/new-card default.
-  const defaultMethod = hasPreferred
+  // (`PREFERRED_ID`); a wallet opens on its own method row; otherwise on the
+  // seeded method, or the saved/new-card default.
+  const defaultMethod = cardPreferred
     ? PREFERRED_ID
-    : noneSelected
-      ? ''
-      : payment.method || (flags.savedPayment ? 'saved' : 'card');
+    : walletPreferred
+      ? walletPreferred
+      : noneSelected
+        ? ''
+        : payment.method || (flags.savedPayment ? 'saved' : 'card');
   const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
 
   const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
@@ -252,7 +259,9 @@ export function PaymentSection({
     meta: m.meta,
     mark: <PaymentMark method={m.id} />,
     content: contentFor(m.id),
-    sectionLabel: hasPreferred && i === 0 ? 'Other payment methods' : undefined,
+    // The "Other payment methods" heading only belongs above the list when a
+    // saved-card row sits above it — wallets have no such row.
+    sectionLabel: cardPreferred && i === 0 ? 'Other payment methods' : undefined,
   }));
 
   // The remembered card as its own preselected row: a "Debit/Credit card" label
@@ -269,7 +278,9 @@ export function PaymentSection({
     content: contentFor(PREFERRED_ID),
   };
 
-  const options: PaymentOption[] = hasPreferred
+  // Only a saved card gets its own preselected row above the list; a remembered
+  // wallet is just one of the list rows, selected.
+  const options: PaymentOption[] = cardPreferred
     ? [preferredOption, ...methodOptions]
     : methodOptions;
 
@@ -277,16 +288,16 @@ export function PaymentSection({
   // quiet row, and the pay button. Change (or tapping another method) reveals
   // the full list already selected on that method.
   if (hasPreferred && !changing) {
-    // The logos below the fold are the remaining wallets — nextpay, pay in 3,
-    // Apple Pay, PayPal. Card and gift card are excluded: card is the remembered
-    // method (Add New Card handles a fresh one) and gift card has its own
-    // "Pay by Giftcard or eVoucher" link.
+    const kind = cardPreferred ? 'card' : walletPreferred!; // 'card' | 'apple' | 'paypal'
+
+    // Logos below the fold. For a saved card, exclude card + saved + gift card
+    // (Add New Card / the gift-card link cover those). For a wallet, keep card as
+    // an option and just drop the chosen wallet, saved and gift card.
+    const excluded = kind === 'card' ? ['saved', 'card', 'giftcard'] : ['saved', 'giftcard'];
+    const preferredMethodId = kind === 'card' ? payment.preferred : kind;
     const others: PreferredOther[] = methods
-      .filter((m) => !['saved', 'card', 'giftcard'].includes(m.id) && m.id !== payment.preferred)
-      .map((m) => ({
-        id: m.id,
-        mark: <PaymentMark method={m.id} />,
-      }));
+      .filter((m) => !excluded.includes(m.id) && m.id !== preferredMethodId)
+      .map((m) => ({ id: m.id, mark: <PaymentMark method={m.id} /> }));
 
     const openList = (id?: string) => {
       if (!interactive) return;
@@ -294,17 +305,26 @@ export function PaymentSection({
       onExpand?.();
     };
 
+    // The remembered method leads: its label, its boxed mark and its own pay
+    // button. A wallet has no "Add New Card".
+    const label = kind === 'card' ? (payment.card || 'Card') : kind === 'apple' ? 'Apple Pay' : 'PayPal';
+    const mark = kind === 'card' ? <SchemeMark scheme={payment.scheme} /> : <PaymentMark method={kind} />;
+    const pay =
+      kind === 'apple' ? <ApplePayButton onClick={openApplePay} />
+      : kind === 'paypal' ? <PayPalButton onClick={onPay} />
+      : payButton;
+
     return (
       <>
         <PreferredPayment
-          cardLabel={payment.card || 'Card'}
-          cardMark={<SchemeMark scheme={payment.scheme} />}
+          cardLabel={label}
+          cardMark={mark}
           others={others}
-          onAddCard={interactive ? () => openList('card') : undefined}
+          onAddCard={kind === 'card' && interactive ? () => openList('card') : undefined}
           onGiftcard={interactive ? () => openList('giftcard') : undefined}
           onChooseAnother={interactive ? () => openList() : undefined}
           onSelectOther={interactive ? (id) => openList(id) : undefined}
-          pay={payButton}
+          pay={pay}
         />
         <PaymentLegal />
       </>

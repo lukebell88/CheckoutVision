@@ -40,7 +40,8 @@ export function OnePageCheckout() {
   // card, with a Change link in the section header (like Details/Delivery) that
   // expands the full method list. Kept here so the header owns the link. Driven
   // by the payment-presentation choice, matching PaymentSection.
-  const hasPreferred = choices.paymentPresentation === 'preferred' && !!payment.card;
+  const pp = choices.paymentPresentation;
+  const hasPreferred = (pp === 'preferred' && !!payment.card) || pp === 'applepay' || pp === 'paypal';
   const [payExpanded, setPayExpanded] = useSeededState<boolean>(
     `${choices.paymentPresentation}|${payment.card ?? ''}`,
     () => false,
