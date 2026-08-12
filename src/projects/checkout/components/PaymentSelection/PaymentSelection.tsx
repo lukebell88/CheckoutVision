@@ -72,8 +72,11 @@ export function PaymentSelection({
                 <Radio checked={on} />
                 <span className="co-payment__body">
                   <span className="co-payment__title">{o.title}</span>
-                  {o.meta?.map((line) => (
-                    <span key={line} className="co-payment__meta">
+                  {o.meta?.map((line, i) => (
+                    <span
+                      key={line}
+                      className={`co-payment__meta${i === 0 ? ' co-payment__meta--lead' : ''}`}
+                    >
                       {line}
                     </span>
                   ))}

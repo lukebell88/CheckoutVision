@@ -64,6 +64,11 @@
   font-size: var(--global-caption-font-size, 0.75rem);
   color: var(--text-secondary, #555);
 }
+/* The lead descriptor line (e.g. "Shop Now Pay Later*") reads in the primary
+   text colour; the fine print below it stays quiet. */
+.co-payment__meta--lead {
+  color: var(--text-primary, #111);
+}
 
 .co-payment__mark {
   display: inline-flex;
