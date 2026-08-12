@@ -7,7 +7,14 @@ import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
 import { DeliverySelection } from '../../components/DeliverySelection';
 import { StorePicker } from '../../components/StorePicker';
-import { searchParcelShops, searchStores, storeLabel, type Store } from '../../stores';
+import {
+  nearestParcelShops,
+  nearestStores,
+  searchParcelShops,
+  searchStores,
+  storeLabel,
+  type Store,
+} from '../../stores';
 import { useSeededState } from '../useSeededState';
 
 /**
@@ -55,6 +62,22 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const chooseMethod = (id: string) => {
     setMethod(id);
     if (interactive) nav.patch('delivery', { method: id });
+    // Repopulate the collect-point list in the SAME update as the method change,
+    // so switching never flashes the empty search box. For a signed-in shopper
+    // whose postcode we know, that's the nearest points shown immediately; a
+    // guest gets a fresh, empty search to type into.
+    const isCollect = id === 'collection' || id === 'parcel';
+    if (isCollect && accountPostcode) {
+      const near = (id === 'parcel' ? nearestParcelShops : nearestStores)(accountPostcode);
+      setStores(near);
+      setSelectedStore(near[0] ?? null);
+      if (near[0]) setForm((f) => ({ ...f, store: storeLabel(near[0]) }));
+    } else {
+      setStores([]);
+      setSelectedStore(null);
+      setStoreQuery(accountPostcode);
+    }
+    setSearchState('idle');
   };
   const [date, setDate] = useSeededState(String(delivery.date), () => 0);
 
@@ -98,16 +121,22 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
 
   const ids = useId();
 
-  // Store finder (Collection). `form.store` holds the chosen store's label (what
-  // the summary shows); `storeQuery` is the search box; `selectedStore` keeps the
-  // object so the dropdown can render and re-highlight it. Results come from
-  // Next's real collect-in-store endpoint — see ../../stores.ts.
+  // Store finder (Collection / Parcel Shop). `form.store` holds the chosen
+  // point's label (what the summary shows); `storeQuery` is the search box;
+  // `selectedStore` keeps the object so the dropdown can render and re-highlight
+  // it. See ../../stores.ts for the (static) data.
   const detailsFromAccount = !!customer.signedIn;
   const accountPostcode = detailsFromAccount ? (delivery.postcode ?? '') : '';
 
+  // A signed-in shopper's postcode is known, so if we land on a collect method
+  // the nearest points are populated up front — no search, no loading flash.
+  const knownCollect = collectPoint && accountPostcode
+    ? (parcel ? nearestParcelShops : nearestStores)(accountPostcode)
+    : [];
+
   const [storeQuery, setStoreQuery] = useState(accountPostcode);
-  const [stores, setStores] = useState<Store[]>([]);
-  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [stores, setStores] = useState<Store[]>(knownCollect);
+  const [selectedStore, setSelectedStore] = useState<Store | null>(knownCollect[0] ?? null);
   const [searchState, setSearchState] = useState<'idle' | 'loading' | 'error'>('idle');
 
   const selectStore = (s: Store) => {
@@ -115,16 +144,16 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
     setForm((f) => ({ ...f, store: storeLabel(s) }));
   };
 
-  // Collection searches store branches; Parcel Shop searches parcel points.
+  // A guest's typed search — async, so its loading state shows. (A signed-in
+  // shopper never reaches this: their list is populated synchronously above and
+  // in chooseMethod.) Collection searches branches; Parcel Shop searches points.
   const lookup = parcel ? searchParcelShops : searchStores;
-  const doSearch = async (query: string, autoSelectNearest = false) => {
+  const doSearch = async (query: string) => {
     if (!query.trim()) return;
     setSearchState('loading');
     try {
-      const results = await lookup(query);
-      setStores(results);
+      setStores(await lookup(query));
       setSearchState('idle');
-      if (autoSelectNearest && results[0]) selectStore(results[0]);
     } catch {
       setStores([]);
       setSearchState('error');
@@ -132,30 +161,6 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   };
 
   const runSearch = () => void doSearch(storeQuery);
-
-  // Switching between Collection and Parcel Shop is a different list, so reset
-  // the search when the method changes.
-  const lastMethod = useRef(method);
-  const autoSearched = useRef(false);
-  useEffect(() => {
-    if (lastMethod.current !== method) {
-      lastMethod.current = method;
-      autoSearched.current = false;
-      setStores([]);
-      setSelectedStore(null);
-      setSearchState('idle');
-    }
-  }, [method]);
-
-  // Account-matched: use the saved postcode to find the nearest collection point
-  // up front and default the selection to it. Runs once per collect method.
-  useEffect(() => {
-    if (collectPoint && accountPostcode && !autoSearched.current) {
-      autoSearched.current = true;
-      void doSearch(accountPostcode, true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collection, parcel, accountPostcode]);
 
   // Step A → Step B: commit the address so it collapses to the "Deliver to"
   // summary, then hold the dates skeleton while they "load for the address".

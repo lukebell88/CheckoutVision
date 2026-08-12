@@ -37,19 +37,30 @@ const delay = (ms: number) => new Promise<void>((resolve) => window.setTimeout(r
  * falls back to Nottingham, so the step never dead-ends.
  */
 export async function searchStores(query: string): Promise<Store[]> {
-  return lookup(query, NOTTINGHAM_STORES, LEICESTER_STORES);
+  await delay(LOOKUP_MS);
+  return nearestStores(query);
 }
 
 /** Parcel shops (the Parcel Shop method) — same lookup, different data. */
 export async function searchParcelShops(query: string): Promise<Store[]> {
-  return lookup(query, NOTTINGHAM_PARCEL_SHOPS, LEICESTER_PARCEL_SHOPS);
+  await delay(LOOKUP_MS);
+  return nearestParcelShops(query);
 }
 
-async function lookup(query: string, nottingham: Store[], leicester: Store[]): Promise<Store[]> {
+/**
+ * Synchronous nearest-first lookups. Used when the postcode is already known (a
+ * signed-in shopper) so switching delivery method shows the list immediately,
+ * with no loading flash — the async searches above wrap these for a guest's
+ * typed search, where a brief loading state is expected.
+ */
+export const nearestStores = (query: string): Store[] =>
+  select(query, NOTTINGHAM_STORES, LEICESTER_STORES);
+export const nearestParcelShops = (query: string): Store[] =>
+  select(query, NOTTINGHAM_PARCEL_SHOPS, LEICESTER_PARCEL_SHOPS);
+
+function select(query: string, nottingham: Store[], leicester: Store[]): Store[] {
   const location = query.trim();
   if (!location) return [];
-
-  await delay(LOOKUP_MS);
   const isLeicester = /leicester|\ble\d/i.test(location);
   const set = isLeicester ? leicester : nottingham;
   return [...set].sort((a, b) => a.distanceMiles - b.distanceMiles);
