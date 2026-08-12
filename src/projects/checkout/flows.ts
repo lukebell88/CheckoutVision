@@ -8,12 +8,16 @@ import type { FlagId } from './flags';
  * choice overrides, and any pre-populated data. Adding a journey is a new entry
  * here — no navigation code changes.
  *
- * The set is a 2×3 matrix: two entry models — WITH a standalone sign-in page and
- * WITHOUT one (email captured at the top of checkout) — each running the same
- * three journeys: an Account Matched shopper, an Unknown User, and Apple Pay
- * express. The only thing that varies down each column is where the email lives;
- * the payment PRESENTATION (preferred card, standard list, Nextpay/Pay In 3 CTA)
- * is a choice, not a journey, so it's set per-flow and switchable in the tray.
+ * The set is a 2×2 matrix: two entry models — WITH a standalone sign-in page and
+ * WITHOUT one (email captured at the top of checkout) — each running an Account
+ * Matched shopper and an Unknown User. The only thing that varies down each
+ * column is where the email lives; the payment PRESENTATION (preferred card,
+ * standard list, Nextpay/Pay In 3 CTA) is a choice, not a journey, so it's set
+ * per-flow and switchable in the tray.
+ *
+ * Apple Pay is not its own journey — it's the express button on the sign-in page
+ * and an option in the payment list, reachable from both the known and unknown
+ * flows — so it doesn't need a dedicated row here.
  *
  * The screen list is the order a presenter walks and the order the canvas lays
  * out — it is not a constraint on navigation, which can `goTo`/`next` any screen.
@@ -21,10 +25,8 @@ import type { FlagId } from './flags';
 export type FlowId =
   | 'signin-account'
   | 'signin-unknown'
-  | 'signin-applepay'
   | 'nosignin-account'
-  | 'nosignin-unknown'
-  | 'nosignin-applepay';
+  | 'nosignin-unknown';
 
 export type CustomerType = 'guest' | 'matched' | 'returning';
 
@@ -181,19 +183,6 @@ export const FLOWS: FlowDef[] = [
       progress: { section: 'details', done: [] },
     },
   },
-  {
-    id: 'signin-applepay',
-    name: 'Sign In · Apple Pay',
-    description: 'Standalone sign-in page: the Apple Pay button opens the sheet over the page and the order completes — no checkout page.',
-    customerType: 'guest',
-    screens: [{ id: 'signin' }, { id: 'confirmation' }],
-    flagOverrides: { expressPayment: true, savedPayment: false },
-    // Nothing is entered — Apple Pay supplies contact/address/card in its sheet.
-    prefill: {
-      ...BLANK,
-      delivery: { ...BLANK.delivery, method: 'home' },
-    },
-  },
 
   // ---- No Sign In Page (emailFirstCheckout ON) ----------------------------
   {
@@ -222,19 +211,6 @@ export const FLOWS: FlowDef[] = [
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { ...GUEST_FLAGS, emailFirstCheckout: true },
     choiceOverrides: { paymentPresentation: 'none' },
-    prefill: {
-      ...BLANK,
-      delivery: { ...BLANK.delivery, method: 'home' },
-      progress: { section: 'details', done: [] },
-    },
-  },
-  {
-    id: 'nosignin-applepay',
-    name: 'No Sign In · Apple Pay',
-    description: 'No sign-in page: the Apple Pay express button sits at the top of checkout. Tapping it opens the sheet over the page and the order completes — no details entered.',
-    customerType: 'guest',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { emailFirstCheckout: true, expressPayment: true, savedPayment: false },
     prefill: {
       ...BLANK,
       delivery: { ...BLANK.delivery, method: 'home' },
