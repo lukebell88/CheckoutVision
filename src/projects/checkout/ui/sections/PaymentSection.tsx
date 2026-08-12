@@ -166,6 +166,37 @@ export function PaymentSection({
     </>
   );
 
+  // nextpay reveals its marketing block: the pitch, the perks, the APR, then a
+  // "Continue With nextpay" CTA and the soft-search reassurance.
+  const nextpayForm = (
+    <div className="co-nextpay">
+      <p className="co-nextpay__intro">
+        Our most flexible way of spreading the cost: pay as little as the Minimum Monthly Payment
+        each month, up to your Full Balance^.
+      </p>
+      <ul className="co-nextpay__perks">
+        <li>Pay nothing today**</li>
+        <li>Priority VIP Sale Access*^</li>
+        <li>10% off welcome offer‡</li>
+      </ul>
+      <p className="co-nextpay__apr">24.9% APR Representative variable</p>
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        fullWidth
+        onClick={onPay}
+        aria-label="Continue With Nextpay"
+        endIcon={
+          <Icon name="payment-next-pay-v2-contained" category="common" brand="payment" className="co-paylogo" />
+        }
+      >
+        Continue With
+      </Button>
+      <p className="co-nextpay__credit">Proceed without impacting your credit score±</p>
+    </div>
+  );
+
   // The pay button lives inside the selected method's reveal, not once at the
   // bottom — so it's right under the row the shopper just chose and can't be
   // missed. PayPal and Apple Pay carry their own wallet buttons; everything else
@@ -176,9 +207,12 @@ export function PaymentSection({
     : payButton;
 
   const contentFor = (id: string) =>
-    // Gift card owns its whole reveal (balance check → redeem → its own button).
+    // Gift card and nextpay own their whole reveal (their own CTA); the rest show
+    // a form (card) or nothing, then the shared pay button.
     id === 'giftcard' ? (
       <GiftCardForm onRedeem={redeemGiftCard} />
+    ) : id === 'nextpay' ? (
+      nextpayForm
     ) : (
       <>
         {id === 'card' ? cardForm : null}
