@@ -46,6 +46,22 @@ function SchemeMark({ scheme }: { scheme?: string }) {
 }
 
 /**
+ * The accepted card schemes shown for the "card" slot in the Apple Pay / PayPal
+ * preferred views' other-methods row — a strip of scheme logos rather than the
+ * generic card glyph. Uses the dedicated `payment-card-*` icons, only here.
+ */
+const CARD_SCHEMES = ['visa', 'mastercard', 'maestro', 'americanexpress'];
+function CardSchemesMark() {
+  return (
+    <span className="co-cardschemes">
+      {CARD_SCHEMES.map((s) => (
+        <Icon key={s} name={`payment-card-${s}`} category="common" brand="payment" className="co-payment__logo" />
+      ))}
+    </span>
+  );
+}
+
+/**
  * 3. Payment.
  *
  * The chosen method expands in place — which is how the scamp absorbs what used
@@ -310,7 +326,12 @@ export function PaymentSection({
     const preferredMethodId = kind === 'card' ? payment.preferred : kind;
     const others: PreferredOther[] = methods
       .filter((m) => !excluded.includes(m.id) && m.id !== preferredMethodId)
-      .map((m) => ({ id: m.id, mark: <PaymentMark method={m.id} /> }));
+      // A wallet's other-methods row shows the accepted card schemes for the card
+      // slot (card only appears here — the card view keeps the plain glyph).
+      .map((m) => ({
+        id: m.id,
+        mark: m.id === 'card' ? <CardSchemesMark /> : <PaymentMark method={m.id} />,
+      }));
 
     const openList = (id?: string) => {
       if (!interactive) return;
