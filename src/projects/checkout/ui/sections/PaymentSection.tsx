@@ -126,16 +126,6 @@ export function PaymentSection({
     </Button>
   );
 
-  // One pay button sits at the bottom of the method list and follows the
-  // selection: PayPal and Apple Pay swap in their own wallet buttons, every
-  // other method keeps "Pay now" (more method states to follow). Nothing
-  // selected (guest, before they choose) shows no button.
-  const bottomPay =
-    sel === '' ? null
-    : sel === 'paypal' ? <PayPalButton onClick={onPay} />
-    : sel === 'apple' ? <ApplePayButton onClick={openApplePay} />
-    : payButton;
-
   const cardForm = (
     <>
       <div className="co-optin">
@@ -172,6 +162,22 @@ export function PaymentSection({
     </>
   );
 
+  // The pay button lives inside the selected method's reveal, not once at the
+  // bottom — so it's right under the row the shopper just chose and can't be
+  // missed. PayPal and Apple Pay carry their own wallet buttons; everything else
+  // pays with "Pay now".
+  const payFor = (id: string) =>
+    id === 'paypal' ? <PayPalButton onClick={onPay} />
+    : id === 'apple' ? <ApplePayButton onClick={openApplePay} />
+    : payButton;
+
+  const contentFor = (id: string) => (
+    <>
+      {id === 'card' ? cardForm : id === 'giftcard' ? giftCardForm : null}
+      <div className="co-payment__pay">{payFor(id)}</div>
+    </>
+  );
+
   // Single-CTA presentation (nextpay / pay in 3): no method list, just one button
   // that completes the order, carrying the scheme's own logo.
   if (single) {
@@ -195,16 +201,15 @@ export function PaymentSection({
     );
   }
 
-  // Only card and gift card open (they carry a form). Handoff methods — saved,
-  // nextpay, pay in 3, Apple Pay, PayPal — are plain radio rows; the bottom
-  // button pays for whichever is selected. When a card is remembered, these sit
-  // under an "Other payment methods" heading below the saved-card row.
+  // Each method reveals its own pay button when selected (card and gift card
+  // reveal a form above it). When a card is remembered, these sit under an
+  // "Other payment methods" heading below the saved-card row.
   const methodOptions: PaymentOption[] = methods.map((m, i) => ({
     id: m.id,
     title: m.id === 'saved' ? (payment.savedCard || 'Saved card') : m.title,
     meta: m.meta,
     mark: <PaymentMark method={m.id} />,
-    content: m.id === 'card' ? cardForm : m.id === 'giftcard' ? giftCardForm : undefined,
+    content: contentFor(m.id),
     sectionLabel: hasPreferred && i === 0 ? 'Other payment methods' : undefined,
   }));
 
@@ -219,6 +224,7 @@ export function PaymentSection({
       </span>
     ),
     mark: <SchemeMark scheme={payment.scheme} />,
+    content: contentFor(PREFERRED_ID),
   };
 
   const options: PaymentOption[] = hasPreferred
@@ -266,12 +272,9 @@ export function PaymentSection({
   return (
     <>
       <PaymentSelection options={options} value={sel} onChange={setSel} />
-      {bottomPay && (
-        <>
-          <div className="co-payment__pay">{bottomPay}</div>
-          <PaymentLegal />
-        </>
-      )}
+      {/* The pay button now lives in the selected row; the legal fine print
+          follows the list once a method is chosen. */}
+      {sel !== '' && <PaymentLegal />}
     </>
   );
 }

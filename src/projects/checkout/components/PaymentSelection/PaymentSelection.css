@@ -68,8 +68,8 @@
  * rather than the radio. */
 .co-payment__content { padding: 0 14px 14px; }
 
-/* The single pay button under the list — one CTA that restyles for the selected
- * method (Pay now / PayPal / Apple Pay), rather than a button per row. */
+/* The pay button inside a selected method's reveal (Pay now / PayPal / Apple
+ * Pay), sitting under its form or straight under the row. */
 .co-payment__pay { margin-top: 6px; }
 
 /* The remembered saved-card row: a Body 2 secondary label over the card number
