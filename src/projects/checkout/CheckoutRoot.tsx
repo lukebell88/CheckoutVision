@@ -45,11 +45,28 @@ export function CheckoutRoot() {
     .map((n) => String(headerConfig[`nav.tab${n}.label`] ?? ''))
     .filter(Boolean);
 
+  // The global bar's promo message and quick links, again from `_Config/Header`,
+  // so the confirmation's global bar carries the brand's real copy rather than
+  // the component's "Link · Link" placeholder.
+  const globalMessage = headerConfig.uspMessage ? String(headerConfig.uspMessageLabel ?? '') : undefined;
+  const globalLinks = [
+    headerConfig.quickLink1 && { label: String(headerConfig.quickLink1Label ?? '') },
+    headerConfig.quickLink2 && { label: String(headerConfig.quickLink2Label ?? '') },
+  ].filter(Boolean) as { label: string }[];
+
   return (
     <IconProvider value={brand.iconBrand}>
       <div className="checkout" data-client={brand.id}>
         {isConfirmation ? (
-          <Header variant={headerVariant} type="default" globalAppBar={false} bagCount={0} tabs={tabs} />
+          <Header
+            variant={headerVariant}
+            type="default"
+            globalAppBar
+            message={globalMessage}
+            links={globalLinks.length ? globalLinks : undefined}
+            bagCount={0}
+            tabs={tabs}
+          />
         ) : (
           <Header variant={headerVariant} type="secure" bagCount={CART.length} />
         )}

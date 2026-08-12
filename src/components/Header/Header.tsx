@@ -3,6 +3,7 @@ import { AppBarBackToNext } from '../AppBarBackToNext';
 import { AppBarGlobal } from '../AppBarGlobal';
 import { AppBarBrand, type AppBarBrandVariant, type AppBarBrandType } from '../AppBarBrand';
 import { AppBarNav } from '../AppBarNav';
+import type { AppBarGlobalLink } from '../AppBarGlobal';
 import './Header.css';
 
 /**
@@ -32,6 +33,8 @@ export interface HeaderProps {
   brand?: string;
   bagCount?: number;
   message?: string;
+  /** Global-bar quick links (right side). Falls back to the AppBarGlobal default. */
+  links?: AppBarGlobalLink[];
   tabs?: string[];
   className?: string;
 }
@@ -44,6 +47,7 @@ export function Header({
   brand,
   bagCount = 0,
   message,
+  links,
   tabs,
   className,
 }: HeaderProps) {
@@ -55,7 +59,7 @@ export function Header({
   const content = (
     <div className={['fab-header', navHiddenMobile && 'fab-header--nav-hidden-mobile', className].filter(Boolean).join(' ')}>
       {backToNextAppBar && !secure && <AppBarBackToNext />}
-      {globalAppBar && !secure && <AppBarGlobal message={message} />}
+      {globalAppBar && !secure && <AppBarGlobal message={message} links={links} />}
       <AppBarBrand variant={variant} type={type} brand={brand} bagCount={bagCount} />
       {showNav && <AppBarNav tabs={tabs} />}
     </div>
