@@ -896,6 +896,23 @@
 }
 .co-upsell__sub { margin: 0 0 12px; color: var(--text-secondary, #444); }
 
+/* Next Ads — two 9x16 teasers side by side, 16px gap. */
+.co-ads {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.co-ad {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+}
+.co-ad__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .co-recs__title {
   margin: 0 0 12px;
   font-family: var(--global-h5-font-family, inherit);

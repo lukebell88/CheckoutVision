@@ -18,6 +18,25 @@ import { DeliveryCountdown } from './DeliveryCountdown';
  */
 const RECOMMENDED = ['Cotton Rich Shirt', 'Linen Blend Trousers', 'Leather Trainers', 'Knitted Jumper'];
 
+/**
+ * Next Ads — 9x16 shoppable teasers from the CMS `p{page}_c{cat}_s` slots,
+ * shown side by side above the recommendations ribbon. The CMS serves these
+ * assets from the public CDN (xcdn); the raw response's cms.platform.next host
+ * is the internal authoring one and won't load.
+ */
+const ADS = [
+  {
+    src: 'https://xcdn.next.co.uk/cms2/content/v3/assets/blt95da0c6423440d3a/blta1746f75807479b9/6a5f3057e3640c2636ea1fa6/P152_C707_Next_Home_DecorativeAccessories.jpg',
+    alt: 'Home decorative accessories',
+    href: 'https://www.next.co.uk/home/home-accessories/decorative-accessories',
+  },
+  {
+    src: 'https://xcdn.next.co.uk/cms2/content/v3/assets/blt95da0c6423440d3a/blta6f2c096fd5efb82/6a563880935fc41331a2da19/P152_C15_Next_Womens_Lingerie_Shoppable.jpg',
+    alt: 'Women’s lingerie',
+    href: 'https://www.next.co.uk/shop/womens/lingerie',
+  },
+];
+
 export function Confirmation() {
   const { flags, customer } = useCheckoutConfig();
   const email = customer.email ?? 'alex_smith@next.co.uk';
@@ -63,6 +82,14 @@ export function Confirmation() {
           </Button>
         </section>
       )}
+
+      <section className="co-ads" aria-label="Advertisements">
+        {ADS.map((ad) => (
+          <a key={ad.src} className="co-ad" href={ad.href} target="_blank" rel="noreferrer">
+            <img className="co-ad__img" src={ad.src} alt={ad.alt} loading="lazy" />
+          </a>
+        ))}
+      </section>
 
       <section className="co-recs">
         <h2 className="co-recs__title">You May Also Like</h2>
