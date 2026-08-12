@@ -73,8 +73,11 @@ export const deliveryPrice = (method?: string) =>
 /** A delivery cost as shown to the shopper — free delivery reads "FREE". */
 export const deliveryLabel = (cost: number) => (cost === 0 ? 'FREE' : money(cost));
 
-export const cartTotals = (method?: string) => {
+export const cartTotals = (method?: string, giftCard = 0) => {
   const subtotal = CART.reduce((s, l) => s + l.price * l.qty, 0);
   const delivery = deliveryPrice(method);
-  return { subtotal, delivery, total: subtotal + delivery };
+  const gross = subtotal + delivery;
+  // A redeemed gift card can't take the order below zero.
+  const applied = Math.max(0, Math.min(giftCard, gross));
+  return { subtotal, delivery, giftCard: applied, total: gross - applied };
 };

@@ -29,8 +29,11 @@ export function OrderToggle({ open, onToggle }: { open: boolean; onToggle: () =>
 }
 
 export function OrderPanel({ open }: { open: boolean }) {
-  const { flags, delivery: deliveryInfo } = useCheckoutConfig();
-  const { subtotal, delivery, total } = cartTotals(deliveryInfo.method);
+  const { flags, delivery: deliveryInfo, payment } = useCheckoutConfig();
+  const { subtotal, delivery, giftCard, total } = cartTotals(
+    deliveryInfo.method,
+    payment.giftCardApplied,
+  );
 
   // On mobile the slot is a smooth height reveal (grid-template-rows 0fr→1fr, so
   // the summary animates to its natural height); the inner clips during the
@@ -57,6 +60,10 @@ export function OrderPanel({ open }: { open: boolean }) {
           totals={[
             { label: 'Subtotal', value: money(subtotal) },
             { label: 'Delivery', value: deliveryLabel(delivery) },
+            // A redeemed gift card shows as a negative line below Delivery.
+            ...(giftCard > 0
+              ? [{ label: 'Gift Card / eVoucher', value: `-${money(giftCard)}` }]
+              : []),
             { label: 'Total', value: money(total), grand: true },
           ]}
           showPromoCode={flags.promoCode}

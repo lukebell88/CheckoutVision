@@ -3,6 +3,7 @@ import { Checkbox } from '../../../../components/Checkbox';
 import { Icon } from '../../../../components/Icon';
 import { useProjectRuntime } from '../../../../studio/runtime';
 import { useCheckoutConfig } from '../../checkoutConfig';
+import { cartTotals } from '../../cart';
 import { FormField } from '../../components/FormField';
 import { PaymentSelection, type PaymentOption } from '../../components/PaymentSelection';
 import { PreferredPayment, type PreferredOther } from '../../components/PreferredPayment';
@@ -95,9 +96,18 @@ export function PaymentSection({
   /** Expand from the collapsed preferred view to the list (owned by the header). */
   onExpand?: () => void;
 }) {
-  const { flags, payment, choices } = useCheckoutConfig();
+  const { flags, payment, choices, delivery } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const methods = METHODS.filter((m) => !m.flag || flags[m.flag]);
+
+  // Redeem a gift card: record the amount (the order summary discounts the
+  // total). If it clears the whole balance owed, complete; otherwise stay on
+  // Payment so the shopper can settle the remainder with another method.
+  const redeemGiftCard = (amount: number) => {
+    if (!interactive) return;
+    nav.patch('payment', { giftCardApplied: amount });
+    if (cartTotals(delivery.method, amount).total <= 0) onPay?.();
+  };
 
   // The choice drives how Payment presents itself; the payment DATA supplies the
   // specifics (which card, its scheme). A single-CTA presentation short-circuits
@@ -156,8 +166,6 @@ export function PaymentSection({
     </>
   );
 
-  const giftCardForm = <GiftCardForm />;
-
   // The pay button lives inside the selected method's reveal, not once at the
   // bottom — so it's right under the row the shopper just chose and can't be
   // missed. PayPal and Apple Pay carry their own wallet buttons; everything else
@@ -167,12 +175,16 @@ export function PaymentSection({
     : id === 'apple' ? <ApplePayButton onClick={openApplePay} />
     : payButton;
 
-  const contentFor = (id: string) => (
-    <>
-      {id === 'card' ? cardForm : id === 'giftcard' ? giftCardForm : null}
-      <div className="co-payment__pay">{payFor(id)}</div>
-    </>
-  );
+  const contentFor = (id: string) =>
+    // Gift card owns its whole reveal (balance check → redeem → its own button).
+    id === 'giftcard' ? (
+      <GiftCardForm onRedeem={redeemGiftCard} />
+    ) : (
+      <>
+        {id === 'card' ? cardForm : null}
+        <div className="co-payment__pay">{payFor(id)}</div>
+      </>
+    );
 
   // Single-CTA presentation (nextpay / pay in 3): no method list, just one button
   // that completes the order, carrying the scheme's own logo.

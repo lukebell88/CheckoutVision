@@ -34,7 +34,7 @@ import { useEmailFirst } from './useEmailFirst';
 export function OnePageCheckout() {
   const { customer, progress, delivery, payment, choices } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
-  const { total, delivery: deliveryCost } = cartTotals(delivery.method);
+  const { total, delivery: deliveryCost } = cartTotals(delivery.method, payment.giftCardApplied);
 
   // A returning shopper's Payment section opens collapsed on their remembered
   // card, with a Change link in the section header (like Details/Delivery) that

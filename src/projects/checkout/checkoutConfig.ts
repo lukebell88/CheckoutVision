@@ -47,6 +47,9 @@ export interface PaymentInfo {
   card?: string;
   /** The preferred card's scheme logo, e.g. "mastercard" (common/payment icon). */
   scheme?: string;
+  /** Amount redeemed from a gift card / eVoucher, in pounds. Discounts the total
+   *  and shows a "Gift Card / eVoucher −£x" line in the order summary. */
+  giftCardApplied?: number;
 }
 /** Which section of the one-pager is open, and which are behind us. */
 export interface ProgressInfo {
