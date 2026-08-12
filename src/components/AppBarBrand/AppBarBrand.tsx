@@ -112,7 +112,7 @@ function BrandIconButton({ icon, bagCount = 0 }: { icon: BrandIcon; bagCount?: n
       <Icon name={def.name} category={def.category} size={24} />
     </IconButton>
   );
-  return icon === 'bag' ? <Badge content={bagCount}>{btn}</Badge> : btn;
+  return icon === 'bag' ? <Badge content={bagCount} showZero={false}>{btn}</Badge> : btn;
 }
 
 function SecureSlot({ item, bagCount = 0 }: { item: SecureItem; bagCount?: number }) {
@@ -196,8 +196,10 @@ export function AppBarBrand({
       <img src={flagGb} alt="" />
     </span>
   );
+  // An empty bag disables checkout (matching the site header) — and suppresses
+  // the bag's "0" badge, via showZero in BrandIconButton below.
   const checkout = cfg.checkoutButton && (
-    <Button variant="contained" color="primary" size="large" className="fab-appbar-brand__checkout">
+    <Button variant="contained" color="primary" size="large" className="fab-appbar-brand__checkout" disabled={bagCount === 0}>
       Checkout
     </Button>
   );
