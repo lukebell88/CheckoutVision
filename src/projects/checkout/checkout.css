@@ -27,6 +27,22 @@
   line-height: var(--global-body-1-line-height, 1.5);
   display: flex;
   flex-direction: column;
+  /* Height of the pinned header, so the sticky total bar / order column can tuck
+     in directly beneath it. Mobile secure brand bar (44px) + its 1px border. */
+  --co-header-h: 45px;
+}
+
+/* The header pins to the top of the scroll as the page scrolls, above the
+   sticky total bar and the desktop order column (which sit beneath it). */
+.checkout > .fab-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* From M up the brand bar is 60px + 1px border. */
+@container checkout (min-width: 768px) {
+  .checkout { --co-header-h: 61px; }
 }
 
 /* ---------- Screen shells ---------- */
@@ -503,7 +519,7 @@
 /* ---------- One-pager ---------- */
 .co-totalbar {
   position: sticky;
-  top: 0;
+  top: var(--co-header-h);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -748,7 +764,7 @@
   .co-orderslot {
     display: block;
     position: sticky;
-    top: 24px;
+    top: calc(var(--co-header-h) + 24px);
     grid-column: 2;
     grid-row: 1 / span 2;
     margin: 0;

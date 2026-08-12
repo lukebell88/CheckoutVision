@@ -67,8 +67,9 @@ const VARIANTS: Record<AppBarBrandVariant, VariantConfig> = {
   cutaway22: { logo: 'left', search: true, placeholder: 'Search product or brand', right: ['account', 'location', 'favourite', 'bag'], flag: true, secure: { right: ['location', 'bag'] } },
   club22: { logo: 'center', search: true, placeholder: 'Search', right: ['location', 'favourite', 'account', 'bag'], flag: true, mobile: { left: ['search', 'favourite'], right: ['account', 'bag'] }, secure: { right: ['location', 'bag'], mobileRight: ['bag'] } },
   tab22: { logo: 'center', search: true, placeholder: 'Search', right: ['location', 'favourite', 'account', 'bag'], flag: true, mobile: { left: ['menu'], right: ['search', 'bag'] }, secure: { right: ['location', 'bag'], mobileRight: ['bag'] } },
-  // Club25 has no Secure variant in Figma; it follows the centred family.
-  club25: { logo: 'center', search: true, placeholder: 'Search for anything here', right: ['favourite', 'account', 'bag'], checkoutButton: true, flag: false, mobile: { left: ['account', 'favourite'], right: ['search', 'bag'] }, secure: { right: ['location', 'bag'], mobileRight: ['bag'] } },
+  // Club25 has no Secure variant in Figma; it follows the centred family. Its
+  // Secure form carries only the bag — no store-locator icon.
+  club25: { logo: 'center', search: true, placeholder: 'Search for anything here', right: ['favourite', 'account', 'bag'], checkoutButton: true, flag: false, mobile: { left: ['account', 'favourite'], right: ['search', 'bag'] }, secure: { right: ['bag'] } },
   wing25: { logo: 'left', search: false, right: ['search', 'favourite', 'bag', 'menu'], flag: false, secure: { right: ['help', 'bag'] } },
 };
 
