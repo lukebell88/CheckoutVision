@@ -689,6 +689,12 @@
      behind. +8px of breathing room. */
   scroll-margin-top: calc(var(--co-header-h) + var(--co-totalbar-h) + 8px);
 }
+
+/* Same offset for a payment method row — expanding the list scrolls the chosen
+   method into view, clear of the pinned header + total bar. */
+.co-payment__option {
+  scroll-margin-top: calc(var(--co-header-h) + var(--co-totalbar-h) + 8px);
+}
 .co-section:last-child { border-bottom: 0; }
 .co-section__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .co-section__title {

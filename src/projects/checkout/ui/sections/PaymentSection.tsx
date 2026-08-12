@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
 import { Icon } from '../../../../components/Icon';
@@ -135,6 +136,18 @@ export function PaymentSection({
         ? ''
         : payment.method || (flags.savedPayment ? 'saved' : 'card');
   const [sel, setSel] = useSeededState<string>(defaultMethod, () => defaultMethod);
+
+  // Expanding from the collapsed preferred view (Add New Card, Pay by Giftcard,
+  // a wallet logo) reveals the full list — scroll the method they picked into
+  // view once it's rendered, so it isn't left off-screen below the fold.
+  const scrollReq = useRef(false);
+  useEffect(() => {
+    if (!changing || !scrollReq.current) return;
+    scrollReq.current = false;
+    document
+      .querySelector('.co-payment__option--on')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [changing]);
 
   const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
 
@@ -301,7 +314,11 @@ export function PaymentSection({
 
     const openList = (id?: string) => {
       if (!interactive) return;
-      if (id) setSel(id);
+      if (id) {
+        setSel(id);
+        // Scroll to the chosen method once the list is exposed.
+        scrollReq.current = true;
+      }
       onExpand?.();
     };
 
