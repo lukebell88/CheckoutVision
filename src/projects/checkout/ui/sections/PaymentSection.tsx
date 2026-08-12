@@ -373,7 +373,6 @@ export function PaymentSection({
           cardMark={mark}
           others={others}
           onAddCard={kind === 'card' && interactive ? () => openList('card') : undefined}
-          onGiftcard={interactive ? () => openList('giftcard') : undefined}
           onChooseAnother={interactive ? () => openList() : undefined}
           onSelectOther={interactive ? (id) => openList(id) : undefined}
           pay={pay}

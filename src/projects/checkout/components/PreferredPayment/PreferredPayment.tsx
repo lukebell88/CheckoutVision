@@ -9,10 +9,9 @@ import './PreferredPayment.css';
  *
  * The saved card leads: its scheme logo (boxed) beside the masked number, with
  * an "Add New Card" link beneath it, then the Pay now button. Below the fold sit
- * the quieter alternatives — a gift-card / eVoucher link, an OR rule, a "Choose
- * Another Payment Method" button (which reveals the full method list, exactly
- * like the header Change link), and a centred row of the other wallet logos that
- * opens the list already on that method.
+ * the quieter alternatives — an OR rule, a "Choose Another Payment Method" button
+ * (which reveals the full method list, exactly like the header Change link), and
+ * a centred row of the other wallet logos that opens the list on that method.
  *
  * Presentation only — the labels, marks and the pay button are the caller's.
  */
@@ -32,8 +31,6 @@ export interface PreferredPaymentProps {
   others: PreferredOther[];
   /** Open the full list on the card form to add a new card. */
   onAddCard?: () => void;
-  /** Open the full list on the gift-card / eVoucher method. */
-  onGiftcard?: () => void;
   /** Reveal the full method list (same as the header Change link). */
   onChooseAnother?: () => void;
   /** Open the full list already selected on this method. */
@@ -47,7 +44,6 @@ export function PreferredPayment({
   cardMark,
   others,
   onAddCard,
-  onGiftcard,
   onChooseAnother,
   onSelectOther,
   pay,
@@ -75,20 +71,6 @@ export function PreferredPayment({
       </div>
 
       {pay}
-
-      {onGiftcard && (
-        <Link
-          href="#"
-          textStyle="body-3"
-          className="co-preferred__giftlink"
-          onClick={(e) => {
-            e.preventDefault();
-            onGiftcard();
-          }}
-        >
-          Pay by Giftcard or eVoucher
-        </Link>
-      )}
 
       <div className="co-preferred__or" aria-hidden="true">
         <span className="co-preferred__rule" />

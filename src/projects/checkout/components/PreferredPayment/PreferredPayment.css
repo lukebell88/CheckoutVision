@@ -46,13 +46,6 @@
   height: 100%;
 }
 
-/* ---------- Gift card / eVoucher link ---------- */
-.co-preferred__giftlink {
-  display: block;
-  margin: 16px 0 0;
-  text-align: center;
-}
-
 /* ---------- OR rule (matches .co-or, but scoped to the component) ---------- */
 .co-preferred__or {
   display: grid;

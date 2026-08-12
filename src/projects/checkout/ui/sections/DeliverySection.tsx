@@ -42,6 +42,9 @@ const DATES = [
   { day: 'Thu', date: '13th', label: 'Thurs 13th July' },
   { day: 'Fri', date: '14th', label: 'Fri 14th July' },
   { day: 'Mon', date: '17th', label: 'Mon 17th July' },
+  { day: 'Tue', date: '18th', label: 'Tues 18th July' },
+  { day: 'Wed', date: '19th', label: 'Weds 19th July' },
+  { day: 'Thu', date: '20th', label: 'Thurs 20th July' },
 ];
 
 /** Delivery dates depend on the address, so they can't be shown until it's
