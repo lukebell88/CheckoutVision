@@ -358,14 +358,26 @@ export const useStore = create<StudioState>()(
     },
     {
       name: 'studio-state',
-      version: 2,
+      version: 3,
       /**
        * v1 → v2 changed only WHEN `byProject` slices are created (eagerly for
-       * every project, vs. seeded as each project loads). The persisted shape is
-       * identical, so v1 state carries over untouched — without this, zustand
-       * discards it and the designer silently loses their scenario.
+       * every project, vs. seeded as each project loads).
+       *
+       * v2 → v3 drops the persisted `byProject` slices on upgrade. Their shape
+       * churned repeatedly (choices were added, the flow set was consolidated to
+       * six, screen ids changed), and a slice written by an older build can hold
+       * a screen id or flow that no longer exists — which crashes the very first
+       * render before any URL scenario is applied. That's the "white screen in my
+       * normal browser but fine in incognito" report: incognito has no persisted
+       * slice. Dropping them lets each project re-seed from current code; the
+       * global prefs (which project/brand is open) carry over untouched, and a
+       * live link re-applies its own scenario regardless.
        */
-      migrate: (persisted) => persisted as StudioState,
+      migrate: (persisted) => {
+        const p = (persisted ?? {}) as Partial<StudioState>;
+        const { byProject: _stale, ...rest } = p;
+        return rest as StudioState;
+      },
       // Don't persist transient overlay UI — a reload shouldn't restore these.
       partialize: (s) => {
         const rest = { ...s } as Record<string, unknown>;

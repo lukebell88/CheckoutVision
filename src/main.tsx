@@ -5,6 +5,7 @@ import { ensureThemesInjected } from './theme/themes';
 import { readLiveParams } from './live/liveUrl';
 import { useStore } from './studio/store';
 import { isProjectId } from './studio/registry';
+import { ErrorBoundary } from './ErrorBoundary';
 import './base.css';
 
 /**
@@ -38,10 +39,12 @@ document.documentElement.setAttribute('data-theme', useStore.getState().theme);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {isLive ? (
-      <LiveApp />
-    ) : (
-      <Suspense fallback={null}>{isPreview ? <ComponentPreview /> : <App />}</Suspense>
-    )}
+    <ErrorBoundary>
+      {isLive ? (
+        <LiveApp />
+      ) : (
+        <Suspense fallback={null}>{isPreview ? <ComponentPreview /> : <App />}</Suspense>
+      )}
+    </ErrorBoundary>
   </React.StrictMode>,
 );
