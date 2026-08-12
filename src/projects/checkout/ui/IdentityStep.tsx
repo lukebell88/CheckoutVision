@@ -104,6 +104,7 @@ export function IdentityStep({
             phone={customer.phone}
             interactive={interactive}
             loading={ef.checking}
+            preSend={flags.softLogin}
             onVerified={onAccountVerified}
           />
         </div>

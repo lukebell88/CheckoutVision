@@ -26,6 +26,8 @@ const SKELETON_MS = 350;
 const PASSKEY_MS = 1400;
 /** The "Signing you in…" account-lookup beat after a passcode/password submit. */
 const FINALISE_MS = 800;
+/** The Send Code button holds a spinner this long before the inputs appear. */
+const SEND_MS = 800;
 
 const LABEL: Record<Method, string> = {
   passcode: 'Text me a code',
@@ -71,6 +73,12 @@ export interface ConfirmIdentityProps {
   /** While true, the body shows its skeleton — used as the initial "checking"
    *  state so this reuses the exact loading language of a method switch. */
   loading?: boolean;
+  /**
+   * Soft-login: the shopper landed recognised but no passcode has been issued,
+   * so the passcode step starts with a Send Code button (in the inputs' slot,
+   * no re-send) rather than showing the inputs as if a code were already sent.
+   */
+  preSend?: boolean;
 }
 
 export function ConfirmIdentity({
@@ -78,11 +86,16 @@ export function ConfirmIdentity({
   interactive = true,
   onVerified,
   loading = false,
+  preSend = false,
 }: ConfirmIdentityProps) {
   const [method, setMethod] = useState<Method>('passcode');
   const [switching, setSwitching] = useState(false);
   const [finalising, setFinalising] = useState(false);
   const [code, setCode] = useState('');
+  // Whether the passcode has been "sent" — false only while a soft-login shopper
+  // hasn't yet tapped Send Code; `sending` holds the button's spinner.
+  const [sent, setSent] = useState(!preSend);
+  const [sending, setSending] = useState(false);
   const timers = useRef<number[]>([]);
 
   // The body is a skeleton while the account is being checked (loading) or a
@@ -108,6 +121,18 @@ export function ConfirmIdentity({
     clearTimers();
     setFinalising(true);
     timers.current.push(window.setTimeout(verify, FINALISE_MS));
+  };
+
+  // Soft-login Send Code: hold a spinner in the button, then reveal the inputs.
+  const sendCode = () => {
+    if (!interactive || sending) return;
+    setSending(true);
+    timers.current.push(
+      window.setTimeout(() => {
+        setSending(false);
+        setSent(true);
+      }, SEND_MS),
+    );
   };
 
   const switchTo = (next: Method) => {
@@ -137,7 +162,8 @@ export function ConfirmIdentity({
   const sub =
     method === 'passcode' ? (
       <>
-        Enter the code sent to <strong>{maskPhone(phone)}</strong> by text or email to securely sign in.
+        {sent ? 'Enter the code sent to' : 'A code will be sent to'}{' '}
+        <strong>{maskPhone(phone)}</strong> by text or email to securely sign in.
       </>
     ) : method === 'password' ? (
       'Enter your password to sign in.'
@@ -174,20 +200,37 @@ export function ConfirmIdentity({
           <span className="co-skel co-skel--link" />
         </div>
       ) : method === 'passcode' ? (
-        <>
-          <OtpInput
-            value={code}
-            onChange={(v) => {
-              setCode(v);
-              if (v.length === 6) finalise();
-            }}
-          />
-          <p className="co-confirm__resend">
-            <button type="button" className="co-linklabel">
-              Re-send Code
-            </button>
-          </p>
-        </>
+        !sent ? (
+          // Soft-login: the code isn't issued on arrival. A Send Code button sits
+          // in the inputs' slot (no re-send) and, on tap, spins then reveals them.
+          <div className="co-otp co-otp--send">
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth
+              loading={sending}
+              onClick={interactive ? sendCode : undefined}
+            >
+              Send Code
+            </Button>
+          </div>
+        ) : (
+          <>
+            <OtpInput
+              value={code}
+              onChange={(v) => {
+                setCode(v);
+                if (v.length === 6) finalise();
+              }}
+            />
+            <p className="co-confirm__resend">
+              <button type="button" className="co-linklabel">
+                Re-send Code
+              </button>
+            </p>
+          </>
+        )
       ) : method === 'password' ? (
         <>
           <FormField

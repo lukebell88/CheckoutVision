@@ -210,10 +210,11 @@ export const FLOWS: FlowDef[] = [
     description: 'No sign-in page: the shopper is soft-recognised, so the email is already captured and locked (luke_bell@next.co.uk) with "Confirm it’s you" ready — they just verify, then jump to Payment with the saved card. Same as Account Matched but skipping the type-your-email step.',
     customerType: 'matched',
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { ...ACCOUNT_FLAGS, emailFirstCheckout: true },
+    flagOverrides: { ...ACCOUNT_FLAGS, emailFirstCheckout: true, softLogin: true },
     choiceOverrides: { paymentPresentation: 'preferred' },
     // Email KEPT (not blanked), so it loads locked to its chip with the verify
-    // step already shown — the "soft logged in" starting point.
+    // step already shown — the "soft logged in" starting point. softLogin makes
+    // the passcode step wait for a Send Code tap rather than issuing on arrival.
     prefill: {
       ...BLANK,
       customer: ACCOUNT_CUSTOMER,

@@ -480,6 +480,9 @@
    the height of the code boxes sits where they were, and the sub / re-send /
    switcher render as skeleton, so the lookup reads in place rather than a pop. */
 .co-otp--finalising { min-height: 44px; }
+/* Soft-login Send Code button occupies the OTP slot (full-width block, not the
+   centred boxes row) so the swap to the inputs doesn't jump. */
+.co-otp--send { display: block; }
 
 /* Re-send / method labels: Body 3, link colour, no underline (per Figma). */
 .co-linklabel {

@@ -25,6 +25,7 @@ export type FlagId =
   | 'deliveryDates'
   | 'emailFirstCheckout'
   | 'guestIdentityStep'
+  | 'softLogin'
   | 'guestRegistration'
   | 'passkeyUpsell'
   | 'freeDeliveryCountdown'
@@ -50,6 +51,7 @@ export const FLAGS: FlagDef[] = [
 
   { id: 'emailFirstCheckout', name: 'No sign-in page', description: 'Drop the sign-in page — capture email (and express pay) at the top of checkout; recognised shoppers verify inline.', group: 'Account', default: false },
   { id: 'guestIdentityStep', name: 'Guest identity step', description: 'On the sign-in-page flows, the guest route captures the email first in checkout, then reveals guest fields or an inline passcode depending on whether it matches an account.', group: 'Account', default: false },
+  { id: 'softLogin', name: 'Soft login', description: 'A soft-recognised shopper: the verify step starts with a Send Code button (no passcode issued on arrival) rather than the code inputs.', group: 'Account', default: false },
   { id: 'guestRegistration', name: 'Guest registration', description: 'Offer account creation to guests on the confirmation.', group: 'Account', default: true },
   { id: 'passkeyUpsell', name: 'Passkey upsell', description: 'Offer to save a passkey once the order is placed.', group: 'Account', default: true },
 
