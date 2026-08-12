@@ -196,18 +196,14 @@
   height: auto;
 }
 
-/* Accepted card schemes strip (Apple Pay / PayPal preferred views). Smaller than
-   the single wallet logos so the four sit neatly in the other-methods row. */
+/* Accepted card schemes (Apple Pay / PayPal preferred views). The same gap and
+   height as the other wallet logos, so the schemes read as peers in the row
+   rather than a cramped cluster. */
 .co-cardschemes {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 20px;
 }
-.co-preferred__othermark .co-cardschemes .fab-icon {
-  width: auto !important;
-  height: 16px !important;
-}
-.co-preferred__othermark .co-cardschemes .fab-icon svg { width: auto; height: 100%; }
 
 /* ---------- nextpay marketing reveal ---------- */
 .co-nextpay__intro {
