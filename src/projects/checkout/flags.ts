@@ -24,6 +24,7 @@ export type FlagId =
   | 'collectionOptions'
   | 'deliveryDates'
   | 'emailFirstCheckout'
+  | 'guestAccountMatch'
   | 'guestRegistration'
   | 'passkeyUpsell'
   | 'freeDeliveryCountdown'
@@ -48,6 +49,7 @@ export const FLAGS: FlagDef[] = [
   { id: 'promoCode', name: 'Promotional code', description: 'Show a promo/voucher code entry in the order panel.', group: 'Payment', default: false },
 
   { id: 'emailFirstCheckout', name: 'No sign-in page', description: 'Drop the sign-in page — capture email (and express pay) at the top of checkout; recognised shoppers verify inline.', group: 'Account', default: false },
+  { id: 'guestAccountMatch', name: 'Guest account match', description: 'A guest whose entered email matches an account is offered inline verification and treated as a returning customer.', group: 'Account', default: false },
   { id: 'guestRegistration', name: 'Guest registration', description: 'Offer account creation to guests on the confirmation.', group: 'Account', default: true },
   { id: 'passkeyUpsell', name: 'Passkey upsell', description: 'Offer to save a passkey once the order is placed.', group: 'Account', default: true },
 

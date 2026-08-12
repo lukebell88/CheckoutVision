@@ -21,6 +21,7 @@ import type { FlagId } from './flags';
 export type FlowId =
   | 'signin-account'
   | 'signin-unknown'
+  | 'signin-guestmatch'
   | 'signin-applepay'
   | 'nosignin-account'
   | 'nosignin-unknown'
@@ -171,6 +172,26 @@ export const FLOWS: FlowDef[] = [
     prefill: {
       ...BLANK,
       delivery: { ...BLANK.delivery, method: 'home' },
+      progress: { section: 'details', done: [] },
+    },
+  },
+  {
+    id: 'signin-guestmatch',
+    name: 'Sign In · Guest → Account Found',
+    description: 'Standalone sign-in page: the shopper taps “Checkout as a guest”, then enters an email that turns out to match an account. The guest details form reveals an inline “Confirm it’s you” passcode; on verify they’re treated as a returning customer and land on Payment with the saved card.',
+    customerType: 'matched',
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { ...ACCOUNT_FLAGS, guestAccountMatch: true },
+    choiceOverrides: { paymentPresentation: 'preferred' },
+    // Same shape as nosignin-account: the account's details are seeded (email
+    // empty) so they can fill in on verify. They stay hidden until then because
+    // the guest details form seeds its own fields blank when guestAccountMatch
+    // is on — so the shopper sees an empty guest form, not a pre-filled one.
+    prefill: {
+      ...BLANK,
+      customer: { ...ACCOUNT_CUSTOMER, email: '' },
+      delivery: ACCOUNT_DELIVERY,
+      payment: ACCOUNT_PAYMENT,
       progress: { section: 'details', done: [] },
     },
   },
