@@ -87,8 +87,22 @@ function LiveStage() {
         toggleTray();
       }
     };
+    // Touch has no ⌘J, so the header's secure padlock opens the tray too. The
+    // lock carries `data-secure-lock`; delegate off it rather than reaching into
+    // the project's header.
+    const onClick = (e: MouseEvent) => {
+      const lock = (e.target as HTMLElement | null)?.closest?.('[data-secure-lock]');
+      if (lock) {
+        e.preventDefault();
+        toggleTray();
+      }
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.addEventListener('click', onClick);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', onClick);
+    };
   }, [review, toggleTray]);
 
   return (

@@ -101,7 +101,14 @@ export function variantFromTemplate(template: unknown): AppBarBrandVariant {
 function BrandIconButton({ icon, bagCount = 0 }: { icon: BrandIcon; bagCount?: number }) {
   const def = ICONS[icon];
   const btn = (
-    <IconButton variant="unstyled" size="medium" aria-label={def.label}>
+    <IconButton
+      variant="unstyled"
+      size="medium"
+      aria-label={def.label}
+      // Mark the secure lock so a host can hang an action on it (live review mode
+      // opens the scenario tray from here on touch, where ⌘J isn't available).
+      data-secure-lock={icon === 'secure' ? '' : undefined}
+    >
       <Icon name={def.name} category={def.category} size={24} />
     </IconButton>
   );
