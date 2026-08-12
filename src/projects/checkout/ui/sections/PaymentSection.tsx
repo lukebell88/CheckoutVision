@@ -229,12 +229,15 @@ export function PaymentSection({
   // quiet row, and the pay button. Change (or tapping another method) reveals
   // the full list already selected on that method.
   if (hasPreferred && !changing) {
+    // The logos below the fold are the remaining wallets — nextpay, pay in 3,
+    // Apple Pay, PayPal. Card and gift card are excluded: card is the remembered
+    // method (Add New Card handles a fresh one) and gift card has its own
+    // "Pay by Giftcard or eVoucher" link.
     const others: PreferredOther[] = methods
-      .filter((m) => m.id !== payment.preferred && m.id !== 'saved')
+      .filter((m) => !['saved', 'card', 'giftcard'].includes(m.id) && m.id !== payment.preferred)
       .map((m) => ({
         id: m.id,
         mark: <PaymentMark method={m.id} />,
-        label: m.id === 'giftcard' ? 'Gift Card' : undefined,
       }));
 
     const openList = (id?: string) => {
@@ -250,6 +253,9 @@ export function PaymentSection({
           cardLabel={payment.card || 'Card'}
           cardMark={<SchemeMark scheme={payment.scheme} />}
           others={others}
+          onAddCard={interactive ? () => openList('card') : undefined}
+          onGiftcard={interactive ? () => openList('giftcard') : undefined}
+          onChooseAnother={interactive ? () => openList() : undefined}
           onSelectOther={interactive ? (id) => openList(id) : undefined}
           pay={payButton}
         />
