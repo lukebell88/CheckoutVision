@@ -178,10 +178,13 @@ export function AppBarBrand({
     );
   }
 
+  // Club25 uses a filled search box (4px radius, background-main fill), matching
+  // the site header; the other variants keep the rounded pill.
+  const filledSearch = variant === 'club25';
   const searchField = cfg.search && (
     <TextField
-      className="fab-appbar-brand__search"
-      pill
+      className={`fab-appbar-brand__search${filledSearch ? ' fab-appbar-brand__search--filled' : ''}`}
+      pill={!filledSearch}
       readOnly
       placeholder={cfg.placeholder}
       endIcon={<Icon name="search" category="feature" size={20} />}
