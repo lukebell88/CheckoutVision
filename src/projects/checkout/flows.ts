@@ -26,6 +26,7 @@ export type FlowId =
   | 'signin-account'
   | 'signin-unknown'
   | 'nosignin-account'
+  | 'nosignin-account-soft'
   | 'nosignin-unknown';
 
 export type CustomerType = 'guest' | 'matched' | 'returning';
@@ -198,6 +199,24 @@ export const FLOWS: FlowDef[] = [
     prefill: {
       ...BLANK,
       customer: { ...ACCOUNT_CUSTOMER, email: '' },
+      delivery: ACCOUNT_DELIVERY,
+      payment: ACCOUNT_PAYMENT,
+      progress: { section: 'details', done: [] },
+    },
+  },
+  {
+    id: 'nosignin-account-soft',
+    name: 'No Sign In · Account Matched (Soft Logged In)',
+    description: 'No sign-in page: the shopper is soft-recognised, so the email is already captured and locked (luke_bell@next.co.uk) with "Confirm it’s you" ready — they just verify, then jump to Payment with the saved card. Same as Account Matched but skipping the type-your-email step.',
+    customerType: 'matched',
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { ...ACCOUNT_FLAGS, emailFirstCheckout: true },
+    choiceOverrides: { paymentPresentation: 'preferred' },
+    // Email KEPT (not blanked), so it loads locked to its chip with the verify
+    // step already shown — the "soft logged in" starting point.
+    prefill: {
+      ...BLANK,
+      customer: ACCOUNT_CUSTOMER,
       delivery: ACCOUNT_DELIVERY,
       payment: ACCOUNT_PAYMENT,
       progress: { section: 'details', done: [] },
