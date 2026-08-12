@@ -8,7 +8,12 @@
  * the step is instant and works offline. Kept async so the "Find a Store"
  * loading state still shows.
  */
-import { LEICESTER_STORES, NOTTINGHAM_STORES } from './storeData';
+import {
+  LEICESTER_PARCEL_SHOPS,
+  LEICESTER_STORES,
+  NOTTINGHAM_PARCEL_SHOPS,
+  NOTTINGHAM_STORES,
+} from './storeData';
 
 export interface Store {
   branchNumber: string;
@@ -32,12 +37,21 @@ const delay = (ms: number) => new Promise<void>((resolve) => window.setTimeout(r
  * falls back to Nottingham, so the step never dead-ends.
  */
 export async function searchStores(query: string): Promise<Store[]> {
+  return lookup(query, NOTTINGHAM_STORES, LEICESTER_STORES);
+}
+
+/** Parcel shops (the Parcel Shop method) — same lookup, different data. */
+export async function searchParcelShops(query: string): Promise<Store[]> {
+  return lookup(query, NOTTINGHAM_PARCEL_SHOPS, LEICESTER_PARCEL_SHOPS);
+}
+
+async function lookup(query: string, nottingham: Store[], leicester: Store[]): Promise<Store[]> {
   const location = query.trim();
   if (!location) return [];
 
   await delay(LOOKUP_MS);
-  const leicester = /leicester|\ble\d/i.test(location);
-  const set = leicester ? LEICESTER_STORES : NOTTINGHAM_STORES;
+  const isLeicester = /leicester|\ble\d/i.test(location);
+  const set = isLeicester ? leicester : nottingham;
   return [...set].sort((a, b) => a.distanceMiles - b.distanceMiles);
 }
 

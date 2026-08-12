@@ -266,7 +266,7 @@ export function OnePageCheckout() {
  * empty rather than as somebody else's address.
  */
 function SectionSummary({ id }: { id: SectionId }) {
-  const { customer, delivery, payment, flags } = useCheckoutConfig();
+  const { customer, delivery, payment } = useCheckoutConfig();
   const join = (parts: (string | undefined)[]) => parts.filter(Boolean).join(', ');
 
   if (id === 'details') {
@@ -280,17 +280,18 @@ function SectionSummary({ id }: { id: SectionId }) {
   }
 
   if (id === 'delivery') {
-    const collection = delivery.method === 'collection';
-    const address = collection
+    // Collection and Parcel Shop both collect from a chosen point (delivery.store).
+    const collect = delivery.method === 'collection' || delivery.method === 'parcel';
+    const address = collect
       ? join([delivery.store])
       : join([delivery.line1, delivery.line2, delivery.city, delivery.postcode, customer.phone]);
     return (
       <>
-        <div className="co-summary__label">{collection ? 'Collect from:' : 'Deliver to:'}</div>
+        <div className="co-summary__label">{collect ? 'Collect from:' : 'Deliver to:'}</div>
         {address && <div>{address}</div>}
-        {flags.deliveryDates && delivery.date && (
+        {delivery.date && (
           <div className="co-summary__strong">
-            {collection ? 'Collection Date' : 'Delivery Date'}: {delivery.date}
+            {collect ? 'Collection Date' : 'Delivery Date'}: {delivery.date}
           </div>
         )}
       </>

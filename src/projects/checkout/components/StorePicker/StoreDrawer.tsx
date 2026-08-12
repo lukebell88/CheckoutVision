@@ -27,6 +27,8 @@ export interface StoreDrawerProps {
   onSelect: (store: Store) => void;
   /** Most stores to list in the drawer. */
   maxOptions?: number;
+  /** The noun for the collection point, e.g. "Store" or "Shop". */
+  noun?: string;
 }
 
 export function StoreDrawer({
@@ -38,9 +40,10 @@ export function StoreDrawer({
   error = false,
   query,
   onQueryChange,
-  onSearch,
   onSelect,
+  onSearch,
   maxOptions = 10,
+  noun = 'Store',
 }: StoreDrawerProps) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -93,7 +96,7 @@ export function StoreDrawer({
 
         <div className="co-storedrawer__body">
           <label className="co-storedrawer__label" htmlFor="co-storedrawer-search">
-            Search for stores
+            Search for {noun.toLowerCase()}s
           </label>
           <div className="co-storedrawer__search">
             <input

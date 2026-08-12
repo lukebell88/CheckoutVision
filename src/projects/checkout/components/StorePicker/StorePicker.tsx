@@ -32,8 +32,10 @@ export interface StorePickerProps {
   onQueryChange: (q: string) => void;
   onSearch: () => void;
   onSelect: (store: Store) => void;
-  /** Most options to list before offering "Find Another Store". */
+  /** Most options to list before offering "Find Another …". */
   maxOptions?: number;
+  /** The noun for the collection point, e.g. "Store" or "Shop". */
+  noun?: string;
 }
 
 export function StorePicker({
@@ -48,7 +50,9 @@ export function StorePicker({
   onSearch,
   onSelect,
   maxOptions = 5,
+  noun = 'Store',
 }: StorePickerProps) {
+  const nounLower = `${noun.toLowerCase()}s`;
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [attempted, setAttempted] = useState(false);
@@ -136,7 +140,7 @@ export function StorePicker({
 
           {open && (
             <div className="co-storepicker__panel">
-              <ul className="co-storepicker__list" role="listbox" aria-label="Nearby stores">
+              <ul className="co-storepicker__list" role="listbox" aria-label={`Nearby ${nounLower}`}>
                 {visible.map((s) => {
                   const on = selected?.branchNumber === s.branchNumber;
                   return (
@@ -164,7 +168,7 @@ export function StorePicker({
 
               <button type="button" className="co-storepicker__another" onClick={findAnother}>
                 <Icon name="search" category="feature" size={18} />
-                Find Another Store
+                Find Another {noun}
               </button>
             </div>
           )}
@@ -196,11 +200,11 @@ export function StorePicker({
           {loading && <p className="co-storepicker__status">Searching…</p>}
           {error && (
             <p className="co-storepicker__status co-storepicker__status--error" role="alert">
-              We couldn’t load stores just now. Please try again.
+              We couldn’t load {nounLower} just now. Please try again.
             </p>
           )}
           {!loading && !error && attempted && (
-            <p className="co-storepicker__status">No stores found near “{query}”.</p>
+            <p className="co-storepicker__status">No {nounLower} found near “{query}”.</p>
           )}
         </>
       )}
@@ -216,6 +220,7 @@ export function StorePicker({
         onQueryChange={onQueryChange}
         onSearch={onSearch}
         onSelect={onSelect}
+        noun={noun}
       />
     </div>
   );

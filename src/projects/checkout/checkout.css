@@ -605,6 +605,15 @@
 /* Skeleton circle while the dates load for the entered address. */
 .co-date--skel { width: 58px; height: 58px; border-radius: 50%; }
 
+/* Parcel Shop's fixed availability (no date picker). */
+.co-parceldate {
+  margin: 8px 0 12px;
+  font-family: var(--global-body-1-font-family, inherit);
+  font-size: var(--global-body-1-font-size, 0.875rem);
+  font-weight: 700;
+  color: var(--text-primary, #111);
+}
+
 /* "Deliver to" summary shown in Step B, below the method cards — the address
    fields collapse to this once confirmed, with a Change link to reopen them. */
 .co-deliverto { margin: 16px 0; }

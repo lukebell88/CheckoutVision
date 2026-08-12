@@ -7,7 +7,7 @@ import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
 import { DeliverySelection } from '../../components/DeliverySelection';
 import { StorePicker } from '../../components/StorePicker';
-import { searchStores, storeLabel, type Store } from '../../stores';
+import { searchParcelShops, searchStores, storeLabel, type Store } from '../../stores';
 import { useSeededState } from '../useSeededState';
 
 /**
@@ -42,6 +42,9 @@ const DATES = [
  *  shows after the address is confirmed. */
 const DATES_MS = 900;
 
+/** Parcel Shop has no date choice — it's a fixed availability. */
+const PARCEL_DATE = 'Tomorrow 13th August After 5pm';
+
 export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const { flags, delivery, customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
@@ -71,12 +74,16 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
 
   const methods = flags.collectionOptions ? METHODS : METHODS.filter((m) => m.id === 'home');
   const collection = method === 'collection';
+  const parcel = method === 'parcel';
+  // Collection and Parcel Shop both pick a collection point from a searchable
+  // list rather than typing an address.
+  const collectPoint = collection || parcel;
 
   // Two-step home delivery: dates depend on the address, so they can't show
   // until it's entered. Step A takes the address; Step B collapses it to a
-  // "Deliver to" summary and reveals the dates (skeleton first). Only when the
-  // date picker is in play — with it off, Delivery is one step, as before.
-  const twoStep = flags.deliveryDates && !collection;
+  // "Deliver to" summary and reveals the dates (skeleton first). Only home
+  // delivery does this — with the date picker off, Delivery is one step.
+  const twoStep = flags.deliveryDates && !collectPoint;
   const addrSeed = `${delivery.line1}|${delivery.city}|${delivery.postcode}`;
   // `editing` lets Change reopen the form without clearing the saved address;
   // seeded so it resets on a flow switch and after the address is committed.
@@ -108,11 +115,13 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
     setForm((f) => ({ ...f, store: storeLabel(s) }));
   };
 
+  // Collection searches store branches; Parcel Shop searches parcel points.
+  const lookup = parcel ? searchParcelShops : searchStores;
   const doSearch = async (query: string, autoSelectNearest = false) => {
     if (!query.trim()) return;
     setSearchState('loading');
     try {
-      const results = await searchStores(query);
+      const results = await lookup(query);
       setStores(results);
       setSearchState('idle');
       if (autoSelectNearest && results[0]) selectStore(results[0]);
@@ -124,16 +133,29 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
 
   const runSearch = () => void doSearch(storeQuery);
 
-  // Account-matched: use the saved postcode to find the nearest store up front
-  // and default the selection to it. Runs once, when Collection is first chosen.
+  // Switching between Collection and Parcel Shop is a different list, so reset
+  // the search when the method changes.
+  const lastMethod = useRef(method);
   const autoSearched = useRef(false);
   useEffect(() => {
-    if (collection && accountPostcode && !autoSearched.current) {
+    if (lastMethod.current !== method) {
+      lastMethod.current = method;
+      autoSearched.current = false;
+      setStores([]);
+      setSelectedStore(null);
+      setSearchState('idle');
+    }
+  }, [method]);
+
+  // Account-matched: use the saved postcode to find the nearest collection point
+  // up front and default the selection to it. Runs once per collect method.
+  useEffect(() => {
+    if (collectPoint && accountPostcode && !autoSearched.current) {
       autoSearched.current = true;
       void doSearch(accountPostcode, true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collection, accountPostcode]);
+  }, [collection, parcel, accountPostcode]);
 
   // Step A → Step B: commit the address so it collapses to the "Deliver to"
   // summary, then hold the dates skeleton while they "load for the address".
@@ -159,12 +181,13 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const submit = () => {
     if (interactive) {
       const { phone, ...address } = form;
-      // Both home delivery and collection show a date picker (gated on the
-      // deliveryDates flag), so both record the chosen date.
+      // Home and Collection show a date picker (gated on deliveryDates); Parcel
+      // Shop has a fixed availability instead of a choice.
+      const chosenDate = parcel ? PARCEL_DATE : flags.deliveryDates ? DATES[date].label : '';
       nav.patch('delivery', {
         ...address,
         method,
-        date: flags.deliveryDates ? DATES[date].label : '',
+        date: chosenDate,
       });
       nav.patch('customer', { phone });
     }
@@ -273,7 +296,41 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
     );
   }
 
-  // Home / Parcel, dates off: one step, as before.
+  // Parcel Shop: a searchable shop picker like Collection, but no date choice —
+  // a fixed availability instead.
+  if (parcel) {
+    return (
+      <>
+        <DeliverySelection options={methods} value={method} onChange={chooseMethod} />
+        <p className="co-section__lede">Tell us which parcel shop you would like to collect from.</p>
+        <StorePicker
+          label="Find a Parcel Shop"
+          noun="Shop"
+          placeholder="Select a shop"
+          stores={stores}
+          selected={selectedStore}
+          loading={searchState === 'loading'}
+          error={searchState === 'error'}
+          query={storeQuery}
+          onQueryChange={setStoreQuery}
+          onSearch={runSearch}
+          onSelect={selectStore}
+        />
+
+        <p className="co-strong-note">Collection Date</p>
+        <p className="co-parceldate">{PARCEL_DATE}</p>
+        <p className="co-help">
+          These items are available for collection after 1pm on your collection date and up to 10
+          days after delivery. Find out more in our <Link href="#">Terms and Conditions</Link>.
+        </p>
+
+        {phoneField}
+        {continueBtn(submit)}
+      </>
+    );
+  }
+
+  // Home, dates off: one step, as before.
   if (!twoStep) {
     return (
       <>
