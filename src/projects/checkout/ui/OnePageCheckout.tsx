@@ -167,6 +167,10 @@ export function OnePageCheckout() {
     // Payment's collapsed preferred state gets a Change link in the header, in
     // line with the title like the done sections above it.
     const payChange = id === 'payment' && isOpen && hasPreferred && !payExpanded && interactive;
+    // A signed-in account shopper can't edit their account's name/address inside
+    // checkout, so Your Details shows no Change link — there's nothing for it to
+    // do (the "that isn't me" route lived on the sign-in page they came from).
+    const showChange = complete && !isOpen && !(id === 'details' && detailsFromAccount);
     return (
       <section
         key={id}
@@ -191,7 +195,7 @@ export function OnePageCheckout() {
               Required Fields<span className="co-req">*</span>
             </span>
           )}
-          {complete && !isOpen && (
+          {showChange && (
             <Link href="#" onClick={(e) => { e.preventDefault(); change(id)?.(); }}>
               Change
             </Link>
