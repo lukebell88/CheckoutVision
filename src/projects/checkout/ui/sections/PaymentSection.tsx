@@ -7,6 +7,7 @@ import { FormField } from '../../components/FormField';
 import { PaymentSelection, type PaymentOption } from '../../components/PaymentSelection';
 import { PreferredPayment, type PreferredOther } from '../../components/PreferredPayment';
 import { ApplePayButton, PayPalButton, PaymentLegal } from '../parts';
+import { GiftCardForm } from '../GiftCardForm';
 import { useSeededState } from '../useSeededState';
 
 /**
@@ -155,12 +156,7 @@ export function PaymentSection({
     </>
   );
 
-  const giftCardForm = (
-    <>
-      <FormField label="Gift Card Number" required placeholder="1234 5678 9012 3456" inputMode="numeric" />
-      <FormField label="PIN" required placeholder="1234" inputMode="numeric" />
-    </>
-  );
+  const giftCardForm = <GiftCardForm />;
 
   // The pay button lives inside the selected method's reveal, not once at the
   // bottom — so it's right under the row the shopper just chose and can't be
