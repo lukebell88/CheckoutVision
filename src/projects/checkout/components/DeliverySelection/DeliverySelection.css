@@ -20,6 +20,10 @@
   border: 1px solid var(--border-subtle, #d5d5d5);
   background: var(--surface-card, #fff);
   font: inherit;
+  /* Set the text colour explicitly — iOS Safari otherwise paints <button> text
+     in its default control blue. */
+  color: var(--text-primary, #111);
+  -webkit-text-fill-color: currentColor;
   text-align: left;
   cursor: pointer;
 }

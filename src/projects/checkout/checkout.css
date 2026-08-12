@@ -45,6 +45,16 @@
   .checkout { --co-header-h: 61px; }
 }
 
+/* iOS Safari zooms into any focused field whose font-size is under 16px — and it
+   ignores maximum-scale / user-scalable, so 16px on the control is the only
+   reliable fix. Hold every checkout form control at 16px on focus. (The design
+   size is 14px; the OTP field already sets 16px for this reason.) */
+.checkout input,
+.checkout select,
+.checkout textarea {
+  font-size: 16px;
+}
+
 /* ---------- Screen shells ---------- */
 .co-screen {
   flex: 1;
@@ -613,6 +623,10 @@
   border: 1px solid var(--border-subtle, #d5d5d5);
   background: var(--surface-card, #fff);
   font: inherit;
+  /* Set the text colour explicitly — iOS Safari otherwise paints <button> text
+     in its default control blue. */
+  color: var(--text-primary, #111);
+  -webkit-text-fill-color: currentColor;
   cursor: pointer;
 }
 .co-date--on { border-color: var(--border-strong, #111); border-width: 2px; }
