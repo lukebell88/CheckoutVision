@@ -137,7 +137,7 @@ export function ConfirmIdentity({
   const sub =
     method === 'passcode' ? (
       <>
-        Enter the code sent to <strong>{maskPhone(phone)}</strong> to securely sign in.
+        Enter the code sent to <strong>{maskPhone(phone)}</strong> by text or email to securely sign in.
       </>
     ) : method === 'password' ? (
       'Enter your password to sign in.'
