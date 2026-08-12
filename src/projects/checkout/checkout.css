@@ -858,13 +858,32 @@
 .co-countdown__title { margin: 0 0 2px; font-weight: 700; }
 .co-countdown__clock { display: flex; align-items: center; gap: 4px; }
 .co-countdown__digit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  display: inline-block;
   width: 26px; height: 30px;
   background: var(--primary-main, #111);
   color: var(--primary-contrast, #fff);
   font-weight: 700;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+/* Odometer reel: 0–9 stacked; translateY slides the current value into view.
+ * -value*10% because each cell is 1/10 of the reel's own height. */
+.co-countdown__reel {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.co-countdown__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: 30px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .co-countdown__reel { transition: none; }
 }
 .co-countdown__sep { font-weight: 700; }
 

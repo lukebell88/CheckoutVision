@@ -3,6 +3,7 @@ import { Link } from '../../../components/Link';
 import { Icon } from '../../../components/Icon';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { FormField } from '../components/FormField';
+import { DeliveryCountdown } from './DeliveryCountdown';
 
 /**
  * Order Complete.
@@ -32,23 +33,7 @@ export function Confirmation() {
       </div>
       <p className="co-complete__sub">Confirmation has been sent to {email}</p>
 
-      {flags.freeDeliveryCountdown && (
-        <div className="co-countdown">
-          <div>
-            <p className="co-countdown__title">Free delivery if you order within</p>
-            <Link href="#">Terms &amp; conditions apply</Link>
-          </div>
-          <div className="co-countdown__clock" aria-label="29 minutes 53 seconds remaining">
-            {['2', '9'].map((n, i) => (
-              <span key={`m${i}`} className="co-countdown__digit">{n}</span>
-            ))}
-            <span className="co-countdown__sep">:</span>
-            {['5', '3'].map((n, i) => (
-              <span key={`s${i}`} className="co-countdown__digit">{n}</span>
-            ))}
-          </div>
-        </div>
-      )}
+      {flags.freeDeliveryCountdown && <DeliveryCountdown minutes={30} />}
 
       {flags.guestRegistration && !customer.signedIn && (
         <section className="co-upsell">
