@@ -69,7 +69,7 @@ export type CheckoutPrefill = ProjectData & {
     postcode: string;
     date: string;
   }>;
-  payment?: Partial<{ savedCard: string; method: string; preferred: string; card: string; scheme: string }>;
+  payment?: Partial<{ savedCard: string; method: string; preferred: string; card: string; scheme: string; giftCardApplied: number }>;
   /** Which of the one-pager's sections is open, and which are done. */
   progress?: Partial<{ section: SectionId | 'complete'; done: SectionId[] }>;
   /** Overlays sitting on top of the current screen (the Apple Pay sheet). */
@@ -98,7 +98,7 @@ export interface FlowDef extends ProjectFlow {
 const BLANK: CheckoutPrefill = {
   customer: { email: '', firstName: '', lastName: '', phone: '', signedIn: false, recognised: false },
   delivery: { line1: '', line2: '', city: '', postcode: '', store: '', date: '' },
-  payment: { savedCard: '', method: '', preferred: '', card: '', scheme: '' },
+  payment: { savedCard: '', method: '', preferred: '', card: '', scheme: '', giftCardApplied: 0 },
   // Reset the overlay too: without this, a flow that doesn't mention it would
   // keep the last flow's open Apple Pay sheet (see the merge note above).
   overlay: { applePay: false },
