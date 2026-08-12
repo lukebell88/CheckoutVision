@@ -73,6 +73,11 @@
   align-items: center;
   gap: var(--spacing-2, 8px);
 }
+/* The Checkout CTA stands apart from the icon cluster — a clear gap sets the
+ * prominent button off from the quiet icon row (matches the Club25 site header). */
+.fab-appbar-brand__checkout {
+  margin-left: var(--spacing-2, 8px);
+}
 /* Mobile-only pieces — revealed by the Header's container query below M. */
 .fab-appbar-brand__search-icon { display: none; }
 .fab-appbar-brand__mobile-left,

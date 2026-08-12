@@ -6,12 +6,20 @@
 .fab-appbar-nav__scroll {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 12px; /* on top of each Tab's own 8px side padding → ~28px label-to-label */
   padding: 0 var(--spacing-6, 24px);
   overflow-x: auto;
   scrollbar-width: none;
 }
+.fab-appbar-nav__scroll > * {
+  flex: none;
+}
+/* Centre the tabs as one group when they fit, but left-anchor them when they
+ * overflow so the scroll starts at the first tab (mobile). Auto margins absorb
+ * the free space evenly when there is any, and collapse to 0 when there isn't —
+ * a centred nav that never clips its start. */
+.fab-appbar-nav__scroll > :first-child { margin-left: auto; }
+.fab-appbar-nav__scroll > :last-child { margin-right: auto; }
 .fab-appbar-nav__scroll::-webkit-scrollbar {
   display: none;
 }

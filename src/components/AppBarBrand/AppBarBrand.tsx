@@ -193,7 +193,7 @@ export function AppBarBrand({
     </span>
   );
   const checkout = cfg.checkoutButton && (
-    <Button variant="contained" color="primary" size="medium">
+    <Button variant="contained" color="primary" size="large" className="fab-appbar-brand__checkout">
       Checkout
     </Button>
   );
