@@ -65,11 +65,12 @@
   min-width: 0;
   max-width: 320px;
 }
-/* Club25's filled search: the site-header box — 4px radius (from radius-default)
- * on a background-main fill, rather than the outlined pill. Scoped under the bar
- * so it outranks TextField's own background. */
+/* Club25's filled search: the site-header box — 44px tall, 4px radius (from
+ * radius-default) on a borderless background-main fill, rather than the outlined
+ * pill. Scoped under the bar so it outranks TextField's own background/border. */
 .fab-appbar-brand .fab-appbar-brand__search--filled {
   background: var(--background-main, #f7f7f7);
+  border: 0;
 }
 
 /* Desktop icon group (centred variants). Hidden below M in favour of the

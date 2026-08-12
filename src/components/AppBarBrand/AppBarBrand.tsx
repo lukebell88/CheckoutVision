@@ -185,6 +185,7 @@ export function AppBarBrand({
     <TextField
       className={`fab-appbar-brand__search${filledSearch ? ' fab-appbar-brand__search--filled' : ''}`}
       pill={!filledSearch}
+      size={filledSearch ? 'large' : 'medium'}
       readOnly
       placeholder={cfg.placeholder}
       endIcon={<Icon name="search" category="feature" size={20} />}
