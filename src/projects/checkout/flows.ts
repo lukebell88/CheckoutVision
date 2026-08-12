@@ -21,7 +21,6 @@ import type { FlagId } from './flags';
 export type FlowId =
   | 'signin-account'
   | 'signin-unknown'
-  | 'signin-guestmatch'
   | 'signin-applepay'
   | 'nosignin-account'
   | 'nosignin-unknown'
@@ -148,14 +147,21 @@ export const FLOWS: FlowDef[] = [
   {
     id: 'signin-account',
     name: 'Sign In · Account Matched',
-    description: 'Standalone sign-in page: a recognised email verifies inline ("Confirm it’s you"), then the one-pager lands on Payment with the remembered card collapsed and a Change link.',
+    description: 'Standalone sign-in page: the email starts empty. Entering a recognised email verifies inline ("Confirm it’s you") and lands on Payment with the remembered card; tapping "Checkout as a guest" instead re-asks the email in checkout and — since it matches — reveals the same passcode there before landing on Payment.',
     customerType: 'matched',
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: ACCOUNT_FLAGS,
+    // guestIdentityStep: the guest route runs the in-checkout email step, which
+    // recognises the account (recognised) and shows the passcode.
+    flagOverrides: { ...ACCOUNT_FLAGS, guestIdentityStep: true },
     choiceOverrides: { paymentPresentation: 'preferred' },
+    // Email empty so the page shows the field + guest button (not a pre-locked
+    // "confirm it's you"). The account's details are seeded for after verify;
+    // a recognised email never renders the guest name form, so they don't leak.
+    // progress='payment' is where the on-page verify path lands; the guest button
+    // resets it to Details for the in-checkout email step.
     prefill: {
       ...BLANK,
-      customer: ACCOUNT_CUSTOMER,
+      customer: { ...ACCOUNT_CUSTOMER, email: '' },
       delivery: ACCOUNT_DELIVERY,
       payment: ACCOUNT_PAYMENT,
       progress: { section: 'payment', done: ['details', 'delivery'] },
@@ -164,34 +170,14 @@ export const FLOWS: FlowDef[] = [
   {
     id: 'signin-unknown',
     name: 'Sign In · Unknown User',
-    description: 'Standalone sign-in page: no account, so they continue as a guest and fill every section. Payment opens on the full list with nothing preselected.',
+    description: 'Standalone sign-in page: no account. Whether they enter an (unrecognised) email or tap "Checkout as a guest", the in-checkout email step captures the email then reveals the guest fields, and they fill every section. Payment opens on the full list with nothing preselected.',
     customerType: 'guest',
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: GUEST_FLAGS,
+    flagOverrides: { ...GUEST_FLAGS, guestIdentityStep: true },
     choiceOverrides: { paymentPresentation: 'none' },
     prefill: {
       ...BLANK,
       delivery: { ...BLANK.delivery, method: 'home' },
-      progress: { section: 'details', done: [] },
-    },
-  },
-  {
-    id: 'signin-guestmatch',
-    name: 'Sign In · Guest → Account Found',
-    description: 'Standalone sign-in page: the shopper taps “Checkout as a guest”, then enters an email that turns out to match an account. The guest details form reveals an inline “Confirm it’s you” passcode; on verify they’re treated as a returning customer and land on Payment with the saved card.',
-    customerType: 'matched',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { ...ACCOUNT_FLAGS, guestAccountMatch: true },
-    choiceOverrides: { paymentPresentation: 'preferred' },
-    // Same shape as nosignin-account: the account's details are seeded (email
-    // empty) so they can fill in on verify. They stay hidden until then because
-    // the guest details form seeds its own fields blank when guestAccountMatch
-    // is on — so the shopper sees an empty guest form, not a pre-filled one.
-    prefill: {
-      ...BLANK,
-      customer: { ...ACCOUNT_CUSTOMER, email: '' },
-      delivery: ACCOUNT_DELIVERY,
-      payment: ACCOUNT_PAYMENT,
       progress: { section: 'details', done: [] },
     },
   },

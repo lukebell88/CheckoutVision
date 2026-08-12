@@ -55,7 +55,10 @@ export function useEmailFirst(): EmailFirst {
   const { flags, customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
 
-  const active = !!flags.emailFirstCheckout;
+  // The in-checkout email step runs both when the sign-in page is dropped
+  // (emailFirstCheckout) and when a sign-in-page flow sends its guest route
+  // through the same step (guestIdentityStep).
+  const active = !!flags.emailFirstCheckout || !!flags.guestIdentityStep;
   const recognised = !!customer.recognised;
   const verified = !!customer.signedIn;
   const locked = !!customer.email;

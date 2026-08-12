@@ -139,7 +139,7 @@ export function OnePageCheckout() {
     details: ef.active ? (
       <IdentityStep ef={ef} onGuestContinue={advance('details')} onAccountVerified={onAccountVerified} />
     ) : (
-      <DetailsSection onContinue={advance('details')} onAccountVerified={onAccountVerified} />
+      <DetailsSection onContinue={advance('details')} />
     ),
     delivery: <DeliverySection onContinue={advance('delivery')} />,
     payment: (

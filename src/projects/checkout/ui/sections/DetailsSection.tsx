@@ -2,12 +2,8 @@ import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { useProjectRuntime } from '../../../../studio/runtime';
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
-import { Icon } from '../../../../components/Icon';
 import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
-import { Spinner } from '../../components/Spinner';
-import { ConfirmIdentity } from '../ConfirmIdentity';
-import { CHECK_MS } from '../useEmailFirst';
 import { useSeededState } from '../useSeededState';
 
 /** The Continue button holds a brief loading state before advancing, so the
@@ -15,7 +11,7 @@ import { useSeededState } from '../useSeededState';
 const CONTINUE_MS = 650;
 
 /**
- * 1. Your Details.
+ * 1. Your Details — the guest name form.
  *
  * Fields start with whatever the runtime knows and nothing more. For a guest
  * that's nothing — we haven't met them — so the section opens blank with
@@ -27,51 +23,23 @@ const CONTINUE_MS = 650;
  * a fixture. In an inert runtime (the canvas) `patch` is a no-op and the section
  * renders whatever the flow or variant configured.
  *
- * A recognised shopper is usually handled before they ever reach this section —
- * the sign-in step (or the email-first block) verifies them and fills their
- * details from the account. The exception is `guestAccountMatch`: a shopper who
- * took the guest route, then enters an email that turns out to match an account.
- * The guest form stays put until the email commits; if it's recognised the form
- * gives way to the inline "Confirm it's you" passcode, and on verify the account
- * fills Details + Delivery and the journey lands on Payment (via onAccountVerified).
- *
- * When email-first has already captured the address up top, the email field here
- * is hidden and only carried through on submit.
+ * A recognised shopper never reaches this form: the identity step (the sign-in
+ * page, or the in-checkout email step) verifies them and fills their details
+ * from the account first. This is only ever the guest's own typing — and where
+ * the email step precedes it, this renders as the "not recognised" branch of
+ * IdentityStep with the email already captured, so the email field is hidden and
+ * only carried through on submit.
  */
-export function DetailsSection({
-  onContinue,
-  onAccountVerified,
-}: {
-  onContinue?: () => void;
-  onAccountVerified?: () => void;
-}) {
+export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
   const { customer, flags } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
 
-  // With guestAccountMatch the account's details are seeded (so they can fill in
-  // on verify) but the shopper is still a guest here, so the form starts blank —
-  // otherwise the account's name would pre-fill the "guest" fields.
-  const matchable = !!flags.guestAccountMatch;
-  const seed = `${customer.email}|${customer.firstName}|${customer.lastName}|${matchable}`;
-  const [form, setForm] = useSeededState(
-    seed,
-    () =>
-      matchable
-        ? { email: '', firstName: '', lastName: '' }
-        : {
-            email: customer.email ?? '',
-            firstName: customer.firstName ?? '',
-            lastName: customer.lastName ?? '',
-          },
-  );
-
-  // The account-match reveal: once a recognised email commits we show a brief
-  // "checking" beat (spinner on the locked email), then the passcode step in
-  // place of the guest fields.
-  const [matched, setMatched] = useSeededState(seed, () => false);
-  const [checking, setChecking] = useState(false);
-  const matchTimer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(matchTimer.current), []);
+  const seed = `${customer.email}|${customer.firstName}|${customer.lastName}`;
+  const [form, setForm] = useSeededState(seed, () => ({
+    email: customer.email ?? '',
+    firstName: customer.firstName ?? '',
+    lastName: customer.lastName ?? '',
+  }));
   const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -80,38 +48,11 @@ export function DetailsSection({
   // wrong before they've reached it is nagging, not helping.
   const [tried, setTried] = useSeededState(seed, () => false);
 
-  // Email-first captures the address at the top of the page, so this section
-  // neither asks for it again nor validates it — it just carries the value
-  // through on submit.
-  const emailFirst = flags.emailFirstCheckout;
+  // Email-first (page or in-checkout) captures the address before this form, so
+  // this section neither asks for it again nor validates it — it just carries the
+  // value through on submit.
+  const emailFirst = flags.emailFirstCheckout || flags.guestIdentityStep;
   const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email);
-
-  // guestAccountMatch: a committed, valid email that belongs to an account moves
-  // the shopper from the guest form to the passcode step. Recognition is scripted
-  // by the flow (`customer.recognised`), as everywhere else in the prototype.
-  const canMatch = matchable && !!customer.recognised && interactive;
-  const tryMatch = () => {
-    if (!canMatch || !emailValid || matched) return;
-    // Don't commit the email to the store here — it's part of the seed, so a
-    // patch would re-seed (and clear) this section's local state mid-reveal. The
-    // typed email lives in `form` until verify; it's written on verify below.
-    setMatched(true);
-    setChecking(true);
-    window.clearTimeout(matchTimer.current);
-    matchTimer.current = window.setTimeout(() => setChecking(false), CHECK_MS);
-  };
-  const resetMatch = () => {
-    window.clearTimeout(matchTimer.current);
-    setMatched(false);
-    setChecking(false);
-  };
-  // On verify, commit the typed email (so the summary shows it) and hand off to
-  // the returning-customer path, which signs them in and jumps to Payment.
-  const handleVerified = () => {
-    if (interactive) nav.patch('customer', { email: form.email.trim() });
-    onAccountVerified?.();
-  };
-
   const errors: Partial<Record<keyof typeof form, string>> = {
     email: emailFirst
       ? undefined
@@ -136,11 +77,6 @@ export function DetailsSection({
 
   const submit = () => {
     if (submitting) return;
-    // Continue with a matching email surfaces the passcode instead of advancing.
-    if (canMatch && emailValid && !matched) {
-      tryMatch();
-      return;
-    }
     if (firstInvalid) {
       setTried(true);
       // Send them to the first thing that needs fixing rather than leaving them
@@ -174,41 +110,6 @@ export function DetailsSection({
       ? 'success'
       : 'default';
 
-  // Matched: the guest fields give way to the locked email + the passcode step.
-  // A spinner shows on the email while the account is checked; the ✕ returns to
-  // the guest form. On verify the account takes over (onAccountVerified).
-  if (matchable && matched) {
-    return (
-      <>
-        <div className="co-emailfield">
-          <span className="co-emailfield__value">{form.email}</span>
-          {checking ? (
-            <span className="co-emailfield__spinner">
-              <Spinner size={20} label="Checking your email address" />
-            </span>
-          ) : (
-            <button
-              type="button"
-              className="co-emailfield__clear"
-              aria-label="Change email address"
-              onClick={interactive ? resetMatch : undefined}
-            >
-              <Icon name="clear" size={24} />
-            </button>
-          )}
-        </div>
-        <div className="co-fadein">
-          <ConfirmIdentity
-            phone={customer.phone}
-            interactive={interactive}
-            loading={checking}
-            onVerified={handleVerified}
-          />
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       {!emailFirst && (
@@ -220,17 +121,6 @@ export function DetailsSection({
           placeholder="you@example.com"
           value={form.email}
           onChange={set('email')}
-          onBlur={matchable ? tryMatch : undefined}
-          onKeyDown={
-            matchable
-              ? (e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    tryMatch();
-                  }
-                }
-              : undefined
-          }
           status={emailStatus}
           message={
             emailStatus === 'error'

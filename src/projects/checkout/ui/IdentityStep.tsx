@@ -122,8 +122,10 @@ export function IdentityStep({
           </div>
         ))}
 
-      {/* Express is offered only while editing the email. */}
-      {!locked && flags.expressPayment && (
+      {/* Express is offered only while editing the email — and not when the
+          sign-in page already carries it (guestIdentityStep), to avoid repeating
+          the Apple Pay button in checkout. */}
+      {!locked && flags.expressPayment && !flags.guestIdentityStep && (
         <div className="co-emailgate__express">
           <OrRule />
           <p className="co-guest__title">Check out now with express payment</p>

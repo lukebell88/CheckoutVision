@@ -85,6 +85,17 @@ export function SignInScreen() {
     nav.patch('customer', { signedIn: true });
     nav.next();
   };
+  // Guest: start checkout fresh at the identity step — clear any typed email and
+  // open on Details, so the in-checkout email step asks for the address again
+  // (rather than inheriting the page's progress, which for the account flow is
+  // Payment). The checkout then reveals guest fields or the passcode by whether
+  // the email is recognised.
+  const goGuest = () => {
+    if (!interactive) return;
+    nav.patch('customer', { email: '', signedIn: false });
+    nav.patch('progress', { section: 'details', done: [] });
+    nav.next();
+  };
 
   const formatError = touched && email.trim().length > 0 && !valid;
   const back = interactive ? nav.back : undefined;
@@ -153,7 +164,7 @@ export function SignInScreen() {
               color="secondary"
               size="large"
               fullWidth
-              onClick={interactive ? () => nav.next() : undefined}
+              onClick={interactive ? goGuest : undefined}
             >
               Checkout as a guest
             </Button>
