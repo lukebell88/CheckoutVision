@@ -27,9 +27,12 @@
   line-height: var(--global-body-1-line-height, 1.5);
   display: flex;
   flex-direction: column;
-  /* Height of the pinned header, so the sticky total bar / order column can tuck
-     in directly beneath it. Mobile secure brand bar (44px) + its 1px border. */
-  --co-header-h: 45px;
+  /* Heights of the two pinned bars, so the sticky total bar / order column tuck
+     in directly beneath the header, and advancing scrolls a section clear of
+     both. The brand bar is border-box, so its border is inside the height:
+     44px on mobile, 60px from M. The total bar is a mobile-only strip. */
+  --co-header-h: 44px;
+  --co-totalbar-h: 45px;
 }
 
 /* The header pins to the top of the scroll as the page scrolls, above the
@@ -40,9 +43,13 @@
   z-index: 5;
 }
 
-/* From M up the brand bar is 60px + 1px border. */
 @container checkout (min-width: 768px) {
-  .checkout { --co-header-h: 61px; }
+  .checkout { --co-header-h: 60px; }
+}
+/* From this width the total bar is hidden (the permanent basket column shows the
+   total instead), so it no longer counts toward the pinned stack. */
+@container checkout (min-width: 1024px) {
+  .checkout { --co-totalbar-h: 0px; }
 }
 
 /* iOS Safari zooms into any focused field whose font-size is under 16px — and it
@@ -569,7 +576,14 @@
 .co-sections { display: flex; flex-direction: column; }
 .co-sections__list { display: flex; flex-direction: column; }
 
-.co-section { padding: 20px 0; border-bottom: 1px solid var(--border-subtle, #e3e3e3); }
+.co-section {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-subtle, #e3e3e3);
+  /* Advancing scrolls the newly-opened section to the top; offset it below the
+     pinned header + total bar so its title clears them instead of hiding
+     behind. +8px of breathing room. */
+  scroll-margin-top: calc(var(--co-header-h) + var(--co-totalbar-h) + 8px);
+}
 .co-section:last-child { border-bottom: 0; }
 .co-section__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .co-section__title {
