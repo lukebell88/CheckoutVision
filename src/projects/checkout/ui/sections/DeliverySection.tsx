@@ -159,13 +159,12 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const submit = () => {
     if (interactive) {
       const { phone, ...address } = form;
-      // The date picker only appears for home delivery, so only home delivery
-      // records one — otherwise a collection order would carry a delivery date
-      // the shopper was never shown, and the summary would print it.
+      // Both home delivery and collection show a date picker (gated on the
+      // deliveryDates flag), so both record the chosen date.
       nav.patch('delivery', {
         ...address,
         method,
-        date: collection || !flags.deliveryDates ? '' : DATES[date].label,
+        date: flags.deliveryDates ? DATES[date].label : '',
       });
       nav.patch('customer', { phone });
     }
@@ -242,6 +241,32 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
           onSearch={runSearch}
           onSelect={selectStore}
         />
+
+        {flags.deliveryDates && (
+          <>
+            <p className="co-strong-note">Collection Date</p>
+            <div className="co-dates" role="radiogroup" aria-label="Collection date">
+              {DATES.map((d, i) => (
+                <button
+                  type="button"
+                  key={d.date}
+                  role="radio"
+                  aria-checked={date === i}
+                  className={`co-date ${date === i ? 'co-date--on' : ''}`}
+                  onClick={() => setDate(i)}
+                >
+                  <span className="co-date__day">{d.day}</span>
+                  <span className="co-date__num">{d.date}</span>
+                </button>
+              ))}
+            </div>
+            <p className="co-help">
+              These items are available for collection after 1pm on your collection date and up to 10
+              days after delivery. Find out more in our <Link href="#">Terms and Conditions</Link>.
+            </p>
+          </>
+        )}
+
         {phoneField}
         {continueBtn(submit)}
       </>

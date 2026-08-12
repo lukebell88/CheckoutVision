@@ -289,7 +289,9 @@ function SectionSummary({ id }: { id: SectionId }) {
         <div className="co-summary__label">{collection ? 'Collect from:' : 'Deliver to:'}</div>
         {address && <div>{address}</div>}
         {flags.deliveryDates && delivery.date && (
-          <div className="co-summary__strong">Delivery Date: {delivery.date}</div>
+          <div className="co-summary__strong">
+            {collection ? 'Collection Date' : 'Delivery Date'}: {delivery.date}
+          </div>
         )}
       </>
     );
