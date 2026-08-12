@@ -16,7 +16,15 @@ import { DeliveryCountdown } from './DeliveryCountdown';
  * is offered an account, a signed-in shopper is offered a passkey. Both are
  * flagged, so either can be turned off to see the page without an ask.
  */
-const RECOMMENDED = ['Cotton Rich Shirt', 'Linen Blend Trousers', 'Leather Trainers', 'Knitted Jumper'];
+const RECOMMENDED = [
+  'Cotton Rich Shirt',
+  'Linen Blend Trousers',
+  'Leather Trainers',
+  'Knitted Jumper',
+  'Denim Jacket',
+  'Chino Shorts',
+  'Suede Loafers',
+];
 
 /**
  * Next Ads — 9x16 shoppable teasers from the CMS `p{page}_c{cat}_s` slots,

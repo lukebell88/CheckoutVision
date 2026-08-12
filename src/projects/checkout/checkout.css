@@ -919,8 +919,19 @@
   font-size: var(--global-h5-font-size, 0.9375rem);
   font-weight: 700;
 }
-.co-recs__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-.co-rec { display: flex; flex-direction: column; gap: 4px; }
+/* A single scrolling row of recommendations: all seven sit in one line and,
+ * as the screen narrows, simply overflow off the edge (swipe to scroll) rather
+ * than wrapping onto new rows. The fixed item width fits seven across the wide
+ * confirmation column and keeps them tile-sized on a phone. */
+.co-recs__grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.co-recs__grid::-webkit-scrollbar { display: none; }
+.co-rec { display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; width: 132px; }
 .co-rec__img { aspect-ratio: 3 / 4; background: var(--surface-subtle, #eee); }
 .co-rec__name { font-size: var(--global-body-3-font-size, 0.8125rem); }
 .co-rec__price { font-weight: 700; font-size: var(--global-body-3-font-size, 0.8125rem); }
@@ -933,7 +944,6 @@
   .co-totalbar { padding: 14px 24px; }
   /* Edge-to-edge still: cancel the wider page padding at this breakpoint. */
   .co-orderslot { margin: 0 -24px; }
-  .co-recs__grid { grid-template-columns: repeat(4, 1fr); }
   .co-otp__box { max-width: 60px; }
   .co-screen--narrow { padding-top: 16px; }
 }
