@@ -749,7 +749,18 @@
 
 /* ---------- Delivery dates ----------
  * The method chips moved to components/DeliverySelection. */
-.co-dates { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+/* One scrolling row rather than wrapping — the dates overflow horizontally on
+   mobile instead of dropping to a second line. */
+.co-dates {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.co-dates::-webkit-scrollbar { display: none; }
+.co-dates > * { flex: none; }
 .co-date {
   display: flex;
   flex-direction: column;
