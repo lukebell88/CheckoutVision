@@ -145,6 +145,13 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
   const selectStore = (s: Store) => {
     setSelectedStore(s);
     setForm((f) => ({ ...f, store: storeLabel(s) }));
+    // Collection dates depend on the chosen store, so — like the address→dates
+    // step on Home — show a brief skeleton after a store is picked.
+    if (collection && flags.deliveryDates) {
+      setDatesLoading(true);
+      window.clearTimeout(datesTimer.current);
+      datesTimer.current = window.setTimeout(() => setDatesLoading(false), DATES_MS);
+    }
   };
 
   // A guest's typed search — async, so its loading state shows. (A signed-in
@@ -273,24 +280,34 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
           onSelect={selectStore}
         />
 
-        {flags.deliveryDates && (
+        {/* Collection dates only appear once a store is chosen — the store is the
+            prerequisite here, the way the address is on Home. */}
+        {flags.deliveryDates && selectedStore && (
           <>
             <p className="co-strong-note">Collection Date</p>
-            <div className="co-dates" role="radiogroup" aria-label="Collection date">
-              {DATES.map((d, i) => (
-                <button
-                  type="button"
-                  key={d.date}
-                  role="radio"
-                  aria-checked={date === i}
-                  className={`co-date ${date === i ? 'co-date--on' : ''}`}
-                  onClick={() => setDate(i)}
-                >
-                  <span className="co-date__day">{d.day}</span>
-                  <span className="co-date__num">{d.date}</span>
-                </button>
-              ))}
-            </div>
+            {datesLoading ? (
+              <div className="co-dates co-fadein" aria-hidden="true">
+                {DATES.map((_, i) => (
+                  <span key={i} className="co-skel co-date--skel" />
+                ))}
+              </div>
+            ) : (
+              <div className="co-dates co-fadein" role="radiogroup" aria-label="Collection date">
+                {DATES.map((d, i) => (
+                  <button
+                    type="button"
+                    key={d.date}
+                    role="radio"
+                    aria-checked={date === i}
+                    className={`co-date ${date === i ? 'co-date--on' : ''}`}
+                    onClick={() => setDate(i)}
+                  >
+                    <span className="co-date__day">{d.day}</span>
+                    <span className="co-date__num">{d.date}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <p className="co-help">
               These items are available for collection after 1pm on your collection date and up to 10
               days after delivery. Find out more in our <Link href="#">Terms and Conditions</Link>.
@@ -299,7 +316,7 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
         )}
 
         {phoneField}
-        {continueBtn(submit)}
+        {continueBtn(submit, datesLoading)}
       </>
     );
   }
@@ -325,12 +342,17 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
           onSelect={selectStore}
         />
 
-        <p className="co-strong-note">Collection Date</p>
-        <p className="co-parceldate">{PARCEL_DATE}</p>
-        <p className="co-help">
-          These items are available for collection after 1pm on your collection date and up to 10
-          days after delivery. Find out more in our <Link href="#">Terms and Conditions</Link>.
-        </p>
+        {/* Collection availability only appears once a shop is chosen. */}
+        {selectedStore && (
+          <>
+            <p className="co-strong-note">Collection Date</p>
+            <p className="co-parceldate">{PARCEL_DATE}</p>
+            <p className="co-help">
+              These items are available for collection after 1pm on your collection date and up to 10
+              days after delivery. Find out more in our <Link href="#">Terms and Conditions</Link>.
+            </p>
+          </>
+        )}
 
         {phoneField}
         {continueBtn(submit)}
