@@ -282,9 +282,23 @@ export function PaymentSection({
   // Each method reveals its own pay button when selected (card and gift card
   // reveal a form above it). When a card is remembered, these sit under an
   // "Other payment methods" heading below the saved-card row.
+  // nextpay / pay in 3 carry a small "10% off" tag beside the title.
+  const titleFor = (m: Method) => {
+    if (m.id === 'saved') return payment.savedCard || 'Saved card';
+    if (m.id === 'nextpay' || m.id === 'payin3') {
+      return (
+        <>
+          {m.title}
+          <span className="co-payment__tag">10% off‡</span>
+        </>
+      );
+    }
+    return m.title;
+  };
+
   const methodOptions: PaymentOption[] = methods.map((m, i) => ({
     id: m.id,
-    title: m.id === 'saved' ? (payment.savedCard || 'Saved card') : m.title,
+    title: titleFor(m),
     meta: m.meta,
     mark: <PaymentMark method={m.id} />,
     content: contentFor(m.id),

@@ -42,6 +42,24 @@
 
 .co-payment__title { font-weight: 700; }
 
+/* A small pill tag beside the title (nextpay / pay in 3 "10% off"). Sized to sit
+   about the height of the title, black with fully-rounded ends. */
+.co-payment__tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--text-primary, #111);
+  color: var(--background-paper, #fff);
+  font-family: var(--global-body-1-font-family, inherit);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .co-payment__meta {
   font-size: var(--global-caption-font-size, 0.75rem);
   color: var(--text-secondary, #555);
