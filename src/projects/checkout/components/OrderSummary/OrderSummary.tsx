@@ -1,7 +1,15 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '../../../../components/Button';
 import { TextField } from '../../../../components/TextField';
 import './OrderSummary.css';
+
+/** Product thumbnail that degrades to the grey placeholder if the image fails
+ *  to load (a bad item code, or the CDN being unreachable). */
+function Thumb({ src }: { src?: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) return <span className="co-ordersummary__thumb" aria-hidden="true" />;
+  return <img className="co-ordersummary__thumb" src={src} alt="" onError={() => setFailed(true)} />;
+}
 
 /**
  * OrderSummary — what you're buying and what it costs: line items, an optional
@@ -96,11 +104,7 @@ export function OrderSummary({
       <ul className="co-ordersummary__lines">
         {lines.map((l) => (
           <li key={l.id} className="co-ordersummary__line">
-            {l.image ? (
-              <img className="co-ordersummary__thumb" src={l.image} alt="" />
-            ) : (
-              <span className="co-ordersummary__thumb" aria-hidden="true" />
-            )}
+            <Thumb src={l.image} />
             <div className="co-ordersummary__body">
               <div className="co-ordersummary__head">
                 <span className="co-ordersummary__name">{l.name}</span>

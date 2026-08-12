@@ -1,6 +1,6 @@
 import { OrderSummary } from '../components/OrderSummary';
 import { useCheckoutConfig } from '../checkoutConfig';
-import { CART, cartTotals, deliveryLabel, money } from '../cart';
+import { CART, cartTotals, deliveryLabel, money, productImage } from '../cart';
 
 /**
  * The checkout's use of OrderSummary.
@@ -45,9 +45,10 @@ export function OrderPanel({ open }: { open: boolean }) {
           // the basket already pictures the product, so the colour name is
           // redundant where the size isn't.
           lines={CART.map((l) => ({
-            id: l.name,
+            id: l.sku,
             name: l.name,
             price: money(l.price * l.qty),
+            image: productImage(l.sku),
             fields: [
               { label: 'Size', value: l.size },
               { label: 'Qty', value: String(l.qty) },

@@ -1,22 +1,55 @@
-/** Believable sample basket used by the order summary. Replaced with real
- * product data when the checkout UI is built out.
+/** The order-summary basket — real Next products.
  *
  * Colour and size are separate fields rather than one "Blue · M" string: which
  * attributes a surface shows is a display decision, and the order summary
  * deliberately shows size but not colour. Merging them into one string would
- * make that undecidable without parsing. */
+ * make that undecidable without parsing.
+ *
+ * `sku` is the item code (e.g. "W11-776"); the product image is built from it
+ * via `productImage` and loaded straight from Next's CDN. */
 export interface CartLine {
   name: string;
   colour: string;
   size: string;
   price: number;
   qty: number;
+  /** Item code, e.g. "W11-776". */
+  sku: string;
 }
 
+/**
+ * Next product image (3:4 bag/summary thumbnail) from an item code. The CDN
+ * filename is the code without its dash — "W11-776" → "W11776". An `<img>` loads
+ * cross-origin without CORS, so this works from the static build.
+ */
+export const productImage = (sku: string) =>
+  `https://xcdn.next.co.uk/Common/Items/Default/Default/ItemImages/3_4Ratio/Product_SIP/Lge/${sku.replace(/-/g, '')}.jpg`;
+
 export const CART: CartLine[] = [
-  { name: 'Cotton Rich Oxford Shirt', colour: 'Blue', size: 'M', price: 28.0, qty: 1 },
-  { name: 'Slim Fit Chino Trousers', colour: 'Stone', size: '32R', price: 34.0, qty: 1 },
-  { name: 'Leather Trainers', colour: 'White', size: '9', price: 52.0, qty: 1 },
+  {
+    name: 'Washed Blue Denim Seersucker Jersey Midi Dress',
+    colour: 'Washed Blue',
+    size: '10',
+    price: 42.0,
+    qty: 1,
+    sku: 'W11-776',
+  },
+  {
+    name: 'Black Textured Short Sleeve Shirt with Linen',
+    colour: 'Black',
+    size: '10',
+    price: 26.0,
+    qty: 1,
+    sku: 'H99-026',
+  },
+  {
+    name: 'Chocolate Brown Elastic Back Wide Leg Trousers',
+    colour: 'Chocolate',
+    size: '10',
+    price: 38.0,
+    qty: 1,
+    sku: 'G69-754',
+  },
 ];
 
 export const money = (n: number) => `£${n.toFixed(2)}`;
