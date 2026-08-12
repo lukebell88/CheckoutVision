@@ -196,12 +196,12 @@ export function OnePageCheckout() {
             </span>
           )}
           {showChange && (
-            <Link href="#" onClick={(e) => { e.preventDefault(); change(id)?.(); }}>
+            <Link href="#" textStyle="body-3" onClick={(e) => { e.preventDefault(); change(id)?.(); }}>
               Change
             </Link>
           )}
           {payChange && (
-            <Link href="#" onClick={(e) => { e.preventDefault(); setPayExpanded(true); }}>
+            <Link href="#" textStyle="body-3" onClick={(e) => { e.preventDefault(); setPayExpanded(true); }}>
               Change
             </Link>
           )}

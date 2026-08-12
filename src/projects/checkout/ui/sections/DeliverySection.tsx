@@ -371,7 +371,7 @@ export function DeliverySection({ onContinue }: { onContinue?: () => void }) {
       <div className="co-deliverto">
         <div className="co-deliverto__head">
           <span className="co-summary__label">Deliver to:</span>
-          <Link href="#" onClick={(e) => { e.preventDefault(); changeAddress(); }}>
+          <Link href="#" textStyle="body-3" onClick={(e) => { e.preventDefault(); changeAddress(); }}>
             Change
           </Link>
         </div>
