@@ -34,6 +34,19 @@ export function ScenarioTray() {
   const project = loadedProject(projectId);
   if (!project) return null;
 
+  // Group the journeys by their declared `group`, preserving first-appearance
+  // order. Ungrouped flows fall under a single "Journey" heading.
+  const journeyOrder: string[] = [];
+  const journeysByGroup = new Map<string, typeof project.flows>();
+  for (const f of project.flows) {
+    const key = f.group ?? '';
+    if (!journeysByGroup.has(key)) {
+      journeysByGroup.set(key, []);
+      journeyOrder.push(key);
+    }
+    journeysByGroup.get(key)!.push(f);
+  }
+
   return (
     <>
       {open && <div className="scentray__scrim" onClick={() => setTray(false)} />}
@@ -45,22 +58,24 @@ export function ScenarioTray() {
           </button>
         </div>
 
-        <section className="scentray__group">
-          <h3 className="scentray__grouptitle">Journey</h3>
-          <div className="scentray__items">
-            {project.flows.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                className={`scentray__item ${f.id === ps.flowId ? 'scentray__item--on' : ''}`}
-                aria-pressed={f.id === ps.flowId}
-                onClick={() => setFlow(f.id)}
-              >
-                {f.name}
-              </button>
-            ))}
-          </div>
-        </section>
+        {journeyOrder.map((key) => (
+          <section key={key || '_'} className="scentray__group">
+            <h3 className="scentray__grouptitle">{key || 'Journey'}</h3>
+            <div className="scentray__items">
+              {journeysByGroup.get(key)!.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={`scentray__item ${f.id === ps.flowId ? 'scentray__item--on' : ''}`}
+                  aria-pressed={f.id === ps.flowId}
+                  onClick={() => setFlow(f.id)}
+                >
+                  {f.name}
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
 
         {(project.choices ?? []).map((c) => (
           <section key={c.id} className="scentray__group">

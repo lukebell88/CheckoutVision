@@ -148,8 +148,24 @@ const GUEST_FLAGS = { savedPayment: false, creditOptions: true, guestRegistratio
 export const FLOWS: FlowDef[] = [
   // ---- With Sign In Page (emailFirstCheckout OFF) --------------------------
   {
+    id: 'signin-unknown',
+    name: 'Unknown User',
+    group: 'With Sign in Page',
+    description: 'Standalone sign-in page: no account. Whether they enter an (unrecognised) email or tap "Checkout as a guest", the in-checkout email step captures the email then reveals the guest fields, and they fill every section. Payment opens on the full list with nothing preselected.',
+    customerType: 'guest',
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { ...GUEST_FLAGS, guestIdentityStep: true },
+    choiceOverrides: { paymentPresentation: 'none' },
+    prefill: {
+      ...BLANK,
+      delivery: { ...BLANK.delivery, method: 'home' },
+      progress: { section: 'details', done: [] },
+    },
+  },
+  {
     id: 'signin-account',
-    name: 'Sign In · Account Matched',
+    name: 'Account Match',
+    group: 'With Sign in Page',
     description: 'Standalone sign-in page: the email starts empty. Entering a recognised email verifies inline ("Confirm it’s you") and lands on Payment with the remembered card; tapping "Checkout as a guest" instead re-asks the email in checkout and — since it matches — reveals the same passcode there before landing on Payment.',
     customerType: 'matched',
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
@@ -170,13 +186,16 @@ export const FLOWS: FlowDef[] = [
       progress: { section: 'payment', done: ['details', 'delivery'] },
     },
   },
+
+  // ---- No Sign In Page (emailFirstCheckout ON) ----------------------------
   {
-    id: 'signin-unknown',
-    name: 'Sign In · Unknown User',
-    description: 'Standalone sign-in page: no account. Whether they enter an (unrecognised) email or tap "Checkout as a guest", the in-checkout email step captures the email then reveals the guest fields, and they fill every section. Payment opens on the full list with nothing preselected.',
+    id: 'nosignin-unknown',
+    name: 'Unknown User',
+    group: 'Checkout',
+    description: 'No sign-in page: email is captured at the top. The entered email is not recognised, so the guest name form fills in inline and they complete the sections. Payment opens on the full list with nothing preselected.',
     customerType: 'guest',
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { ...GUEST_FLAGS, guestIdentityStep: true },
+    flagOverrides: { ...GUEST_FLAGS, emailFirstCheckout: true },
     choiceOverrides: { paymentPresentation: 'none' },
     prefill: {
       ...BLANK,
@@ -184,11 +203,10 @@ export const FLOWS: FlowDef[] = [
       progress: { section: 'details', done: [] },
     },
   },
-
-  // ---- No Sign In Page (emailFirstCheckout ON) ----------------------------
   {
     id: 'nosignin-account',
-    name: 'No Sign In · Account Matched',
+    name: 'Account Match',
+    group: 'Checkout',
     description: 'No sign-in page: email is captured at the top of checkout. The entered email is recognised, so "Confirm it’s you" is presented inline; on success the journey jumps to Payment with the remembered card collapsed.',
     customerType: 'matched',
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
@@ -206,7 +224,8 @@ export const FLOWS: FlowDef[] = [
   },
   {
     id: 'nosignin-account-soft',
-    name: 'No Sign In · Account Matched (Soft Logged In)',
+    name: 'Account Match (Soft Logged in)',
+    group: 'Checkout',
     description: 'No sign-in page: the shopper is soft-recognised, so the email is already captured and locked (luke_bell@next.co.uk) with "Confirm it’s you" ready — they just verify, then jump to Payment with the saved card. Same as Account Matched but skipping the type-your-email step.',
     customerType: 'matched',
     screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
@@ -220,20 +239,6 @@ export const FLOWS: FlowDef[] = [
       customer: ACCOUNT_CUSTOMER,
       delivery: ACCOUNT_DELIVERY,
       payment: ACCOUNT_PAYMENT,
-      progress: { section: 'details', done: [] },
-    },
-  },
-  {
-    id: 'nosignin-unknown',
-    name: 'No Sign In · Unknown User',
-    description: 'No sign-in page: email is captured at the top. The entered email is not recognised, so the guest name form fills in inline and they complete the sections. Payment opens on the full list with nothing preselected.',
-    customerType: 'guest',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { ...GUEST_FLAGS, emailFirstCheckout: true },
-    choiceOverrides: { paymentPresentation: 'none' },
-    prefill: {
-      ...BLANK,
-      delivery: { ...BLANK.delivery, method: 'home' },
       progress: { section: 'details', done: [] },
     },
   },

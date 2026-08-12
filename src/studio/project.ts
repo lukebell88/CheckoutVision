@@ -90,6 +90,9 @@ export interface ProjectFlow {
   id: string;
   name: string;
   description: string;
+  /** Optional heading the scenario tray groups this flow under. Flows keep their
+   *  declared order within a group; ungrouped flows fall under no heading. */
+  group?: string;
   screens: FlowScreen[];
   /** Applied on top of the flag defaults when this flow is selected. */
   flagOverrides?: FlagValues;
