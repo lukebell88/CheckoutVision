@@ -914,6 +914,8 @@
   width: 100%;
   height: auto;
 }
+/* Third ad is tablet/desktop only — on mobile the row drops back to two. */
+.co-ad--desktop { display: none; }
 
 .co-recs__title {
   margin: 0 0 12px;
@@ -959,6 +961,7 @@
 
 /* ---------- Tablet ---------- */
 @container checkout (min-width: 720px) {
+  .co-ad--desktop { display: block; }
   .co-screen { padding-left: 24px; padding-right: 24px; }
   .co-screen--checkout { padding-left: 0; padding-right: 0; }
   .co-onepage { padding: 0 24px; }

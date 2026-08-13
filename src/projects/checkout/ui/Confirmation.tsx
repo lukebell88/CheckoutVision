@@ -48,6 +48,13 @@ const ADS = [
     alt: 'Women’s lingerie',
     href: 'https://www.next.co.uk/shop/womens/lingerie',
   },
+  {
+    src: 'https://res.cloudinary.com/djptevtpl/image/upload/v1786603431/03_qn2867.jpg',
+    alt: 'Next',
+    href: 'https://www.next.co.uk',
+    // The third ad only fits on tablet/desktop; on mobile the row shows two.
+    desktopOnly: true,
+  },
 ];
 
 export function Confirmation() {
@@ -105,7 +112,13 @@ export function Confirmation() {
 
       <section className="co-ads" aria-label="Advertisements">
         {ADS.map((ad) => (
-          <a key={ad.src} className="co-ad" href={ad.href} target="_blank" rel="noreferrer">
+          <a
+            key={ad.src}
+            className={`co-ad${'desktopOnly' in ad && ad.desktopOnly ? ' co-ad--desktop' : ''}`}
+            href={ad.href}
+            target="_blank"
+            rel="noreferrer"
+          >
             <img className="co-ad__img" src={ad.src} alt={ad.alt} loading="lazy" />
           </a>
         ))}
