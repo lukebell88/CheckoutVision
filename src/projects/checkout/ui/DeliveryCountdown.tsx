@@ -1,21 +1,63 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '../../../components/Link';
 
 /**
  * The order-complete "free delivery" countdown.
  *
- * Counts down from `minutes` (default 30) to zero, one second at a time, and
- * renders MM:SS as an odometer: each digit is a vertical reel of 0–9 that slides
- * to the current value, so a tick rolls smoothly rather than snapping. The
- * reel's transform transition does the animation; prefers-reduced-motion turns
- * it into an instant jump.
+ * Counts down from `minutes` (starting one second in, at MM:59) to zero, and
+ * renders MM:SS as an odometer. Each digit is a vertical reel that only ever
+ * rolls ONE way: the strip is the digits in descending order (9→0) repeated
+ * twice, so counting down always slides the reel downward — including the 0→9
+ * wrap, which used to whip the reel backwards through every digit. After each
+ * slide the reel snaps (no transition) from the second copy back onto the
+ * identical digit in the first, so it can keep rolling forever without a jump.
  */
+const CYCLE = [9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+const REEL = [...CYCLE, ...CYCLE]; // two copies → seamless forward loop
+const CELL_PCT = 100 / REEL.length; // one digit = this % of the reel's height
+const SLIDE_MS = 600; // must match .co-countdown__reel transition duration
+
+/** The reel index that rests on `value` in the first copy (descending: 9 at 0). */
+const restingPos = (value: number) => 9 - value;
+
 function ReelDigit({ value }: { value: number }) {
+  const [pos, setPos] = useState(() => restingPos(value));
+  const [animate, setAnimate] = useState(true);
+  const prev = useRef(value);
+
+  useEffect(() => {
+    if (prev.current === value) return;
+    // Forward distance in the descending cycle: 9→8 is 1, and the 0→9 wrap is
+    // also 1, so every tick rolls the same direction by its true gap.
+    const forward = (((prev.current - value) % 10) + 10) % 10;
+    prev.current = value;
+    setAnimate(true);
+    setPos((p) => p + forward); // may land in the second copy
+
+    // Once the slide finishes, drop back onto the identical digit in the first
+    // copy with no transition — invisible, and keeps `pos` in a bounded range.
+    const id = setTimeout(() => {
+      setAnimate(false);
+      setPos(restingPos(value));
+    }, SLIDE_MS + 20);
+    return () => clearTimeout(id);
+  }, [value]);
+
+  // Re-enable the transition the frame after a no-transition snap.
+  useEffect(() => {
+    if (animate) return;
+    const id = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(id);
+  }, [animate]);
+
   return (
     <span className="co-countdown__digit">
-      <span className="co-countdown__reel" style={{ transform: `translateY(-${value * 10}%)` }}>
-        {Array.from({ length: 10 }, (_, d) => (
-          <span key={d} className="co-countdown__cell">{d}</span>
+      <span
+        className="co-countdown__reel"
+        style={{ transform: `translateY(-${pos * CELL_PCT}%)`, transition: animate ? undefined : 'none' }}
+      >
+        {REEL.map((d, i) => (
+          <span key={i} className="co-countdown__cell">{d}</span>
         ))}
       </span>
     </span>
@@ -23,10 +65,9 @@ function ReelDigit({ value }: { value: number }) {
 }
 
 export function DeliveryCountdown({ minutes = 30 }: { minutes?: number }) {
-  const [remaining, setRemaining] = useState(minutes * 60);
+  // Begin one second in, so the clock opens on MM:59 already ticking.
+  const [remaining, setRemaining] = useState(minutes * 60 - 1);
 
-  // One interval for the component's life: decrement each second, and clear
-  // itself the moment it reaches zero so it doesn't tick past 00:00.
   useEffect(() => {
     const id = setInterval(() => {
       setRemaining((r) => {
