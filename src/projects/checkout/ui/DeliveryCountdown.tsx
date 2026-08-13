@@ -88,7 +88,7 @@ export function DeliveryCountdown({ minutes = 30 }: { minutes?: number }) {
   return (
     <div className="co-countdown">
       <div>
-        <p className="co-countdown__title">Free delivery if you order within</p>
+        <p className="co-countdown__title">Free delivery if you order within the next 30 minutes</p>
         <Link href="#">Terms &amp; conditions apply</Link>
       </div>
       <div
