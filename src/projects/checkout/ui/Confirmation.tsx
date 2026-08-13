@@ -105,7 +105,7 @@ export function Confirmation() {
       </section>
 
       <section className="co-recs">
-        <h2 className="co-recs__title">You May Also Like</h2>
+        <h2 className="co-recs__title">You Might Like These Too</h2>
         <div className="co-recs__grid">
           {RECOMMENDED.map((rec) => (
             <article key={rec.code} className="co-rec">
