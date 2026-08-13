@@ -97,7 +97,7 @@ export function Confirmation() {
         </section>
       )}
 
-      {flags.passkeyUpsell && customer.signedIn && (
+      {flags.passkeyUpsell && customer.signedIn && !customer.recognised && (
         <section className="co-upsell">
           <div className="co-upsell__inner">
             <h2 className="co-upsell__title">Use a passkey for stronger security</h2>
