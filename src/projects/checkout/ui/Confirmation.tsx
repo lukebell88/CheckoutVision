@@ -34,12 +34,12 @@ const RECOMMENDED = [
  */
 const ADS = [
   {
-    src: 'https://xcdn.next.co.uk/cms2/content/v3/assets/blt95da0c6423440d3a/blta1746f75807479b9/6a5f3057e3640c2636ea1fa6/P152_C707_Next_Home_DecorativeAccessories.jpg',
+    src: 'https://res.cloudinary.com/djptevtpl/image/upload/v1786596218/01_ziz6xb.jpg',
     alt: 'Home decorative accessories',
     href: 'https://www.next.co.uk/home/home-accessories/decorative-accessories',
   },
   {
-    src: 'https://xcdn.next.co.uk/cms2/content/v3/assets/blt95da0c6423440d3a/blta6f2c096fd5efb82/6a563880935fc41331a2da19/P152_C15_Next_Womens_Lingerie_Shoppable.jpg',
+    src: 'https://res.cloudinary.com/djptevtpl/image/upload/v1786596218/02_zzc9jp.jpg',
     alt: 'Women’s lingerie',
     href: 'https://www.next.co.uk/shop/womens/lingerie',
   },
