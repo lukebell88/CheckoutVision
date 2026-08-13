@@ -831,18 +831,18 @@
 /* ---------- Order complete ---------- */
 .co-complete__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 /* Not a TitleBar: terminal screen, so no back control, and it carries a status
- * icon and a trailing disclosure that the title bar has no slots for. It should
- * still sit on the same type step, so the token AND its fallback match
- * TitleBar.css exactly — a different fallback here is how the two would silently
- * diverge on a brand that hasn't published the token. */
+ * icon and a trailing disclosure that the title bar has no slots for. Set on
+ * the H2 type step. */
 .co-complete__title {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-family: var(--global-h4-font-family, inherit);
-  font-size: var(--global-h4-font-size, 1rem);
-  font-weight: var(--global-h4-font-weight, 700);
+  font-family: var(--global-h2-font-family, inherit);
+  font-size: var(--global-h2-font-size, 1.5rem);
+  font-weight: var(--global-h2-font-weight, 700);
+  line-height: var(--global-h2-line-height, 1.3);
+  letter-spacing: var(--global-h2-letter-spacing, 0);
 }
 .co-complete__sub { margin: 6px 0 20px; color: var(--text-secondary, #555); }
 
@@ -890,9 +890,11 @@
 .co-upsell { padding: 20px 16px; margin-bottom: 24px; background: var(--surface-subtle, #f0f0f0); }
 .co-upsell__title {
   margin: 0 0 6px;
-  font-family: var(--global-h5-font-family, inherit);
-  font-size: var(--global-h5-font-size, 1rem);
-  font-weight: 700;
+  font-family: var(--global-h2-font-family, inherit);
+  font-size: var(--global-h2-font-size, 1.5rem);
+  font-weight: var(--global-h2-font-weight, 700);
+  line-height: var(--global-h2-line-height, 1.3);
+  letter-spacing: var(--global-h2-letter-spacing, 0);
 }
 .co-upsell__sub { margin: 0 0 12px; color: var(--text-secondary, #444); }
 

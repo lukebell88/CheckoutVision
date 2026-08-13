@@ -51,8 +51,11 @@ const ADS = [
 ];
 
 export function Confirmation() {
-  const { flags, customer } = useCheckoutConfig();
-  const email = customer.email ?? 'alex_smith@next.co.uk';
+  const { flags, customer, choices } = useCheckoutConfig();
+  // The confirmation goes to the email captured at sign-in. Apple Pay supplies
+  // its own contact rather than an entered email, so fall back to the demo one.
+  const applePay = choices.paymentPresentation === 'applepay';
+  const email = applePay ? 'luke_bell@next.co.uk' : customer.email || 'luke_bell@next.co.uk';
 
   return (
     <main className="co-screen co-screen--wide">
@@ -61,7 +64,7 @@ export function Confirmation() {
           <Icon name="check" category="ui" size={22} />
           Order Complete
         </h1>
-        <Link href="#">View Details</Link>
+        <Link href="#" textStyle="body-3">Order Details</Link>
       </div>
       <p className="co-complete__sub">Confirmation has been sent to {email}</p>
 
@@ -71,8 +74,12 @@ export function Confirmation() {
         <section className="co-upsell">
           <h2 className="co-upsell__title">Want to track your orders?</h2>
           <p className="co-upsell__sub">Enter a password to set up an account</p>
-          <FormField label="Password" hideLabel type="password" value="Summer2026!" />
-          <p className="co-help">Password must be 6–12 characters and include letters and numbers</p>
+          <FormField
+            label="Password"
+            hideLabel
+            type="password"
+            hint="Password must be 6–12 characters and include letters and numbers"
+          />
           <p className="co-help">
             By clicking “Great, Sign me Up” you agree to the <Link href="#">Terms &amp; Conditions</Link>{' '}
             and <Link href="#">Privacy and Cookie Notice</Link>
