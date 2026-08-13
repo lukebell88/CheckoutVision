@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
 import { Icon } from '../../../../components/Icon';
@@ -173,11 +173,35 @@ export function PaymentSection({
     </Button>
   );
 
+  // Billing defaults to the delivery address; unticking reveals a billing form.
+  const [billingSame, setBillingSame] = useState(true);
+
   const cardForm = (
     <>
       <div className="co-optin">
-        <Checkbox label="Use Delivery Address as Billing Address" checked onChange={() => {}} />
+        <Checkbox
+          label="Use Delivery Address as Billing Address"
+          checked={billingSame}
+          onChange={(e) => setBillingSame(e.target.checked)}
+        />
       </div>
+      {/* Unticking it reveals a billing address — the same fields as Delivery,
+          minus the phone number. */}
+      {!billingSame && (
+        <div className="co-billing co-fadein">
+          <FormField
+            label="Address Line 1"
+            required
+            placeholder="Start typing your address"
+            endIcon={flags.addressLookup ? <Icon name="search" category="feature" size={20} /> : undefined}
+          />
+          <FormField label="Address Line 2" required />
+          <div className="co-fieldrow">
+            <FormField label="City" required />
+            <FormField label="Postcode" required />
+          </div>
+        </div>
+      )}
       <p className="co-section__required">
         Required Fields<span className="co-req">*</span>
       </p>
@@ -189,11 +213,7 @@ export function PaymentSection({
       </div>
       {flags.saveCardPrompt && (
         <div className="co-optin">
-          <Checkbox
-            label="Checkout Faster. Securely save your card details for next time"
-            checked
-            onChange={() => {}}
-          />
+          <Checkbox label="Checkout Faster. Securely save your card details for next time" defaultChecked />
         </div>
       )}
       <p className="co-help">
