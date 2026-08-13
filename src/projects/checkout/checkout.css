@@ -932,7 +932,13 @@
 }
 .co-recs__grid::-webkit-scrollbar { display: none; }
 .co-rec { display: flex; flex-direction: column; gap: 4px; flex: 0 0 auto; width: 132px; }
-.co-rec__img { aspect-ratio: 3 / 4; background: var(--surface-subtle, #eee); }
+.co-rec__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: var(--surface-subtle, #eee);
+}
 .co-rec__name { font-size: var(--global-body-3-font-size, 0.8125rem); }
 .co-rec__price { font-weight: 700; font-size: var(--global-body-3-font-size, 0.8125rem); }
 

@@ -16,14 +16,19 @@ import { DeliveryCountdown } from './DeliveryCountdown';
  * is offered an account, a signed-in shopper is offered a passkey. Both are
  * flagged, so either can be turned off to see the page without an ask.
  */
+const CDN = 'https://xcdn.next.co.uk/common/items/default/default/itemimages/3_4Ratio/product/lge';
+const recImage = (code: string) => `${CDN}/${code}.jpg?im=Resize,width=750`;
+
 const RECOMMENDED = [
-  'Cotton Rich Shirt',
-  'Linen Blend Trousers',
-  'Leather Trainers',
-  'Knitted Jumper',
-  'Denim Jacket',
-  'Chino Shorts',
-  'Suede Loafers',
+  { name: 'Rose Pink Jersey Woven Mix Midi Dress', price: 42, code: 'G25979s' },
+  { name: 'Green Stripe Shirred Body Tie Maxi Dress', price: 51, code: 'G80286s' },
+  { name: 'Blue/Brown Polka Dot Plisse Long Sleeve Shirt', price: 25, code: 'V65686s' },
+  { name: 'Friends Like These Tan Brown Print Short Sleeve Button Detail Collared Blouse', price: 32, code: 'G31030s' },
+  { name: 'Wine Jersey Bandeau Balloon Leg Jumpsuit', price: 38, code: 'V75416s' },
+  { name: 'Pink/Red Stripe Belted Summer Playsuit', price: 36, code: 'W63498s' },
+  { name: 'Dark Blue Bandeau Shirred Denim Jumpsuit', price: 52, code: 'G54546s' },
+  { name: 'Blue/White Stripe Soft Relaxed Long Sleeve Shirt', price: 28, code: 'H60424s' },
+  { name: 'Pink Stripe Flutter Sleeve Button Front Top With Linen', price: 22, code: 'W13884s' },
 ];
 
 /**
@@ -102,11 +107,11 @@ export function Confirmation() {
       <section className="co-recs">
         <h2 className="co-recs__title">You May Also Like</h2>
         <div className="co-recs__grid">
-          {RECOMMENDED.map((name) => (
-            <article key={name} className="co-rec">
-              <span className="co-rec__img" aria-hidden="true" />
-              <span className="co-rec__name">{name}</span>
-              <span className="co-rec__price">£28.00</span>
+          {RECOMMENDED.map((rec) => (
+            <article key={rec.code} className="co-rec">
+              <img className="co-rec__img" src={recImage(rec.code)} alt={rec.name} loading="lazy" />
+              <span className="co-rec__name">{rec.name}</span>
+              <span className="co-rec__price">£{rec.price.toFixed(2)}</span>
             </article>
           ))}
         </div>
