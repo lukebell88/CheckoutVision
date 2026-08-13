@@ -939,7 +939,16 @@
   object-fit: cover;
   background: var(--surface-subtle, #eee);
 }
-.co-rec__name { font-size: var(--global-body-3-font-size, 0.8125rem); }
+.co-rec__name {
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  /* Clamp to two lines, trailing ellipsis — keeps every tile the same height
+     however long the product name. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 .co-rec__price { font-weight: 700; font-size: var(--global-body-3-font-size, 0.8125rem); }
 
 /* ---------- Tablet ---------- */
