@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Button } from '../../../components/Button';
 import { Link } from '../../../components/Link';
 import { Icon } from '../../../components/Icon';
@@ -64,8 +65,20 @@ export function Confirmation() {
   const applePay = choices.paymentPresentation === 'applepay';
   const email = applePay ? 'luke_bell@next.co.uk' : customer.email || 'luke_bell@next.co.uk';
 
+  // Landing here inherits wherever Payment was scrolled to — in live mode the
+  // scroller is `.live`, in the studio a different ancestor, never the window.
+  // Reset the top on mount by zeroing every scrolled ancestor (plus the window),
+  // so Order Complete always opens at the top.
+  const rootRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    for (let el = rootRef.current?.parentElement; el; el = el.parentElement) {
+      if (el.scrollTop > 0) el.scrollTop = 0;
+    }
+  }, []);
+
   return (
-    <main className="co-screen co-screen--wide">
+    <main ref={rootRef} className="co-screen co-screen--wide">
       <div className="co-complete__head">
         <h1 className="co-complete__title">
           <Icon name="check" category="ui" size={22} />
