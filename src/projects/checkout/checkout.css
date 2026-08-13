@@ -889,7 +889,7 @@
 
 /* The grey box fills the full page column; its content is capped at 600px. */
 .co-upsell { padding: 20px 16px; margin-bottom: 24px; background: var(--background-main, #f7f7f7); }
-.co-upsell__inner { max-width: 600px; }
+.co-upsell__inner { max-width: 600px; margin-inline: auto; }
 .co-upsell__title {
   margin: 0 0 6px;
   font-family: var(--global-h2-font-family, inherit);
