@@ -75,7 +75,7 @@ export function Confirmation() {
       </div>
       <p className="co-complete__sub">Confirmation has been sent to {email}</p>
 
-      {flags.guestRegistration && !customer.signedIn && (
+      {flags.guestRegistration && !customer.signedIn && !customer.password && (
         <section className="co-upsell">
           <div className="co-upsell__inner">
             <h2 className="co-upsell__title">Want to track your orders?</h2>

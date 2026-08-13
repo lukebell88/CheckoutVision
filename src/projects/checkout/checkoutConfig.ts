@@ -21,6 +21,9 @@ export interface CustomerInfo {
   createAccount?: boolean;
   /** The email is recognised as a known account (pre-verification). */
   recognised?: boolean;
+  /** An optional password the guest typed at Details to create an account. When
+   *  set, the order-complete page skips the "track your orders" password prompt. */
+  password?: string;
 }
 export interface DeliveryInfo {
   method?: string;

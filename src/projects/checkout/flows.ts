@@ -56,6 +56,7 @@ export type CheckoutPrefill = ProjectData & {
     lastName: string;
     email: string;
     phone: string;
+    password: string;
     signedIn: boolean;
     /** The email belongs to a known account — sign-in shows the verify step. */
     recognised: boolean;
@@ -97,7 +98,7 @@ export interface FlowDef extends ProjectFlow {
  * about this person" a property of the flow rather than an accident of order.
  */
 const BLANK: CheckoutPrefill = {
-  customer: { email: '', firstName: '', lastName: '', phone: '', signedIn: false, recognised: false },
+  customer: { email: '', firstName: '', lastName: '', phone: '', password: '', signedIn: false, recognised: false },
   delivery: { line1: '', line2: '', city: '', postcode: '', store: '', date: '' },
   payment: { savedCard: '', method: '', preferred: '', card: '', scheme: '', giftCardApplied: 0 },
   // Reset the overlay too: without this, a flow that doesn't mention it would

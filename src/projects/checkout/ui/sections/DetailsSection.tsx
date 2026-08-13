@@ -39,6 +39,7 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
     email: customer.email ?? '',
     firstName: customer.firstName ?? '',
     lastName: customer.lastName ?? '',
+    password: customer.password ?? '',
   }));
   const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -157,6 +158,8 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
         <FormField
           label="Password (Optional)"
           type="password"
+          value={form.password}
+          onChange={set('password')}
           // Belongs to the field, not the page. As a hint it becomes the input's
           // `aria-describedby`, so the reason to bother filling in an optional
           // password is announced with it rather than stranded underneath.
