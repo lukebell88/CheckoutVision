@@ -940,7 +940,11 @@
   background: var(--surface-subtle, #eee);
 }
 .co-rec__name {
-  font-size: var(--global-body-3-font-size, 0.8125rem);
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 0.875rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+  line-height: var(--global-body-2-line-height, 1.5);
+  letter-spacing: var(--global-body-2-letter-spacing, 0);
   /* Clamp to two lines, trailing ellipsis — keeps every tile the same height
      however long the product name. */
   display: -webkit-box;
