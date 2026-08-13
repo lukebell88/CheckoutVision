@@ -79,34 +79,38 @@ export function Confirmation() {
 
       {flags.guestRegistration && !customer.signedIn && (
         <section className="co-upsell">
-          <h2 className="co-upsell__title">Want to track your orders?</h2>
-          <p className="co-upsell__sub">Enter a password to set up an account</p>
-          <FormField
-            label="Password"
-            hideLabel
-            type="password"
-            hint="Password must be 6–12 characters and include letters and numbers"
-          />
-          <p className="co-help">
-            By clicking “Great, Sign me Up” you agree to the <Link href="#">Terms &amp; Conditions</Link>{' '}
-            and <Link href="#">Privacy and Cookie Notice</Link>
-          </p>
-          <Button variant="contained" color="primary" size="large" fullWidth>
-            Great, sign me up
-          </Button>
+          <div className="co-upsell__inner">
+            <h2 className="co-upsell__title">Want to track your orders?</h2>
+            <p className="co-upsell__sub">Enter a password to set up an account</p>
+            <FormField
+              label="Password"
+              hideLabel
+              type="password"
+              hint="Password must be 6–12 characters and include letters and numbers"
+            />
+            <p className="co-help">
+              By clicking “Great, Sign me Up” you agree to the <Link href="#">Terms &amp; Conditions</Link>{' '}
+              and <Link href="#">Privacy and Cookie Notice</Link>
+            </p>
+            <Button variant="contained" color="primary" size="large" fullWidth>
+              Great, sign me up
+            </Button>
+          </div>
         </section>
       )}
 
       {flags.passkeyUpsell && customer.signedIn && (
         <section className="co-upsell">
-          <h2 className="co-upsell__title">Use a passkey for stronger security</h2>
-          <p className="co-upsell__sub">
-            Passkeys are faster, easier and safer than passwords. They can’t be guessed, stolen or leaked.
-          </p>
-          <p className="co-upsell__sub">Upgrading to a passkey just takes a moment</p>
-          <Button variant="contained" color="primary" size="large" fullWidth>
-            Use passkeys
-          </Button>
+          <div className="co-upsell__inner">
+            <h2 className="co-upsell__title">Use a passkey for stronger security</h2>
+            <p className="co-upsell__sub">
+              Passkeys are faster, easier and safer than passwords. They can’t be guessed, stolen or leaked.
+            </p>
+            <p className="co-upsell__sub">Upgrading to a passkey just takes a moment</p>
+            <Button variant="contained" color="primary" size="large" fullWidth>
+              Use passkeys
+            </Button>
+          </div>
         </section>
       )}
 
