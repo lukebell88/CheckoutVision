@@ -75,8 +75,6 @@ export function Confirmation() {
       </div>
       <p className="co-complete__sub">Confirmation has been sent to {email}</p>
 
-      {flags.freeDeliveryCountdown && <DeliveryCountdown minutes={30} />}
-
       {flags.guestRegistration && !customer.signedIn && (
         <section className="co-upsell">
           <div className="co-upsell__inner">
@@ -113,6 +111,8 @@ export function Confirmation() {
           </div>
         </section>
       )}
+
+      {flags.freeDeliveryCountdown && <DeliveryCountdown minutes={30} />}
 
       <section className="co-ads" aria-label="Advertisements">
         {ADS.map((ad) => (
