@@ -167,8 +167,15 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
         />
       )}
 
-      <div className="co-optin">
-        <Checkbox label="Keep me updated with offers and new arrivals" onChange={() => {}} />
+      <div className="co-optout">
+        <p className="co-optout__lede">
+          Tick the relevant box to opt out of Next offers, updates and a chance of exclusive Next Sale access.
+        </p>
+        <div className="co-optout__row">
+          <Checkbox label="Email" onChange={() => {}} />
+          <Checkbox label="SMS" onChange={() => {}} />
+          <Checkbox label="Post" onChange={() => {}} />
+        </div>
       </div>
 
       <Button

@@ -745,6 +745,18 @@
 .co-matched { padding: 16px; margin-bottom: 16px; background: var(--surface-subtle, #f0f0f0); }
 .co-matched__lede { margin: 0 0 12px; }
 .co-optin { padding: 12px; margin: 12px 0; background: var(--surface-subtle, #f0f0f0); }
+
+/* Marketing opt-out — no box, a Body2 lede and Email/SMS/Post in one row. */
+.co-optout { margin: 12px 0; }
+.co-optout__lede {
+  margin: 0 0 12px;
+  font-family: var(--global-body-2-font-family, inherit);
+  font-size: var(--global-body-2-font-size, 0.875rem);
+  font-weight: var(--global-body-2-font-weight, 400);
+  line-height: var(--global-body-2-line-height, 1.5);
+  letter-spacing: var(--global-body-2-letter-spacing, 0);
+}
+.co-optout__row { display: flex; flex-wrap: wrap; gap: 24px; }
 .co-placeorder { padding: 20px 0 0; }
 
 /* ---------- Delivery dates ----------
