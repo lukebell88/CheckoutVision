@@ -27,6 +27,7 @@ export type FlowId =
   | 'signin-unknown'
   | 'nosignin-account'
   | 'nosignin-account-soft'
+  | 'nosignin-account-keychain'
   | 'nosignin-unknown';
 
 export type CustomerType = 'guest' | 'matched' | 'returning';
@@ -235,6 +236,25 @@ export const FLOWS: FlowDef[] = [
     // Email KEPT (not blanked), so it loads locked to its chip with the verify
     // step already shown — the "soft logged in" starting point. softLogin makes
     // the passcode step wait for a Send Code tap rather than issuing on arrival.
+    prefill: {
+      ...BLANK,
+      customer: ACCOUNT_CUSTOMER,
+      delivery: ACCOUNT_DELIVERY,
+      payment: ACCOUNT_PAYMENT,
+      progress: { section: 'details', done: [] },
+    },
+  },
+  {
+    id: 'nosignin-account-keychain',
+    name: 'Account Match - Keychain',
+    group: 'Checkout',
+    description: 'No sign-in page: the shopper is recognised with their email already populated (luke_bell@next.co.uk) and locked, landing straight on "Confirm it’s you" opened on the password (Keychain) method — Sign In with a saved password, or switch to a passkey or a texted code.',
+    customerType: 'matched',
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { ...ACCOUNT_FLAGS, emailFirstCheckout: true, passwordLogin: true },
+    choiceOverrides: { paymentPresentation: 'preferred' },
+    // Email KEPT (like soft login) so it loads locked with the verify step
+    // already shown; passwordLogin opens that step on the password method.
     prefill: {
       ...BLANK,
       customer: ACCOUNT_CUSTOMER,

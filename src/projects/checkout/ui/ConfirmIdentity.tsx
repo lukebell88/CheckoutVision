@@ -79,6 +79,8 @@ export interface ConfirmIdentityProps {
    * no re-send) rather than showing the inputs as if a code were already sent.
    */
   preSend?: boolean;
+  /** Open on the password method (Keychain sign-in) rather than the passcode. */
+  passwordFirst?: boolean;
 }
 
 export function ConfirmIdentity({
@@ -87,8 +89,9 @@ export function ConfirmIdentity({
   onVerified,
   loading = false,
   preSend = false,
+  passwordFirst = false,
 }: ConfirmIdentityProps) {
-  const [method, setMethod] = useState<Method>('passcode');
+  const [method, setMethod] = useState<Method>(passwordFirst ? 'password' : 'passcode');
   const [switching, setSwitching] = useState(false);
   const [finalising, setFinalising] = useState(false);
   const [code, setCode] = useState('');

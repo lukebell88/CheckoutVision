@@ -105,6 +105,7 @@ export function IdentityStep({
             interactive={interactive}
             loading={ef.checking}
             preSend={flags.softLogin}
+            passwordFirst={flags.passwordLogin}
             onVerified={onAccountVerified}
           />
         </div>
