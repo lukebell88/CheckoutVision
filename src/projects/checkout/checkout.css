@@ -345,8 +345,6 @@
   color: var(--text-primary, #000);
   border: 1px solid var(--primary-main, #000);
 }
-/* Express pay sitting under the Details Continue button. */
-.co-details__express { margin-top: 12px; }
 
 /* PayPal CTA — the wallet's gold pill carrying only the PayPal logo. Fully
    rounded, brand colour fixed (not themed) to read as the real PayPal button. */
