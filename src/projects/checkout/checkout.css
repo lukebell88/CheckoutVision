@@ -385,8 +385,19 @@
   background: #3cf1fd1a;
   border-radius: 4px;
 }
+.co-nextpaybanner__head { display: flex; align-items: center; gap: 10px; }
+.co-nextpaybanner__logo { width: auto !important; height: 26px !important; }
+.co-nextpaybanner__logo svg { width: auto !important; height: 100% !important; }
+.co-nextpaybanner__title {
+  margin: 0;
+  font-family: var(--global-h4-font-family, inherit);
+  font-size: var(--global-h4-font-size, 0.875rem);
+  font-weight: var(--global-h4-font-weight, 700);
+  line-height: var(--global-h4-line-height, 1.3);
+  letter-spacing: var(--global-h4-letter-spacing, 0);
+}
 .co-nextpaybanner__intro {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   font-size: var(--global-body-3-font-size, 0.8125rem);
   color: var(--text-primary, #000);
 }

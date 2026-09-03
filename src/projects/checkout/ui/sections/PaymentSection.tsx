@@ -400,15 +400,17 @@ export function PaymentSection({
           banner={
             kind === 'card' ? (
               <div className="co-nextpaybanner">
-                <Icon
-                  name="payment-next-pay-v2-contained"
-                  category="common"
-                  brand="payment"
-                  className="co-paylogo"
-                />
+                <div className="co-nextpaybanner__head">
+                  <Icon
+                    name="payment-next-pay-v2-contained"
+                    category="common"
+                    brand="payment"
+                    className="co-nextpaybanner__logo"
+                  />
+                  <h4 className="co-nextpaybanner__title">Our most flexible way of spreading the cost</h4>
+                </div>
                 <p className="co-nextpaybanner__intro">
-                  Our most flexible way of spreading the cost: pay as little as the Minimum Monthly
-                  Payment each month, up to your Full Balance^.
+                  Pay as little as the Minimum Monthly Payment each month, up to your Full Balance^.
                 </p>
                 <p className="co-nextpaybanner__apr">24.9% Representative APR variable</p>
               </div>
