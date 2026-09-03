@@ -33,8 +33,6 @@ export interface PreferredPaymentProps {
   onAddCard?: () => void;
   /** Reveal the full method list (same as the header Change link). */
   onChooseAnother?: () => void;
-  /** Open the full list already selected on this method. */
-  onSelectOther?: (id: string) => void;
   /** The pay button for the remembered method. */
   pay: ReactNode;
   /** Optional slim promo banner shown below the Choose Another button. */
@@ -47,7 +45,6 @@ export function PreferredPayment({
   others,
   onAddCard,
   onChooseAnother,
-  onSelectOther,
   pay,
   banner,
 }: PreferredPaymentProps) {
@@ -86,29 +83,20 @@ export function PreferredPayment({
         color="primary"
         size="large"
         fullWidth
+        className="co-preferred__choose"
         onClick={onChooseAnother}
       >
-        Choose Another Payment Method
+        <span className="co-preferred__chooselabel">Choose Another Payment Method</span>
+        {others.length > 0 && (
+          <span className="co-preferred__chooselogos" aria-hidden="true">
+            {others.map((o) => (
+              <span key={o.id} className="co-preferred__othermark">{o.mark}</span>
+            ))}
+          </span>
+        )}
       </Button>
 
       {banner}
-
-      <div className="co-preferred__others">
-        <div className="co-preferred__othersrow">
-          {others.map((o) => (
-            <button
-              key={o.id}
-              type="button"
-              className="co-preferred__other"
-              aria-label={`Pay with ${o.label ?? o.id}`}
-              onClick={() => onSelectOther?.(o.id)}
-            >
-              <span className="co-preferred__othermark">{o.mark}</span>
-              {o.label && <span className="co-preferred__otherlabel">{o.label}</span>}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

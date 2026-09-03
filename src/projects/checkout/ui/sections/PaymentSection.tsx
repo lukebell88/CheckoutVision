@@ -394,7 +394,6 @@ export function PaymentSection({
           others={others}
           onAddCard={kind === 'card' && interactive ? () => openList('card') : undefined}
           onChooseAnother={interactive ? () => openList() : undefined}
-          onSelectOther={interactive ? (id) => openList(id) : undefined}
           pay={pay}
           // A slim nextpay promo below Choose Another — account-match (card) only.
           banner={

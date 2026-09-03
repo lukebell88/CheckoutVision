@@ -64,34 +64,34 @@
   color: var(--text-secondary, #555);
 }
 
-/* ---------- Other payment logos ---------- */
-.co-preferred__others {
-  margin: 20px 0 0;
+/* ---------- Choose Another Payment Method (carries the other logos) ----------
+   The other payment logos now live inside the CTA, in a row beneath its label.
+   The button grows to fit, and the logos stay on ONE line as it scales. */
+.co-preferred__choose {
+  height: auto;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
-
-.co-preferred__othersrow {
+.co-preferred__choose .fab-btn__label {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+.co-preferred__chooselogos {
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
+  max-width: 100%;
 }
-
-/* Borderless — the wallet logos read as a plain row, in keeping with the rest
-   of the summary UI. */
-.co-preferred__other {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
 .co-preferred__othermark {
   display: inline-flex;
   align-items: center;
+  flex: none;
 }
 .co-preferred__othermark .fab-icon {
   width: auto !important;
@@ -100,11 +100,4 @@
 .co-preferred__othermark .fab-icon svg {
   width: auto;
   height: 100%;
-}
-
-.co-preferred__otherlabel {
-  font-family: var(--global-body-2-font-family, inherit);
-  font-size: var(--global-body-2-font-size, 0.8125rem);
-  line-height: 1;
-  color: var(--text-primary, #000);
 }
