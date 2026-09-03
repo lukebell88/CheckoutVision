@@ -377,6 +377,25 @@
   height: 100% !important;
 }
 
+/* Slim nextpay promo banner — sits under Choose Another Payment Method on the
+   account-match (saved card) view. */
+.co-nextpaybanner {
+  margin-top: 16px;
+  padding: 16px;
+  background: #3cf1fd1a;
+  border-radius: 4px;
+}
+.co-nextpaybanner__intro {
+  margin: 10px 0 0;
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  color: var(--text-primary, #000);
+}
+.co-nextpaybanner__apr {
+  margin: 8px 0 0;
+  font-size: var(--global-body-3-font-size, 0.8125rem);
+  color: var(--text-secondary, #555);
+}
+
 /* ---------- Email-first gate ---------- */
 /* The top-of-page email step when the sign-in page is removed. Sits above the
  * numbered sections and owns email capture + inline verification.

@@ -37,6 +37,8 @@ export interface PreferredPaymentProps {
   onSelectOther?: (id: string) => void;
   /** The pay button for the remembered method. */
   pay: ReactNode;
+  /** Optional slim promo banner shown below the Choose Another button. */
+  banner?: ReactNode;
 }
 
 export function PreferredPayment({
@@ -47,6 +49,7 @@ export function PreferredPayment({
   onChooseAnother,
   onSelectOther,
   pay,
+  banner,
 }: PreferredPaymentProps) {
   return (
     <div className="co-preferred">
@@ -87,6 +90,8 @@ export function PreferredPayment({
       >
         Choose Another Payment Method
       </Button>
+
+      {banner}
 
       <div className="co-preferred__others">
         <div className="co-preferred__othersrow">

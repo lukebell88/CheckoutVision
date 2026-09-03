@@ -396,6 +396,24 @@ export function PaymentSection({
           onChooseAnother={interactive ? () => openList() : undefined}
           onSelectOther={interactive ? (id) => openList(id) : undefined}
           pay={pay}
+          // A slim nextpay promo below Choose Another — account-match (card) only.
+          banner={
+            kind === 'card' ? (
+              <div className="co-nextpaybanner">
+                <Icon
+                  name="payment-next-pay-v2-contained"
+                  category="common"
+                  brand="payment"
+                  className="co-paylogo"
+                />
+                <p className="co-nextpaybanner__intro">
+                  Our most flexible way of spreading the cost: pay as little as the Minimum Monthly
+                  Payment each month, up to your Full Balance^.
+                </p>
+                <p className="co-nextpaybanner__apr">24.9% Representative APR variable</p>
+              </div>
+            ) : undefined
+          }
         />
         <PaymentLegal />
       </>
