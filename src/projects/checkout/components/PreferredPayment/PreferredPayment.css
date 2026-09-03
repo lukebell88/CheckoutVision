@@ -72,11 +72,15 @@
   padding-top: 12px;
   padding-bottom: 12px;
 }
+.co-preferred__choose .fab-btn__content { width: 100%; }
+/* Label and logos sit inline and centred; when they don't fit together the
+   logos group wraps onto its own line (but never breaks internally). */
 .co-preferred__choose .fab-btn__label {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 10px 16px;
   width: 100%;
   min-width: 0;
 }
