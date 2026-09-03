@@ -80,9 +80,13 @@ export function AppleMark({ size = 18 }: { size?: number }) {
  * as the pay button when Apple Pay is the chosen method (and as the express
  * option at the top of the email-first block).
  */
-export function ApplePayButton({ onClick }: { onClick?: () => void }) {
+export function ApplePayButton({ onClick, outline }: { onClick?: () => void; outline?: boolean }) {
   return (
-    <button type="button" className="co-express" onClick={onClick}>
+    <button
+      type="button"
+      className={`co-express${outline ? ' co-express--outline' : ''}`}
+      onClick={onClick}
+    >
       Buy with <AppleMark /> Pay
     </button>
   );

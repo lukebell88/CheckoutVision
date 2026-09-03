@@ -4,6 +4,7 @@ import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
 import { useCheckoutConfig } from '../../checkoutConfig';
 import { FormField } from '../../components/FormField';
+import { ApplePayButton } from '../parts';
 import { useSeededState } from '../useSeededState';
 
 /** The Continue button holds a brief loading state before advancing, so the
@@ -188,6 +189,17 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
       >
         Continue
       </Button>
+
+      {/* Express pay as an alternative to filling the form — offered under
+          Continue for the guest (unknown user) details form. */}
+      {flags.expressPayment && (
+        <div className="co-details__express">
+          <ApplePayButton
+            outline
+            onClick={interactive ? () => nav.patch('overlay', { applePay: true }) : undefined}
+          />
+        </div>
+      )}
     </>
   );
 }
