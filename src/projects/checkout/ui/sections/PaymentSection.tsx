@@ -11,6 +11,7 @@ import { PreferredPayment, type PreferredOther } from '../../components/Preferre
 import { ApplePayButton, PayPalButton, PaymentLegal } from '../parts';
 import { GiftCardForm } from '../GiftCardForm';
 import { useSeededState } from '../useSeededState';
+import { usePayNow } from '../usePayNow';
 
 /**
  * The scheme / wallet logo shown on the right of each payment row. The wallet
@@ -167,8 +168,11 @@ export function PaymentSection({
 
   const openApplePay = interactive ? () => nav.patch('overlay', { applePay: true }) : undefined;
 
+  // Pay now mimics the order being placed: the button spins, then completes.
+  const { paying, payNow } = usePayNow(onPay);
+
   const payButton = (
-    <Button variant="contained" color="primary" size="large" fullWidth onClick={onPay}>
+    <Button variant="contained" color="primary" size="large" fullWidth loading={paying} onClick={payNow}>
       Pay now
     </Button>
   );

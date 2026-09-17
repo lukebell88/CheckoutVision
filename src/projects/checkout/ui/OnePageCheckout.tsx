@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSeededState } from './useSeededState';
+import { usePayNow } from './usePayNow';
 import { useProjectRuntime } from '../../../studio/runtime';
 import { Button } from '../../../components/Button';
 import { Link } from '../../../components/Link';
@@ -59,6 +60,7 @@ export function OnePageCheckout() {
     SECTIONS.filter((s) => isDone(progress, s)),
   );
   const [orderOpen, setOrderOpen] = useState(false);
+  const { paying, payNow } = usePayNow(interactive ? () => nav.goTo('confirmation') : undefined);
 
   // The "landing": on any advance (guest Continue, verify→Payment, …) the
   // resolved sections fade in and the newly-opened section scrolls into view, so
@@ -252,7 +254,8 @@ export function OnePageCheckout() {
               color="primary"
               size="large"
               fullWidth
-              onClick={interactive ? () => nav.goTo('confirmation') : undefined}
+              loading={paying}
+              onClick={payNow}
             >
               Pay now
             </Button>
