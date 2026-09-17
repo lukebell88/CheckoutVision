@@ -120,7 +120,6 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
           label="Email Address"
           required
           type="email"
-          placeholder="you@example.com"
           value={form.email}
           onChange={set('email')}
           status={emailStatus}

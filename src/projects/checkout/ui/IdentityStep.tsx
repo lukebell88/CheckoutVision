@@ -75,7 +75,6 @@ export function IdentityStep({
           type="email"
           inputMode="email"
           autoComplete="email"
-          placeholder="you@example.com"
           value={ef.email}
           readOnly={!interactive}
           onChange={(e) => {

@@ -126,7 +126,6 @@ export function SignInScreen() {
           type="email"
           inputMode="email"
           autoComplete="email"
-          placeholder="you@example.com"
           value={email}
           readOnly={!interactive}
           onChange={(e) => onInput(e.target.value)}
