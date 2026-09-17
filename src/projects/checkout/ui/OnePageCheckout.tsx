@@ -33,7 +33,7 @@ import { useEmailFirst } from './useEmailFirst';
  * that's the one piece of layout it doesn't dictate.
  */
 export function OnePageCheckout() {
-  const { customer, progress, delivery, payment, choices } = useCheckoutConfig();
+  const { customer, progress, delivery, payment, choices, journey } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const { total, delivery: deliveryCost } = cartTotals(delivery.method, payment.giftCardApplied);
 
@@ -69,13 +69,24 @@ export function OnePageCheckout() {
   // inherit the fade.
   const [landing, setLanding] = useState(false);
   const sectionEls = useRef<Record<string, HTMLElement | null>>({});
+  const rootRef = useRef<HTMLElement>(null);
+  // Set when this landing should go to the top of the page, not the new section.
+  const landAtTop = useRef(false);
 
   const emailLocked = ef.phase === 'locked';
 
   useEffect(() => {
     if (!landing) return;
     // 'complete' has no section to scroll to — the place-order button is inline.
-    if (section !== 'complete') {
+    if (landAtTop.current) {
+      // The scroller is `.live` in live mode and another ancestor in the studio,
+      // so scroll every scrolled ancestor (and the window) back to the top.
+      landAtTop.current = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      for (let el = rootRef.current?.parentElement; el; el = el.parentElement) {
+        if (el.scrollTop > 0) el.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else if (section !== 'complete') {
       sectionEls.current[section]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     const t = window.setTimeout(() => setLanding(false), 500);
@@ -98,6 +109,7 @@ export function OnePageCheckout() {
     ef.onVerified();
     setDone(['details', 'delivery']);
     setSection('payment');
+    landAtTop.current = !!journey.stayAtTopOnVerify;
     setLanding(true);
   };
 
@@ -226,7 +238,7 @@ export function OnePageCheckout() {
   });
 
   return (
-    <main className="co-screen co-screen--checkout">
+    <main ref={rootRef} className="co-screen co-screen--checkout">
       <TitleBar title={title} onBack={interactive ? nav.back : undefined} />
 
       <div className="co-totalbar">

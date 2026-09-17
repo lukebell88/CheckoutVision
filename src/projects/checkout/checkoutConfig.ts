@@ -65,6 +65,13 @@ export interface OverlayInfo {
   applePay?: boolean;
 }
 
+/** Behaviour tweaks a single journey opts into. */
+export interface JourneyInfo {
+  /** Once the passcode verifies, keep the page at the top (Your Details in view)
+   *  instead of scrolling down to the Payment section it lands on. */
+  stayAtTopOnVerify?: boolean;
+}
+
 export interface CheckoutConfig {
   flags: FlagState;
   choices: ChoiceState;
@@ -73,6 +80,7 @@ export interface CheckoutConfig {
   payment: PaymentInfo;
   progress: ProgressInfo;
   overlay: OverlayInfo;
+  journey: JourneyInfo;
 }
 
 /** The paymentPresentation default, so a runtime without choices still resolves. */
@@ -90,6 +98,7 @@ export function useCheckoutConfig(): CheckoutConfig {
     payment: (rt.data.payment ?? {}) as PaymentInfo,
     progress: (rt.data.progress ?? {}) as ProgressInfo,
     overlay: (rt.data.overlay ?? {}) as OverlayInfo,
+    journey: (rt.data.journey ?? {}) as JourneyInfo,
   };
 }
 

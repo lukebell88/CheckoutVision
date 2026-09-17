@@ -76,6 +76,8 @@ export type CheckoutPrefill = ProjectData & {
   progress?: Partial<{ section: SectionId | 'complete'; done: SectionId[] }>;
   /** Overlays sitting on top of the current screen (the Apple Pay sheet). */
   overlay?: Partial<{ applePay: boolean }>;
+  /** Per-journey behaviour tweaks — see JourneyInfo in checkoutConfig. */
+  journey?: Partial<{ stayAtTopOnVerify: boolean }>;
 };
 
 export interface FlowDef extends ProjectFlow {
@@ -104,6 +106,8 @@ const BLANK: CheckoutPrefill = {
   // Reset the overlay too: without this, a flow that doesn't mention it would
   // keep the last flow's open Apple Pay sheet (see the merge note above).
   overlay: { applePay: false },
+  // Journey tweaks are opt-in per flow; reset so one doesn't leak into the next.
+  journey: { stayAtTopOnVerify: false },
 };
 
 /**
@@ -221,6 +225,9 @@ export const FLOWS: FlowDef[] = [
       delivery: ACCOUNT_DELIVERY,
       payment: ACCOUNT_PAYMENT,
       progress: { section: 'details', done: [] },
+      // After the code, stay at the top so "Your Details" is in view rather
+      // than scrolling down to Payment.
+      journey: { stayAtTopOnVerify: true },
     },
   },
   {
