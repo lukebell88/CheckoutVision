@@ -8,26 +8,24 @@ import type { FlagId } from './flags';
  * choice overrides, and any pre-populated data. Adding a journey is a new entry
  * here — no navigation code changes.
  *
- * The set is a 2×2 matrix: two entry models — WITH a standalone sign-in page and
- * WITHOUT one (email captured at the top of checkout) — each running an Account
- * Matched shopper and an Unknown User. The only thing that varies down each
- * column is where the email lives; the payment PRESENTATION (preferred card,
- * standard list, Nextpay/Pay In 3 CTA) is a choice, not a journey, so it's set
- * per-flow and switchable in the tray.
+ * All journeys capture the email at the top of checkout (no standalone sign-in
+ * page): an Unknown User, an Account Match that verifies inline, the same with a
+ * Keychain (password) login, and an Already Signed In shopper who lands straight
+ * on a prefilled checkout. The payment PRESENTATION (preferred card, standard
+ * list, Nextpay/Pay In 3 CTA) is a choice, not a journey, so it's set per-flow
+ * and switchable in the tray.
  *
- * Apple Pay is not its own journey — it's the express button on the sign-in page
- * and an option in the payment list, reachable from both the known and unknown
- * flows — so it doesn't need a dedicated row here.
+ * Apple Pay is not its own journey — it's an express option in the payment list,
+ * reachable from any flow — so it doesn't need a dedicated row here.
  *
  * The screen list is the order a presenter walks and the order the canvas lays
  * out — it is not a constraint on navigation, which can `goTo`/`next` any screen.
  */
 export type FlowId =
-  | 'signin-account'
-  | 'signin-unknown'
   | 'nosignin-account'
   | 'nosignin-account-keychain'
-  | 'nosignin-unknown';
+  | 'nosignin-unknown'
+  | 'signed-in';
 
 export type CustomerType = 'guest' | 'matched' | 'returning';
 
@@ -151,48 +149,7 @@ const ACCOUNT_FLAGS = { savedPayment: false, creditOptions: true, guestRegistrat
 const GUEST_FLAGS = { savedPayment: false, creditOptions: true, guestRegistration: true, passkeyUpsell: false } as const;
 
 export const FLOWS: FlowDef[] = [
-  // ---- With Sign In Page (emailFirstCheckout OFF) --------------------------
-  {
-    id: 'signin-unknown',
-    name: 'Unknown User',
-    group: 'With Sign in Page',
-    description: 'Standalone sign-in page: no account. Whether they enter an (unrecognised) email or tap "Checkout as a guest", the in-checkout email step captures the email then reveals the guest fields, and they fill every section. Payment opens on the full list with nothing preselected.',
-    customerType: 'guest',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    flagOverrides: { ...GUEST_FLAGS, guestIdentityStep: true },
-    choiceOverrides: { paymentPresentation: 'none' },
-    prefill: {
-      ...BLANK,
-      delivery: { ...BLANK.delivery, method: 'home' },
-      progress: { section: 'details', done: [] },
-    },
-  },
-  {
-    id: 'signin-account',
-    name: 'Account Match',
-    group: 'With Sign in Page',
-    description: 'Standalone sign-in page: the email starts empty. Entering a recognised email verifies inline ("Confirm it’s you") and lands on Payment with the remembered card; tapping "Checkout as a guest" instead re-asks the email in checkout and — since it matches — reveals the same passcode there before landing on Payment.',
-    customerType: 'matched',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
-    // guestIdentityStep: the guest route runs the in-checkout email step, which
-    // recognises the account (recognised) and shows the passcode.
-    flagOverrides: { ...ACCOUNT_FLAGS, guestIdentityStep: true },
-    choiceOverrides: { paymentPresentation: 'preferred' },
-    // Email empty so the page shows the field + guest button (not a pre-locked
-    // "confirm it's you"). The account's details are seeded for after verify;
-    // a recognised email never renders the guest name form, so they don't leak.
-    // progress='payment' is where the on-page verify path lands; the guest button
-    // resets it to Details for the in-checkout email step.
-    prefill: {
-      ...BLANK,
-      customer: { ...ACCOUNT_CUSTOMER, email: '' },
-      delivery: ACCOUNT_DELIVERY,
-      payment: ACCOUNT_PAYMENT,
-      progress: { section: 'payment', done: ['details', 'delivery'] },
-    },
-  },
-
-  // ---- No Sign In Page (emailFirstCheckout ON) ----------------------------
+  // ---- Checkout journeys (email captured at the top; no sign-in page) ------
   {
     id: 'nosignin-unknown',
     name: 'Unknown User',
@@ -247,6 +204,25 @@ export const FLOWS: FlowDef[] = [
       delivery: ACCOUNT_DELIVERY,
       payment: ACCOUNT_PAYMENT,
       progress: { section: 'details', done: [] },
+    },
+  },
+  {
+    id: 'signed-in',
+    name: 'Already Signed In',
+    group: 'Checkout',
+    description: 'Already signed in: no email capture or verify step — straight to the checkout with Your Details and the saved address done, landing on Payment with the remembered card (cash) preselected.',
+    customerType: 'returning',
+    // No sign-in and no identity step — the journey starts on the checkout.
+    screens: [{ id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { ...ACCOUNT_FLAGS, emailFirstCheckout: true },
+    choiceOverrides: { paymentPresentation: 'preferred' },
+    prefill: {
+      ...BLANK,
+      // signedIn skips the verify step; details/delivery arrive complete.
+      customer: { ...ACCOUNT_CUSTOMER, signedIn: true, recognised: false },
+      delivery: ACCOUNT_DELIVERY,
+      payment: ACCOUNT_PAYMENT,
+      progress: { section: 'payment', done: ['details', 'delivery'] },
     },
   },
 ];
