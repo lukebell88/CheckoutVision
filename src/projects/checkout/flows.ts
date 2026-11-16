@@ -171,7 +171,7 @@ export const FLOWS: FlowDef[] = [
     group: 'Checkout',
     description: 'No sign-in page: email is captured at the top of checkout. The entered email is recognised, so "Confirm it’s you" is presented inline; on success the journey jumps to Payment with the remembered card collapsed.',
     customerType: 'matched',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'loading' }, { id: 'confirmation' }],
     flagOverrides: { ...ACCOUNT_FLAGS, emailFirstCheckout: true },
     choiceOverrides: { paymentPresentation: 'preferred' },
     // Known (`recognised`) but not verified; email starts EMPTY so the tester
@@ -193,7 +193,7 @@ export const FLOWS: FlowDef[] = [
     group: 'Checkout',
     description: 'No sign-in page: the shopper is recognised with their email already populated (luke_bell@next.co.uk) and locked, landing straight on "Confirm it’s you" opened on the password (Keychain) method — Sign In with a saved password, or switch to a passkey or a texted code.',
     customerType: 'matched',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'loading' }, { id: 'confirmation' }],
     flagOverrides: { ...ACCOUNT_FLAGS, emailFirstCheckout: true, passwordLogin: true },
     choiceOverrides: { paymentPresentation: 'preferred' },
     // Email KEPT (like soft login) so it loads locked with the verify step

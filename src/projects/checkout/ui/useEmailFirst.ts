@@ -117,6 +117,11 @@ export function useEmailFirst(): EmailFirst {
   const onVerified = () => {
     if (!interactive) return;
     nav.patch('customer', { signedIn: true });
+    // On a live link the login → checkout handoff is a real cross-domain redirect
+    // (Auth0 → Next): blank the page and reload into the signed-in checkout — see
+    // LoadingHandoff. In the studio it reveals the authenticated checkout inline.
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('live') === '1' || q.get('mode') === 'live') nav.goTo('loading');
   };
 
   const status = checking

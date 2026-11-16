@@ -2,6 +2,7 @@ import { useProjectRuntime } from '../../studio/runtime';
 import type { CheckoutPageId } from './screens';
 import { useCheckoutConfig } from './checkoutConfig';
 import { SignInScreen } from './ui/SignInScreen';
+import { LoadingHandoff } from './ui/LoadingHandoff';
 import { ApplePaySheet } from './ui/ApplePaySheet';
 import { OnePageCheckout } from './ui/OnePageCheckout';
 import { Confirmation } from './ui/Confirmation';
@@ -23,6 +24,7 @@ import { Confirmation } from './ui/Confirmation';
  */
 const SCREENS: Record<CheckoutPageId, () => JSX.Element> = {
   signin: SignInScreen,
+  loading: LoadingHandoff,
   checkout: OnePageCheckout,
   confirmation: Confirmation,
 };

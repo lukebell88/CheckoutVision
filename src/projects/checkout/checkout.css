@@ -18,6 +18,10 @@
  * the basket to a permanent column.
  */
 
+/* The login → checkout handoff: a blank page over everything (header included)
+ * while the browser redirects between domains. See ui/LoadingHandoff.tsx. */
+.co-handoff { position: fixed; inset: 0; z-index: 99999; background: #fff; }
+
 .checkout {
   min-height: 100%;
   background: var(--background-paper, #fff);

@@ -18,10 +18,13 @@ import type { ScreenDef } from '../../studio/project';
  * behind its scrim. It's driven by the `overlay` data bucket — see
  * `ApplePaySheet` and `CheckoutPage`.
  */
-export type CheckoutPageId = 'signin' | 'checkout' | 'confirmation';
+export type CheckoutPageId = 'signin' | 'loading' | 'checkout' | 'confirmation';
 
 export const CHECKOUT_SCREENS: Record<CheckoutPageId, ScreenDef> = {
   signin: { id: 'signin', title: 'Sign / Register', navLabel: 'Sign in' },
+  // The login → checkout handoff: a blank page while the browser redirects from
+  // the login domain (Auth0) to the Next-hosted checkout. See LoadingHandoff.
+  loading: { id: 'loading', title: 'Signing in', navLabel: 'Signing in' },
   checkout: { id: 'checkout', title: 'Checkout', navLabel: 'Checkout' },
   confirmation: { id: 'confirmation', title: 'Order complete', navLabel: 'Confirmation', terminal: true },
 };
