@@ -1,6 +1,11 @@
+import { useEffect, useState } from 'react';
 import { OrderSummary } from '../components/OrderSummary';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { CART, cartTotals, deliveryLabel, money, productImage } from '../cart';
+
+/** How long the skeleton holds before the order "returns" — Auth0 fetching the
+ *  bag from Next. Tweak to taste. */
+const ORDER_API_MS = 1800;
 
 /**
  * The checkout's use of OrderSummary.
@@ -30,6 +35,18 @@ export function OrderToggle({ open, onToggle }: { open: boolean; onToggle: () =>
 
 export function OrderPanel({ open, loading = false }: { open: boolean; loading?: boolean }) {
   const { flags, delivery: deliveryInfo, payment } = useCheckoutConfig();
+
+  // While on the login/Auth0 step the order is being fetched — hold the skeleton,
+  // then let the real order load in after the simulated API delay (even if the
+  // shopper is still signing in). Not on login (signed-in/guest): show it at once.
+  const [apiReturned, setApiReturned] = useState(false);
+  useEffect(() => {
+    setApiReturned(false);
+    if (!loading) return;
+    const t = window.setTimeout(() => setApiReturned(true), ORDER_API_MS);
+    return () => window.clearTimeout(t);
+  }, [loading]);
+  const showSkeleton = loading && !apiReturned;
   const { subtotal, delivery, giftCard, total } = cartTotals(
     deliveryInfo.method,
     payment.giftCardApplied,
@@ -67,7 +84,7 @@ export function OrderPanel({ open, loading = false }: { open: boolean; loading?:
             { label: 'Total', value: money(total), grand: true },
           ]}
           showPromoCode={flags.promoCode}
-          loading={loading}
+          loading={showSkeleton}
         />
       </div>
     </div>
