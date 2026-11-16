@@ -1,0 +1,20 @@
+@font-face {
+	font-family: "Next Display Text";
+	src: url("next-display-text-400.woff2") format("woff2");
+	font-weight: 400;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Next Display Text";
+	src: url("next-display-text-700.woff2") format("woff2");
+	font-weight: 700;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Next Display Text";
+	src: url("next-display-text-800.woff2") format("woff2");
+	font-weight: 800;
+	font-style: normal;
+}

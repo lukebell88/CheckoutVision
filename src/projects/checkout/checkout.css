@@ -155,36 +155,34 @@
   cursor: pointer;
 }
 
-/* ---------- OTP ---------- */
-.co-otp { position: relative; display: flex; gap: 8px; margin: 12px 0; }
-/* One real input over the boxes: raises the native keyboard and lets the OS
- * autofill the code. Transparent — the digits are shown by the boxes beneath. */
-.co-otp__field {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: transparent;
-  caret-color: transparent;
-  font-size: 16px; /* 16px stops iOS zooming on focus */
-  outline: none;
-  z-index: 1;
-}
-.co-otp__box--active { box-shadow: inset 0 0 0 1px var(--border-strong, #111); }
+/* The Auth0 → Next handoff: a blank page over everything (header included) while
+ * the browser redirects between domains. See ui/LoadingHandoff.tsx. */
+.co-handoff { position: fixed; inset: 0; z-index: 99999; background: #fff; }
+
+/* ---------- OTP ----------
+ * Each box is a real single-character input: typeable on desktop (auto-advance /
+ * backspace) and on mobile it raises the native keyboard; the first box carries
+ * one-time-code autofill. */
+.co-otp { display: flex; gap: 8px; margin: 12px 0; }
 .co-otp__box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex: 1;
+  min-width: 0;
   aspect-ratio: 1 / 1;
   max-width: 52px;
+  padding: 0;
+  text-align: center;
+  background: var(--surface-card, #fff);
+  color: var(--text-primary, #111);
   border: 1px solid var(--border-strong, #111);
+  border-radius: 0;
+  /* ≥16px so iOS doesn't zoom the page on focus. */
   font-size: var(--global-h4-font-size, 1.25rem);
   font-weight: 700;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
+.co-otp__box:focus { border-width: 2px; }
 /* The push notification behaves like an iOS banner: fixed over everything at the
  * top, slides in, holds, then slides back out on its own. */
 .co-push {

@@ -19,9 +19,11 @@ import type { FlagId } from './flags';
 export type FlowId =
   | 'apple-pay'
   | 'guest'
+  | 'account-unknown'
   | 'account-cash'
   | 'account-nextpay'
-  | 'account-payin3';
+  | 'account-payin3'
+  | 'nosignin-account';
 
 export type CustomerType = 'guest' | 'matched' | 'returning';
 
@@ -53,6 +55,7 @@ export type CheckoutPrefill = ProjectData & {
     email: string;
     phone: string;
     signedIn: boolean;
+    createAccount: boolean;
   }>;
   delivery?: Partial<{
     method: string;
@@ -89,7 +92,7 @@ export interface FlowDef extends ProjectFlow {
  * about this person" a property of the flow rather than an accident of order.
  */
 const BLANK: CheckoutPrefill = {
-  customer: { email: '', firstName: '', lastName: '', phone: '', signedIn: false },
+  customer: { email: '', firstName: '', lastName: '', phone: '', signedIn: false, createAccount: false },
   delivery: { line1: '', line2: '', city: '', postcode: '', store: '', date: '' },
   payment: { savedCard: '', method: '', only: '' },
 };
@@ -150,11 +153,28 @@ export const FLOWS: FlowDef[] = [
     },
   },
   {
+    id: 'account-unknown',
+    name: 'Account Unknown',
+    description: 'Enters an email we don’t recognise, then checks out like a guest — but the password is required, as they’re creating an account. The title stays "Checkout".',
+    customerType: 'guest',
+    screens: [{ id: 'signin' }, { id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
+    // Same blank checkout as Guest, but `createAccount` makes the password
+    // required and keeps the title "Checkout" (see DetailsSection / OnePageCheckout).
+    prefill: {
+      ...BLANK,
+      customer: { ...BLANK.customer, createAccount: true },
+      delivery: { ...BLANK.delivery, method: 'home' },
+      progress: { section: 'details', done: [] },
+      auth: { treatment: 'none' },
+    },
+  },
+  {
     id: 'account-cash',
     name: 'Account Matched - Cash',
     description: 'Recognised email → one-time passcode → checkout with details and saved address prefilled; the saved card is selected and open.',
     customerType: 'matched',
-    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'loading' }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: true, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
     // Details and Delivery arrive complete and collapsed; the journey picks up on
     // Payment, with the saved card selected and expanded.
@@ -172,7 +192,7 @@ export const FLOWS: FlowDef[] = [
     name: 'Account Matched - Nextpay',
     description: 'As the matched journey, but the shopper sees no payment options — just a single "Complete With Nextpay" button.',
     customerType: 'matched',
-    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'loading' }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
     // `payment.only: 'nextpay'` collapses the whole Payment section to one CTA.
     prefill: {
@@ -189,13 +209,30 @@ export const FLOWS: FlowDef[] = [
     name: 'Account Matched - Pay In 3',
     description: 'The matched journey with a single "Complete With Pay In 3" button in place of the payment options.',
     customerType: 'matched',
-    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin' }, { id: 'otp' }, { id: 'loading' }, { id: 'checkout' }, { id: 'confirmation' }],
     flagOverrides: { savedPayment: false, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
     prefill: {
       ...BLANK,
       customer: ACCOUNT_CUSTOMER,
       delivery: ACCOUNT_DELIVERY,
       payment: { ...BLANK.payment, only: 'payin3' },
+      progress: { section: 'payment', done: ['details', 'delivery'] },
+      auth: { treatment: 'none' },
+    },
+  },
+  {
+    id: 'nosignin-account',
+    name: 'Already Signed In',
+    description: 'An already signed-in account holder: no sign-in or OTP, straight to the Next checkout with details, saved address and the saved card (cash) preselected.',
+    customerType: 'returning',
+    // No sign-in step at all — the journey starts on the checkout.
+    screens: [{ id: 'checkout' }, { id: 'confirmation' }],
+    flagOverrides: { savedPayment: true, creditOptions: true, guestRegistration: false, passkeyUpsell: true },
+    prefill: {
+      ...BLANK,
+      customer: ACCOUNT_CUSTOMER,
+      delivery: ACCOUNT_DELIVERY,
+      payment: { ...BLANK.payment, method: 'saved', savedCard: 'Visa ending 4567' },
       progress: { section: 'payment', done: ['details', 'delivery'] },
       auth: { treatment: 'none' },
     },

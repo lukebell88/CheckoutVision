@@ -12,11 +12,14 @@ import type { ScreenDef } from '../../studio/project';
  * That leaves the screens either side of it: the sign-in fork, the one-time
  * passcode entry, and the terminal confirmation.
  */
-export type CheckoutPageId = 'signin' | 'otp' | 'applepay' | 'checkout' | 'confirmation';
+export type CheckoutPageId = 'signin' | 'otp' | 'loading' | 'applepay' | 'checkout' | 'confirmation';
 
 export const CHECKOUT_SCREENS: Record<CheckoutPageId, ScreenDef> = {
   signin: { id: 'signin', title: 'Sign / Register', navLabel: 'Sign in' },
   otp: { id: 'otp', title: 'One-time passcode', navLabel: 'Passcode' },
+  // The Auth0 → Next handoff: a blank page while the browser redirects from the
+  // login domain to the Next-hosted checkout.
+  loading: { id: 'loading', title: 'Signing in', navLabel: 'Signing in' },
   applepay: { id: 'applepay', title: 'Apple Pay', navLabel: 'Apple Pay' },
   checkout: { id: 'checkout', title: 'Checkout', navLabel: 'Checkout' },
   confirmation: { id: 'confirmation', title: 'Order complete', navLabel: 'Confirmation', terminal: true },

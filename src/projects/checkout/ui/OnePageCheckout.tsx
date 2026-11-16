@@ -70,9 +70,10 @@ export function OnePageCheckout() {
     return () => setSection(id);
   };
 
-  // A shopper whose details came from their account sees "Checkout"; a guest
-  // typing everything in sees "Guest Checkout".
-  const title = detailsFromAccount ? 'Checkout' : 'Guest Checkout';
+  // A shopper whose details came from their account — or one creating an account
+  // from an unrecognised email — sees "Checkout"; a plain guest sees "Guest
+  // Checkout".
+  const title = detailsFromAccount || customer.createAccount ? 'Checkout' : 'Guest Checkout';
 
   const BODIES: Record<SectionId, ReactNode> = {
     details: <DetailsSection onContinue={advance('details')} />,

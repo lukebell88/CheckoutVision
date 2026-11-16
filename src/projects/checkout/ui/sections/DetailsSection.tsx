@@ -30,6 +30,9 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
   const { customer, auth, flags } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const matched = auth.treatment === 'inline' && !customer.signedIn;
+  // An unrecognised email checks out like a guest but is creating an account, so
+  // the password is required rather than optional.
+  const registering = !!customer.createAccount;
 
   const seed = `${customer.email}|${customer.firstName}|${customer.lastName}`;
   const [form, setForm] = useSeededState(
@@ -38,6 +41,7 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
       email: customer.email ?? '',
       firstName: customer.firstName ?? '',
       lastName: customer.lastName ?? '',
+      password: '',
     }),
   );
   const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
@@ -57,6 +61,7 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
         : undefined,
     firstName: !form.firstName.trim() ? 'Enter your first name to continue.' : undefined,
     lastName: !form.lastName.trim() ? 'Enter your last name to continue.' : undefined,
+    password: registering && !form.password.trim() ? 'Create a password to continue.' : undefined,
   };
   const firstInvalid = (Object.keys(form) as (keyof typeof form)[]).find((k) => errors[k]);
 
@@ -163,12 +168,17 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
 
       {!customer.signedIn && (
         <FormField
-          label="Password (Optional)"
+          id={fieldId('password')}
+          label={registering ? 'Password' : 'Password (Optional)'}
+          required={registering}
           type="password"
-          // Belongs to the field, not the page. As a hint it becomes the input's
-          // `aria-describedby`, so the reason to bother filling in an optional
-          // password is announced with it rather than stranded underneath.
-          hint={<strong>Checkout Faster Next Time</strong>}
+          value={form.password}
+          onChange={set('password')}
+          status={showError('password') ? 'error' : 'default'}
+          message={showError('password') ? errors.password : undefined}
+          // For the optional case, the hint explains why to bother; as an
+          // aria-describedby it's announced with the field.
+          hint={registering ? undefined : <strong>Checkout Faster Next Time</strong>}
         />
       )}
 

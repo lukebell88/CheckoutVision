@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { useProjectRuntime } from '../../../studio/runtime';
 import { Link } from '../../../components/Link';
 import { Button } from '../../../components/Button';
@@ -54,7 +54,7 @@ export function OtpScreen() {
         color="primary"
         size="large"
         fullWidth
-        onClick={interactive ? () => nav.goTo('checkout') : undefined}
+        onClick={interactive ? () => nav.goTo('loading') : undefined}
       >
         Continue
       </Button>
@@ -63,40 +63,72 @@ export function OtpScreen() {
 }
 
 /**
- * Six passcode boxes backed by one real input. The input is transparent and sits
- * over the boxes: tapping anywhere focuses it (raising the native keyboard) and
- * the digits render in the boxes as they're typed or autofilled. It auto-focuses
- * on mount so the keyboard is up straight away where the OS allows it.
+ * Six passcode boxes, each a real single-character input. Typing a digit
+ * advances to the next box and backspace steps back, so it's typeable on
+ * desktop; on mobile each box raises the native keyboard, and the first carries
+ * `autocomplete="one-time-code"` so the OS can autofill the whole code (a paste
+ * or autofill is distributed across the boxes). Auto-focuses the first box.
  */
 const LENGTH = 6;
 
 export function OtpInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const ref = useRef<HTMLInputElement>(null);
-  const chars = value.padEnd(LENGTH, ' ').slice(0, LENGTH).split('');
+  const refs = useRef<(HTMLInputElement | null)[]>([]);
+  const chars = value.padEnd(LENGTH, ' ').slice(0, LENGTH).split('').map((c) => (c === ' ' ? '' : c));
 
   useEffect(() => {
-    ref.current?.focus();
+    refs.current[0]?.focus();
   }, []);
 
+  const setAt = (i: number, digits: string) => {
+    const arr = [...chars];
+    // A single digit fills this box; a paste/autofill of several spreads forward.
+    digits.split('').slice(0, LENGTH - i).forEach((d, k) => {
+      arr[i + k] = d;
+    });
+    onChange(arr.join(''));
+    const next = Math.min(i + Math.max(digits.length, 1), LENGTH - 1);
+    refs.current[next]?.focus();
+  };
+
+  const handleChange = (i: number, e: ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '');
+    if (digits) setAt(i, digits);
+    else {
+      const arr = [...chars];
+      arr[i] = '';
+      onChange(arr.join(''));
+    }
+  };
+
+  const handleKeyDown = (i: number, e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !chars[i] && i > 0) {
+      e.preventDefault();
+      const arr = [...chars];
+      arr[i - 1] = '';
+      onChange(arr.join(''));
+      refs.current[i - 1]?.focus();
+    }
+  };
+
   return (
-    <div className="co-otp" onClick={() => ref.current?.focus()}>
-      <input
-        ref={ref}
-        className="co-otp__field"
-        type="text"
-        inputMode="numeric"
-        autoComplete="one-time-code"
-        maxLength={LENGTH}
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus
-        aria-label="One-time passcode"
-        value={value}
-        onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, LENGTH))}
-      />
+    <div className="co-otp">
       {chars.map((c, i) => (
-        <span key={i} className={`co-otp__box ${i === value.length ? 'co-otp__box--active' : ''}`}>
-          {c.trim()}
-        </span>
+        <input
+          key={i}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          className="co-otp__box"
+          type="text"
+          inputMode="numeric"
+          autoComplete={i === 0 ? 'one-time-code' : 'off'}
+          maxLength={i === 0 ? LENGTH : 1}
+          aria-label={`Passcode digit ${i + 1}`}
+          value={c}
+          onChange={(e) => handleChange(i, e)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          onFocus={(e) => e.target.select()}
+        />
       ))}
     </div>
   );
