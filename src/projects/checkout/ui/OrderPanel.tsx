@@ -33,7 +33,17 @@ export function OrderToggle({ open, onToggle }: { open: boolean; onToggle: () =>
   );
 }
 
-export function OrderPanel({ open, loading = false }: { open: boolean; loading?: boolean }) {
+export function OrderPanel({
+  open,
+  loading = false,
+  deliverySelected = true,
+}: {
+  open: boolean;
+  loading?: boolean;
+  /** Has the shopper chosen a delivery method yet? Before they have (login /
+   *  Details step), the Delivery line reads "—" and the Total omits delivery. */
+  deliverySelected?: boolean;
+}) {
   const { flags, delivery: deliveryInfo, payment } = useCheckoutConfig();
 
   // While on the login/Auth0 step the order is being fetched — hold the skeleton,
@@ -51,6 +61,10 @@ export function OrderPanel({ open, loading = false }: { open: boolean; loading?:
     deliveryInfo.method,
     payment.giftCardApplied,
   );
+  // Until a method is chosen there's nothing to charge for delivery, so the line
+  // shows a dash and the Total drops the (as-yet-unknown) delivery cost.
+  const deliveryValue = deliverySelected ? deliveryLabel(delivery) : '—';
+  const displayTotal = deliverySelected ? total : total - delivery;
 
   // On mobile the slot is a smooth height reveal (grid-template-rows 0fr→1fr, so
   // the summary animates to its natural height); the inner clips during the
@@ -76,12 +90,12 @@ export function OrderPanel({ open, loading = false }: { open: boolean; loading?:
           }))}
           totals={[
             { label: 'Subtotal', value: money(subtotal) },
-            { label: 'Delivery', value: deliveryLabel(delivery) },
+            { label: 'Delivery', value: deliveryValue },
             // A redeemed gift card shows as a negative line below Delivery.
             ...(giftCard > 0
               ? [{ label: 'Gift Card / eVoucher', value: `-${money(giftCard)}` }]
               : []),
-            { label: 'Total', value: money(total), grand: true },
+            { label: 'Total', value: money(displayTotal), grand: true },
           ]}
           showPromoCode={flags.promoCode}
           loading={showSkeleton}

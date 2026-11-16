@@ -62,6 +62,14 @@ export function OnePageCheckout() {
   const [orderOpen, setOrderOpen] = useState(false);
   const { paying, payNow } = usePayNow(interactive ? () => nav.goTo('confirmation') : undefined);
 
+  // Delivery cost only counts once the shopper has reached/chosen a delivery
+  // method. Before that — on the login/identity step and the Details section —
+  // there's no method to price, so the order summary shows a dash and the Total
+  // excludes delivery. This reads the LIVE local progress, not the seeded
+  // runtime, so it tracks interactive Continue clicks.
+  const deliverySelected = section === 'delivery' || done.includes('delivery');
+  const displayTotal = deliverySelected ? total : total - deliveryCost;
+
   // The "landing": on any advance (guest Continue, verify→Payment, …) the
   // resolved sections fade in and the newly-opened section scrolls into view, so
   // it reads as being moved to the next step rather than the tall form collapsing
@@ -250,16 +258,18 @@ export function OnePageCheckout() {
 
       <div className="co-totalbar">
         <span className="co-totalbar__total">
-          <span className="co-totalbar__amount">Total: {money(total)}</span>{' '}
-          <span className="co-totalbar__delivery">
-            {deliveryCost === 0 ? '(FREE delivery)' : `(inc ${money(deliveryCost)} delivery)`}
-          </span>
+          <span className="co-totalbar__amount">Total: {money(displayTotal)}</span>{' '}
+          {deliverySelected && (
+            <span className="co-totalbar__delivery">
+              {deliveryCost === 0 ? '(FREE delivery)' : `(inc ${money(deliveryCost)} delivery)`}
+            </span>
+          )}
         </span>
         <OrderToggle open={orderOpen} onToggle={() => setOrderOpen((v) => !v)} />
       </div>
 
       <div className="co-onepage">
-        <OrderPanel open={orderOpen} loading={inLogin} />
+        <OrderPanel open={orderOpen} loading={inLogin} deliverySelected={deliverySelected} />
 
         {/* The three numbered stages are always present — the current one open,
             done ones collapsed with a Change link, and not-yet-reached ones
