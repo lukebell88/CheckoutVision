@@ -170,3 +170,14 @@
   font-size: var(--global-h3-font-size, 0.9375rem);
   font-weight: var(--global-h3-font-weight, 700);
 }
+
+/* Loading skeleton — shimmer bars (.co-skel) sized to the real card so the
+ * footprint matches and nothing jumps when the order loads in. The "Your Order"
+ * title stays real; only the count, lines and totals are placeholders. */
+.co-ordersummary__skel-count { width: 48px; height: 14px; }
+.co-ordersummary__skel-thumb { flex: none; width: 56px; height: 75px; }
+.co-ordersummary__skel-name { flex: 1 1 0; height: 14px; }
+.co-ordersummary__skel-price { flex: none; width: 44px; height: 14px; }
+.co-ordersummary__skel-field { width: 56px; height: 12px; }
+.co-ordersummary__skel-totlabel { display: block; width: 64px; height: 14px; }
+.co-ordersummary__skel-totval { display: block; width: 56px; height: 14px; }

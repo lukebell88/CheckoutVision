@@ -75,6 +75,13 @@ export function OnePageCheckout() {
 
   const emailLocked = ef.phase === 'locked';
 
+  // The order summary is hosted by Next, not Auth0, so while the shopper is still
+  // on the login/identity step (entering the email, the account check, or the
+  // "Confirm it's you" verify) it hasn't loaded yet — show the skeleton. Once
+  // they're signed in / past the email step, the real order loads in. A guest
+  // whose email isn't recognised is past it the moment the guest form shows.
+  const inLogin = ef.active && !ef.verified && (!emailLocked || ef.checking || ef.recognised);
+
   useEffect(() => {
     if (!landing) return;
     // 'complete' has no section to scroll to — the place-order button is inline.
@@ -252,7 +259,7 @@ export function OnePageCheckout() {
       </div>
 
       <div className="co-onepage">
-        <OrderPanel open={orderOpen} />
+        <OrderPanel open={orderOpen} loading={inLogin} />
 
         {/* The three numbered stages are always present — the current one open,
             done ones collapsed with a Change link, and not-yet-reached ones

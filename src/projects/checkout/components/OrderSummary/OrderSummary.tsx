@@ -75,6 +75,9 @@ export interface OrderSummaryProps {
   onApplyPromoCode?: () => void;
   /** Placement and visibility come from the page. */
   className?: string;
+  /** Show the loading skeleton (the order hasn't loaded from Next yet) — the
+   *  title stays, the count, lines and totals become shimmer bars. */
+  loading?: boolean;
 }
 
 export function OrderSummary({
@@ -86,6 +89,7 @@ export function OrderSummary({
   promoCodeLabel = 'Promotional Code',
   onApplyPromoCode,
   className,
+  loading = false,
 }: OrderSummaryProps) {
   const count = lines.length;
 
@@ -93,14 +97,21 @@ export function OrderSummary({
     <aside
       className={['co-ordersummary', className].filter(Boolean).join(' ')}
       aria-label={typeof title === 'string' ? title : 'Order summary'}
+      aria-busy={loading || undefined}
     >
       <div className="co-ordersummary__titlerow">
         <h2 className="co-ordersummary__title">{title}</h2>
-        <span className="co-ordersummary__count">
-          {caption ?? `${count} ${count === 1 ? 'Item' : 'Items'}`}
-        </span>
+        {loading ? (
+          <span className="co-skel co-ordersummary__skel-count" aria-hidden="true" />
+        ) : (
+          <span className="co-ordersummary__count">
+            {caption ?? `${count} ${count === 1 ? 'Item' : 'Items'}`}
+          </span>
+        )}
       </div>
 
+      {loading ? <OrderSummarySkeleton /> : (
+        <div className="co-fadein">
       <ul className="co-ordersummary__lines">
         {lines.map((l) => (
           <li key={l.id} className="co-ordersummary__line">
@@ -145,6 +156,47 @@ export function OrderSummary({
           </div>
         ))}
       </dl>
+        </div>
+      )}
     </aside>
+  );
+}
+
+/** The loading silhouette: three product lines and three totals rows, sized to
+ *  the real card so nothing jumps when the order loads in. */
+function OrderSummarySkeleton() {
+  return (
+    <div aria-hidden="true">
+      <ul className="co-ordersummary__lines">
+        {[0, 1, 2].map((i) => (
+          <li key={i} className="co-ordersummary__line">
+            <span className="co-skel co-ordersummary__skel-thumb" />
+            <div className="co-ordersummary__body">
+              <div className="co-ordersummary__head">
+                <span className="co-skel co-ordersummary__skel-name" />
+                <span className="co-skel co-ordersummary__skel-price" />
+              </div>
+              <div className="co-ordersummary__fields">
+                <span className="co-skel co-ordersummary__skel-field" />
+                <span className="co-skel co-ordersummary__skel-field" />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <dl className="co-ordersummary__totals">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className={i === 2 ? 'co-ordersummary__grand' : undefined}>
+            <dt>
+              <span className="co-skel co-ordersummary__skel-totlabel" />
+            </dt>
+            <dd>
+              <span className="co-skel co-ordersummary__skel-totval" />
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }

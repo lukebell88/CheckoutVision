@@ -28,7 +28,7 @@ export function OrderToggle({ open, onToggle }: { open: boolean; onToggle: () =>
   );
 }
 
-export function OrderPanel({ open }: { open: boolean }) {
+export function OrderPanel({ open, loading = false }: { open: boolean; loading?: boolean }) {
   const { flags, delivery: deliveryInfo, payment } = useCheckoutConfig();
   const { subtotal, delivery, giftCard, total } = cartTotals(
     deliveryInfo.method,
@@ -67,6 +67,7 @@ export function OrderPanel({ open }: { open: boolean }) {
             { label: 'Total', value: money(total), grand: true },
           ]}
           showPromoCode={flags.promoCode}
+          loading={loading}
         />
       </div>
     </div>
