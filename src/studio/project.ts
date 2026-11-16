@@ -164,6 +164,10 @@ export interface ProjectNav {
  * provides it via context, so a project never reads the studio store.
  */
 export interface ProjectRuntime {
+  /** The id of the active flow. Projects that build their own links (e.g. a
+   *  cross-domain reload) need the CURRENT flow, which can differ from the one
+   *  in the URL after a scenario-tray switch — so it's surfaced here. */
+  flowId: string;
   /** The screen to render. */
   screen: string;
   /** Ordered screens of the active flow — for progress indicators. */

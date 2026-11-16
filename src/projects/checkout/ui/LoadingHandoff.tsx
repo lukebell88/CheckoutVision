@@ -18,7 +18,7 @@ import { useCheckoutConfig } from '../checkoutConfig';
 const HANDOFF_MS = 850;
 
 export function LoadingHandoff() {
-  const { interactive, nav } = useProjectRuntime();
+  const { interactive, nav, flowId } = useProjectRuntime();
   const { customer } = useCheckoutConfig();
 
   useEffect(() => {
@@ -34,10 +34,14 @@ export function LoadingHandoff() {
           // Account: reload into the authenticated checkout — the signed-in flow
           // (details/address done, remembered card on Payment).
           url.searchParams.set('flow', 'signed-in');
-        } else if (customer.email) {
-          // Unknown guest: keep the flow, carry the email so the Next checkout
-          // reopens with it already captured (see LiveApp).
-          url.searchParams.set('email', customer.email);
+        } else {
+          // Unknown guest: reload into the CURRENT flow, carrying the email so the
+          // Next checkout reopens with it already captured (see LiveApp). Pin the
+          // live flow id rather than trusting the URL's `flow`, which is stale
+          // after a scenario-tray switch — otherwise the reload lands on whatever
+          // flow the link was opened with, not the one the shopper is in.
+          url.searchParams.set('flow', flowId);
+          if (customer.email) url.searchParams.set('email', customer.email);
         }
         window.location.assign(url.toString());
       } else {
@@ -46,7 +50,7 @@ export function LoadingHandoff() {
     }, HANDOFF_MS);
 
     return () => clearTimeout(timer);
-  }, [interactive, nav, customer.signedIn, customer.email]);
+  }, [interactive, nav, flowId, customer.signedIn, customer.email]);
 
   // A blank white page — the "nothing" a cross-domain redirect shows. Covers the
   // header too, so it reads as a real page load rather than an in-app screen.

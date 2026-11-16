@@ -37,6 +37,7 @@ export function useStoreRuntime(screen: string, interactive: boolean): ProjectRu
   return useMemo(() => {
     const flow = flowById(project, ps.flowId);
     return {
+      flowId: flow.id,
       screen,
       screens: flowScreens(flow, ps.flags),
       completed: ps.completed,
@@ -61,6 +62,7 @@ export function useVariantRuntime(screen: string, variant: Variant): ProjectRunt
     const flow = flowById(project, ps.flowId);
     const flags = { ...defaultFlags(project), ...(variant.flags ?? {}) };
     return {
+      flowId: flow.id,
       screen,
       screens: flowScreens(flow, flags),
       completed: [],
