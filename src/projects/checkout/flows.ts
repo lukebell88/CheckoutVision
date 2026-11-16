@@ -156,7 +156,7 @@ export const FLOWS: FlowDef[] = [
     group: 'Checkout',
     description: 'No sign-in page: email is captured at the top. The entered email is not recognised, so the guest name form fills in inline and they complete the sections. Payment opens on the full list with nothing preselected.',
     customerType: 'guest',
-    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'confirmation' }],
+    screens: [{ id: 'signin', when: UNLESS_EMAIL_FIRST }, { id: 'checkout' }, { id: 'loading' }, { id: 'confirmation' }],
     flagOverrides: { ...GUEST_FLAGS, emailFirstCheckout: true },
     choiceOverrides: { paymentPresentation: 'none' },
     prefill: {

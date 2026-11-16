@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useProjectRuntime } from '../../../studio/runtime';
+import { useCheckoutConfig } from '../checkoutConfig';
 
 /**
  * The login → checkout handoff.
@@ -18,6 +19,7 @@ const HANDOFF_MS = 850;
 
 export function LoadingHandoff() {
   const { interactive, nav } = useProjectRuntime();
+  const { customer } = useCheckoutConfig();
 
   useEffect(() => {
     if (!interactive) return;
@@ -27,10 +29,16 @@ export function LoadingHandoff() {
     const timer = setTimeout(() => {
       if (isLive) {
         const url = new URL(window.location.href);
-        // Reload into the authenticated checkout. The signed-in flow is the
-        // post-login state (details/address done, remembered card on Payment).
-        url.searchParams.set('flow', 'signed-in');
         url.searchParams.delete('screen');
+        if (customer.signedIn) {
+          // Account: reload into the authenticated checkout — the signed-in flow
+          // (details/address done, remembered card on Payment).
+          url.searchParams.set('flow', 'signed-in');
+        } else if (customer.email) {
+          // Unknown guest: keep the flow, carry the email so the Next checkout
+          // reopens with it already captured (see LiveApp).
+          url.searchParams.set('email', customer.email);
+        }
         window.location.assign(url.toString());
       } else {
         nav.goTo('checkout');
@@ -38,7 +46,7 @@ export function LoadingHandoff() {
     }, HANDOFF_MS);
 
     return () => clearTimeout(timer);
-  }, [interactive, nav]);
+  }, [interactive, nav, customer.signedIn, customer.email]);
 
   // A blank white page — the "nothing" a cross-domain redirect shows. Covers the
   // header too, so it reads as a real page load rather than an in-app screen.

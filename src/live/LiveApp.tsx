@@ -47,11 +47,14 @@ export function LiveApp() {
   useEffect(() => {
     if (!project || scenarioApplied.current) return;
     scenarioApplied.current = true;
-    const { client, flow, screen, enabledFlags } = readLiveParams();
+    const { client, flow, screen, email, enabledFlags } = readLiveParams();
     const s = useStore.getState();
     if (client) s.setClient(client);
     if (flow) s.setFlow(flow);
     if (enabledFlags) s.setFlags(flagsFromLink(project, enabledFlags));
+    // Restore an email carried across the handoff reload (see LoadingHandoff),
+    // after setFlow so it isn't overwritten by the flow's prefill.
+    if (email) s.patchData('customer', { email });
     if (screen) s.goToScreen(screen);
   }, [project]);
 

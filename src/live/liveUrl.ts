@@ -21,6 +21,9 @@ export interface LiveParams {
   flow?: string;
   /** Optional starting screen (else the flow's first). */
   screen?: string;
+  /** Carried across the login→checkout handoff reload so the entered email
+   *  survives the "refresh" and the checkout opens with it already captured. */
+  email?: string;
   /** null = not specified (use flow defaults); otherwise the exact enabled set. */
   enabledFlags: Set<string> | null;
   /**
@@ -46,6 +49,7 @@ export function readLiveParams(search = window.location.search): LiveParams {
     flow: p.get('flow') ?? undefined,
     // `page` is the pre-multi-project spelling; still honoured so older links work.
     screen: p.get('screen') ?? p.get('page') ?? undefined,
+    email: p.get('email') ?? undefined,
     enabledFlags,
     review: p.get('review') === '1',
   };

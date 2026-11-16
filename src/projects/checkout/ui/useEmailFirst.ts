@@ -86,7 +86,15 @@ export function useEmailFirst(): EmailFirst {
     clearTimers();
     setChecking(true);
     nav.patch('customer', { email: value.trim() });
-    check.current = window.setTimeout(() => setChecking(false), CHECK_MS);
+    check.current = window.setTimeout(() => {
+      setChecking(false);
+      // An unrecognised email's account check runs on Auth0 too, so hand off to
+      // the Next checkout now (a guest doesn't verify). A recognised account
+      // verifies first and hands off from onVerified instead.
+      const q = new URLSearchParams(window.location.search);
+      const live = q.get('live') === '1' || q.get('mode') === 'live';
+      if (live && !recognised) nav.goTo('loading');
+    }, CHECK_MS);
   };
 
   const onInput = (v: string) => {
