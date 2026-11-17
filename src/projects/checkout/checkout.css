@@ -209,6 +209,23 @@
   gap: 20px;
 }
 
+/* The accepted-payment logo strip shown in the collapsed Payment section (first
+   load, before the shopper reaches Payment). A wrapping, right-aligned row with
+   each logo pinned to one height, so the differing aspect ratios read evenly. */
+.co-paymentstrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 2px 14px 2px;
+}
+.co-paymentstrip .co-payment__logo {
+  width: auto !important;
+  height: 22px !important;
+}
+.co-paymentstrip .co-payment__logo svg { width: auto; height: 100%; }
+
 /* ---------- nextpay marketing reveal ---------- */
 .co-nextpay__intro {
   margin: 0 0 12px;

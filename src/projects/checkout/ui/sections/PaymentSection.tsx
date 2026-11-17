@@ -47,6 +47,26 @@ function SchemeMark({ scheme }: { scheme?: string }) {
 }
 
 /**
+ * The accepted-payment logos, shown in the COLLAPSED "3. Payment" section so a
+ * shopper sees which methods are available from first load — before they've
+ * logged in or reached Payment. Gated by the "Show payment logos" choice, and
+ * dropped for a signed-in Nextpay shopper (no card logos to show).
+ */
+export function PaymentLogoStrip() {
+  const { flags, choices, customer } = useCheckoutConfig();
+  if (choices.paymentLogos === 'hidden') return null;
+  if (customer.signedIn && choices.paymentPresentation === 'nextpay') return null;
+  const accepted = METHODS.filter((m) => !m.flag || flags[m.flag]);
+  return (
+    <div className="co-paymentstrip" aria-label="Accepted payment methods">
+      {accepted.map((m) => (
+        <PaymentMark key={m.id} method={m.id} />
+      ))}
+    </div>
+  );
+}
+
+/**
  * The accepted card schemes shown for the "card" slot in the Apple Pay / PayPal
  * preferred views' other-methods row — a strip of scheme logos rather than the
  * generic card glyph. Uses the dedicated `payment-card-*` icons, only here.

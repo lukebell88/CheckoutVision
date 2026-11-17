@@ -9,7 +9,7 @@ import { SECTIONS, SECTION_LABEL, nextSection, type SectionId } from '../screens
 import { cartTotals, money } from '../cart';
 import { DetailsSection } from './sections/DetailsSection';
 import { DeliverySection } from './sections/DeliverySection';
-import { PaymentSection } from './sections/PaymentSection';
+import { PaymentSection, PaymentLogoStrip } from './sections/PaymentSection';
 import { OrderPanel, OrderToggle } from './OrderPanel';
 import { TitleBar } from '../components/TitleBar';
 import { IdentityStep } from './IdentityStep';
@@ -247,6 +247,11 @@ export function OnePageCheckout() {
           <div className={`co-section__summary${landing ? ' co-fadein' : ''}`}>
             <SectionSummary id={id} />
           </div>
+        ) : id === 'payment' ? (
+          // Not reached yet (the shopper is still on Details/Delivery, or hasn't
+          // logged in): preview the accepted-payment logos so they're visible
+          // from first load.
+          <PaymentLogoStrip />
         ) : null}
       </section>
     );
