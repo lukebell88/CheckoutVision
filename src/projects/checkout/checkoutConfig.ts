@@ -1,6 +1,6 @@
 import { useProjectRuntime } from '../../studio/runtime';
 import type { FlagState } from './flags';
-import type { ChoiceState, PaymentPresentation } from './choices';
+import type { ChoiceState, PaymentPresentation, PaymentLogos } from './choices';
 import { CHOICES } from './choices';
 import type { SectionId } from './screens';
 
@@ -83,16 +83,19 @@ export interface CheckoutConfig {
   journey: JourneyInfo;
 }
 
-/** The paymentPresentation default, so a runtime without choices still resolves. */
-const PRESENTATION_DEFAULT = CHOICES[0].default;
+/** Choice defaults, so a runtime without choices still resolves to a sensible value. */
+const choiceDefault = (id: string) => CHOICES.find((c) => c.id === id)?.default;
+const PRESENTATION_DEFAULT = choiceDefault('paymentPresentation') as PaymentPresentation;
+const LOGOS_DEFAULT = choiceDefault('paymentLogos') as PaymentLogos;
 
 /** The active checkout config for the surrounding rendered instance. */
 export function useCheckoutConfig(): CheckoutConfig {
   const rt = useProjectRuntime();
   const paymentPresentation = (rt.choices?.paymentPresentation ?? PRESENTATION_DEFAULT) as PaymentPresentation;
+  const paymentLogos = (rt.choices?.paymentLogos ?? LOGOS_DEFAULT) as PaymentLogos;
   return {
     flags: rt.flags as FlagState,
-    choices: { paymentPresentation },
+    choices: { paymentPresentation, paymentLogos },
     customer: (rt.data.customer ?? {}) as CustomerInfo,
     delivery: (rt.data.delivery ?? {}) as DeliveryInfo,
     payment: (rt.data.payment ?? {}) as PaymentInfo,

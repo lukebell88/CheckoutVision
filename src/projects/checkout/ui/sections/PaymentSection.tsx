@@ -114,9 +114,14 @@ export function PaymentSection({
   /** Expand from the collapsed preferred view to the list (owned by the header). */
   onExpand?: () => void;
 }) {
-  const { flags, payment, choices, delivery } = useCheckoutConfig();
+  const { flags, payment, choices, delivery, customer } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const methods = METHODS.filter((m) => !m.flag || flags[m.flag]);
+
+  // The "Show payment logos" tray choice gates the scheme/wallet mark on the
+  // right of each Payment row. A signed-in shopper paying by Nextpay has no card
+  // logos to show, so they're dropped there regardless of the toggle.
+  const showLogos = choices.paymentLogos !== 'hidden';
 
   // Redeem a gift card: record the amount (the order summary discounts the
   // total). If it clears the whole balance owed, complete; otherwise stay on
@@ -283,6 +288,9 @@ export function PaymentSection({
   // Single-CTA presentation (nextpay / pay in 3): no method list, just one button
   // that completes the order, carrying the scheme's own logo.
   if (single) {
+    // Signed in + Nextpay: drop the wordmark logo (there's no card scheme to
+    // show), so the CTA carries the method name as text instead.
+    const hideCtaLogo = single === 'nextpay' && !!customer.signedIn;
     return (
       <>
         <Button
@@ -293,10 +301,12 @@ export function PaymentSection({
           onClick={onPay}
           aria-label={`Complete With ${COMPLETE_LABEL[single]}`}
           endIcon={
-            <Icon name={COMPLETE_LOGO[single]} category="common" brand="payment" className="co-paylogo" />
+            hideCtaLogo ? undefined : (
+              <Icon name={COMPLETE_LOGO[single]} category="common" brand="payment" className="co-paylogo" />
+            )
           }
         >
-          Complete With
+          {hideCtaLogo ? `Complete With ${COMPLETE_LABEL[single]}` : 'Complete With'}
         </Button>
         <PaymentLegal />
       </>
@@ -324,7 +334,7 @@ export function PaymentSection({
     id: m.id,
     title: titleFor(m),
     meta: m.meta,
-    mark: <PaymentMark method={m.id} />,
+    mark: showLogos ? <PaymentMark method={m.id} /> : undefined,
     content: contentFor(m.id),
     // The "Other payment methods" heading only belongs above the list when a
     // saved-card row sits above it — wallets have no such row.
@@ -341,7 +351,7 @@ export function PaymentSection({
         <span className="co-payment__savednum">{payment.card || 'Card'}</span>
       </span>
     ),
-    mark: <SchemeMark scheme={payment.scheme} />,
+    mark: showLogos ? <SchemeMark scheme={payment.scheme} /> : undefined,
     content: contentFor(PREFERRED_ID),
   };
 
@@ -395,7 +405,7 @@ export function PaymentSection({
         <PreferredPayment
           cardLabel={label}
           cardMark={mark}
-          others={others}
+          others={showLogos ? others : []}
           onAddCard={kind === 'card' && interactive ? () => openList('card') : undefined}
           onChooseAnother={interactive ? () => openList() : undefined}
           pay={pay}

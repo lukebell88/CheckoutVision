@@ -12,7 +12,7 @@ import type { ProjectChoice } from '../../studio/project';
  * declaration, so the studio never learns what the values mean — checkout reads
  * `choices[id]` and maps it, exactly as it does with flags.
  */
-export type ChoiceId = 'paymentPresentation';
+export type ChoiceId = 'paymentPresentation' | 'paymentLogos';
 
 /** How the Payment step presents itself. */
 export type PaymentPresentation =
@@ -24,10 +24,11 @@ export type PaymentPresentation =
   | 'nextpay' // a single "Complete With Nextpay" CTA
   | 'payin3'; // a single "Complete With Pay In 3" CTA
 
+/** Whether each Payment row carries its scheme / wallet logo on the right. */
+export type PaymentLogos = 'shown' | 'hidden';
+
 export interface ChoiceDef extends ProjectChoice {
   id: ChoiceId;
-  options: { value: PaymentPresentation; label: string }[];
-  default: PaymentPresentation;
 }
 
 export const CHOICES: ChoiceDef[] = [
@@ -47,7 +48,21 @@ export const CHOICES: ChoiceDef[] = [
     ],
     default: 'standard',
   },
+  {
+    id: 'paymentLogos',
+    name: 'Show payment logos',
+    description: 'Show the scheme / wallet logo on the right of each Payment method. Hidden for a signed-in shopper on Nextpay.',
+    group: 'Payment',
+    options: [
+      { value: 'shown', label: 'Shown' },
+      { value: 'hidden', label: 'Hidden' },
+    ],
+    default: 'shown',
+  },
 ];
 
 /** Checkout's narrowed view of the studio's generic choice state. */
-export type ChoiceState = Record<ChoiceId, string> & { paymentPresentation: PaymentPresentation };
+export type ChoiceState = {
+  paymentPresentation: PaymentPresentation;
+  paymentLogos: PaymentLogos;
+};
