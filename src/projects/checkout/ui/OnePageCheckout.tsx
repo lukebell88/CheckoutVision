@@ -235,6 +235,10 @@ export function OnePageCheckout() {
               Change
             </Link>
           )}
+          {/* Not reached yet (shopper still on Details/Delivery, or not logged
+              in): preview the accepted-payment logos in the header, so they're
+              visible from first load and centred against the "3. Payment" title. */}
+          {id === 'payment' && !isOpen && !complete && <PaymentLogoStrip />}
         </div>
 
         {emailStep && (
@@ -247,11 +251,6 @@ export function OnePageCheckout() {
           <div className={`co-section__summary${landing ? ' co-fadein' : ''}`}>
             <SectionSummary id={id} />
           </div>
-        ) : id === 'payment' ? (
-          // Not reached yet (the shopper is still on Details/Delivery, or hasn't
-          // logged in): preview the accepted-payment logos so they're visible
-          // from first load.
-          <PaymentLogoStrip />
         ) : null}
       </section>
     );

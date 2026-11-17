@@ -209,16 +209,21 @@
   gap: 20px;
 }
 
-/* The accepted-payment logo strip shown in the collapsed Payment section (first
-   load, before the shopper reaches Payment). A wrapping, right-aligned row with
-   each logo pinned to one height, so the differing aspect ratios read evenly. */
+/* The accepted-payment logo strip previewed in the collapsed Payment section
+   (first load, before the shopper reaches Payment). It sits inside the section
+   header, right-aligned and vertically centred against the "3. Payment" title
+   (the header is baseline-aligned, so the strip opts into centre itself). Each
+   logo is pinned to one height so the differing aspect ratios read evenly. */
 .co-paymentstrip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
+  align-self: center;
+  /* Grow to fill the space right of the title; when the header wraps on a narrow
+     screen the strip takes its own full-width row and the logos stay right-set. */
+  flex: 1 1 auto;
   gap: 16px;
-  padding: 2px 14px 2px;
 }
 .co-paymentstrip .co-payment__logo {
   width: auto !important;
@@ -765,7 +770,7 @@
   scroll-margin-top: calc(var(--co-header-h) + var(--co-totalbar-h) + 8px);
 }
 .co-section:last-child { border-bottom: 0; }
-.co-section__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.co-section__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; }
 .co-section__title {
   margin: 0;
   font-family: var(--global-h2-font-family, inherit);
@@ -773,6 +778,9 @@
   font-weight: var(--global-h2-font-weight, 700);
   line-height: var(--global-h2-line-height, 1.5);
   letter-spacing: var(--global-h2-letter-spacing, 0);
+  /* Keep "3. Payment" on one line so a wrapping header drops the logo strip to
+     its own row rather than breaking the number off the label. */
+  white-space: nowrap;
 }
 .co-section__num { margin-right: 4px; }
 .co-section__required { font-size: var(--global-body-3-font-size, 0.8125rem); color: var(--text-secondary, #555); }
