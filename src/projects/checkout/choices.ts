@@ -66,7 +66,7 @@ export const CHOICES: ChoiceDef[] = [
   {
     id: 'billingAddress',
     name: 'Billing address at payment',
-    description: 'Collect a billing address on Card, Apple Pay, PayPal and Gift Card — for an Unknown User collecting to a store (Collection / Parcel Shop), who has no delivery address. The card’s “Use Delivery Address” box is unticked by default.',
+    description: 'Collect a billing address on Card, Apple Pay, PayPal and Gift Card — for an Unknown User collecting to a store (Collection / Parcel Shop), who has no delivery address. When collecting, the card drops its “Use Delivery Address as Billing Address” checkbox and asks for billing directly.',
     group: 'Payment',
     options: [
       { value: 'off', label: 'Off' },

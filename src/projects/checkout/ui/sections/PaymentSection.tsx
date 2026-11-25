@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
 import { Icon } from '../../../../components/Icon';
@@ -181,10 +181,12 @@ export function PaymentSection({
   const showLogos = choices.paymentLogos !== 'hidden';
 
   // "Billing address at payment": collect a billing address on Card, Apple Pay,
-  // PayPal and Gift Card. For the Collection / Parcel Shop order it's aimed at,
-  // there's no delivery address to reuse — so the card's "Use Delivery Address"
-  // box is unticked by default and the billing fields show up front.
+  // PayPal and Gift Card. When the shopper is collecting to a store there's no
+  // delivery address to reuse (it's the store), so the card drops its "Use
+  // Delivery Address as Billing Address" checkbox and asks for billing directly.
   const billingAtPayment = choices.billingAddress === 'on';
+  const collecting = delivery.method === 'collection' || delivery.method === 'parcel';
+  const billingNoDeliveryAddress = billingAtPayment && collecting;
 
   // Redeem a gift card: record the amount (the order summary discounts the
   // total). If it clears the whole balance owed, complete; otherwise stay on
@@ -246,28 +248,34 @@ export function PaymentSection({
   );
 
   // Billing defaults to the delivery address; unticking reveals a billing form.
-  // With "Billing address at payment" on there's no delivery address to reuse
-  // (Collection / Parcel Shop), so it starts UNticked with the fields shown.
-  const [billingSame, setBillingSame] = useSeededState<boolean>(
-    `${billingAtPayment}`,
-    () => !billingAtPayment,
-  );
+  const [billingSame, setBillingSame] = useState(true);
 
   const cardForm = (
     <>
-      <div className="co-optin">
-        <Checkbox
-          label="Use Delivery Address as Billing Address"
-          checked={billingSame}
-          onChange={(e) => setBillingSame(e.target.checked)}
-        />
-      </div>
-      {/* Unticking it reveals a billing address — the same fields as Delivery,
-          minus the phone number. */}
-      {!billingSame && (
-        <div className="co-billing co-fadein">
+      {billingNoDeliveryAddress ? (
+        // Collecting to a store: the delivery address is the store, so there's
+        // nothing to reuse — drop the checkbox and ask for billing directly.
+        <div className="co-billing co-billing--standalone co-fadein">
+          <h4 className="co-billing__title">Billing Address</h4>
           <BillingFields />
         </div>
+      ) : (
+        <>
+          <div className="co-optin">
+            <Checkbox
+              label="Use Delivery Address as Billing Address"
+              checked={billingSame}
+              onChange={(e) => setBillingSame(e.target.checked)}
+            />
+          </div>
+          {/* Unticking it reveals a billing address — the same fields as
+              Delivery, minus the phone number. */}
+          {!billingSame && (
+            <div className="co-billing co-fadein">
+              <BillingFields />
+            </div>
+          )}
+        </>
       )}
       <p className="co-section__required">
         Required Fields<span className="co-req">*</span>
