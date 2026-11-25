@@ -40,8 +40,10 @@ export function LoadingHandoff() {
         } else if (journey.guestChosen) {
           // "Checkout As Guest": reload into the current flow's guest form (email
           // before name, domain-based match) — see LiveApp's `guest` handling.
+          // The guest form starts blank, so drop any carried email.
           url.searchParams.set('flow', flowId);
           url.searchParams.set('guest', '1');
+          url.searchParams.delete('email');
         } else {
           // Unknown guest: reload into the CURRENT flow, carrying the email so the
           // Next checkout reopens with it already captured (see LiveApp). Pin the

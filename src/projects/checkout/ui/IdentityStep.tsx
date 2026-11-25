@@ -41,6 +41,13 @@ export function IdentityStep({
   const locked = ef.phase === 'locked';
   const formatError = touched && ef.email.trim().length > 0 && !ef.valid;
 
+  // The guest form must open with a BLANK email — the shopper chose to skip it.
+  // The field is editable, so the browser would otherwise autofill the saved
+  // address (and the auto-commit would lock it in). Keep it read-only until the
+  // shopper focuses it — a read-only field is never autofilled — and drop the
+  // `autocomplete="email"` hint. Normal flows keep their autofill.
+  const [guestEmailArmed, setGuestEmailArmed] = useState(false);
+
   // "Checkout As Guest" is offered while editing the email (toggle on). Tapping it
   // page-refreshes into the guest form (email before name, domain-based match) —
   // the same handoff the login step uses. Once in guest mode the button and the
@@ -89,9 +96,10 @@ export function IdentityStep({
           hideLabel
           type="email"
           inputMode="email"
-          autoComplete="email"
+          autoComplete={guestMode ? 'off' : 'email'}
           value={ef.email}
-          readOnly={!interactive}
+          readOnly={!interactive || (guestMode && !guestEmailArmed)}
+          onFocus={() => setGuestEmailArmed(true)}
           onChange={(e) => {
             setTouched(false);
             ef.onInput(e.target.value);

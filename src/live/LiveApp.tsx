@@ -60,7 +60,9 @@ export function LiveApp() {
       s.patchData('journey', { guestChosen: true });
       s.patchData('customer', { email: '', recognised: false, signedIn: false });
     }
-    if (email) s.patchData('customer', { email });
+    // A carried email restores the entered address across a login→checkout
+    // reload — but never in guest mode, which must open blank.
+    if (email && !guest) s.patchData('customer', { email });
     if (screen) s.goToScreen(screen);
   }, [project]);
 
