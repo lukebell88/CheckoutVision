@@ -31,9 +31,25 @@ const CONTINUE_MS = 650;
  * IdentityStep with the email already captured, so the email field is hidden and
  * only carried through on submit.
  */
-export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
+export function DetailsSection({
+  onContinue,
+  collectEmail = false,
+  onEmailBlur,
+}: {
+  onContinue?: () => void;
+  /** Show (and validate) the email field even under email-first — the guest
+   *  form captures it here, before the name. */
+  collectEmail?: boolean;
+  /** The email field blurred — the caller decides whether it's an account match. */
+  onEmailBlur?: (email: string) => void;
+}) {
   const { customer, flags } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
+
+  // The guest form's email is editable, so the browser would autofill the saved
+  // address — keep it read-only until focused (a read-only field is never
+  // autofilled) and drop the autocomplete hint. See IdentityStep for the twin.
+  const [emailArmed, setEmailArmed] = useState(false);
 
   const seed = `${customer.email}|${customer.firstName}|${customer.lastName}`;
   const [form, setForm] = useSeededState(seed, () => ({
@@ -52,11 +68,13 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
 
   // Email-first (page or in-checkout) captures the address before this form, so
   // this section neither asks for it again nor validates it — it just carries the
-  // value through on submit.
+  // value through on submit. The guest form (collectEmail) is the exception: it
+  // owns the email, so it shows and validates it here.
   const emailFirst = flags.emailFirstCheckout || flags.guestIdentityStep;
+  const showEmail = collectEmail || !emailFirst;
   const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email);
   const errors: Partial<Record<keyof typeof form, string>> = {
-    email: emailFirst
+    email: !showEmail
       ? undefined
       : !form.email.trim()
         ? 'Enter your email address to continue.'
@@ -114,14 +132,18 @@ export function DetailsSection({ onContinue }: { onContinue?: () => void }) {
 
   return (
     <>
-      {!emailFirst && (
+      {showEmail && (
         <FormField
           id={fieldId('email')}
           label="Email Address"
           required
           type="email"
           value={form.email}
+          autoComplete={collectEmail ? 'off' : undefined}
+          readOnly={collectEmail && !emailArmed}
+          onFocus={() => setEmailArmed(true)}
           onChange={set('email')}
+          onBlur={() => onEmailBlur?.(form.email)}
           status={emailStatus}
           message={
             emailStatus === 'error'

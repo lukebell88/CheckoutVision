@@ -49,6 +49,10 @@ export interface EmailFirst {
   onEnter: () => void;
   onChangeEmail: () => void;
   onVerified: () => void;
+  /** Guest form: an email blurred. Only a (fake) account match commits — the
+   *  check runs and the step swaps to the matched verify; a plain guest email is
+   *  left in the form, untouched. */
+  onGuestEmailBlur: (email: string) => void;
 }
 
 /** The domain a "Checkout As Guest" email is (fake-)matched to an account on, and
@@ -137,6 +141,13 @@ export function useEmailFirst(): EmailFirst {
     if (interactive && valid && !locked) startCheck(email);
   };
 
+  // Guest form: the email field lives in the full form, so only a matching
+  // (gmail) address commits — which swaps the form for the verify step. A plain
+  // guest email stays in the form for the shopper to continue with.
+  const onGuestEmailBlur = (value: string) => {
+    if (interactive && !locked && isRecognised(value)) startCheck(value);
+  };
+
   // Change is a full reset: clearing the address invalidates any match, so the
   // step re-collapses and the shopper starts from an empty field.
   const onChangeEmail = () => {
@@ -179,5 +190,6 @@ export function useEmailFirst(): EmailFirst {
     onEnter,
     onChangeEmail,
     onVerified,
+    onGuestEmailBlur,
   };
 }

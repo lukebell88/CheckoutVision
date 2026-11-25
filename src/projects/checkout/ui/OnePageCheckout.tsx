@@ -88,7 +88,13 @@ export function OnePageCheckout() {
   // "Confirm it's you" verify) it hasn't loaded yet — show the skeleton. Once
   // they're signed in / past the email step, the real order loads in. A guest
   // whose email isn't recognised is past it the moment the guest form shows.
-  const inLogin = ef.active && !ef.verified && (!emailLocked || ef.checking || ef.recognised);
+  //
+  // The guest form (Checkout As Guest) is NOT a login — the order is loaded while
+  // they fill it in; the skeleton only returns if a @gmail.com address matches
+  // and the account check runs.
+  const inLogin = journey.guestChosen
+    ? ef.active && !ef.verified && (ef.checking || ef.recognised)
+    : ef.active && !ef.verified && (!emailLocked || ef.checking || ef.recognised);
 
   useEffect(() => {
     if (!landing) return;
@@ -187,13 +193,17 @@ export function OnePageCheckout() {
     // The email-entry sub-state of section 1 carries a subtitle. "Required
     // Fields" only belongs to a form the shopper fills — so under email-first
     // it shows only on the guest name form, never on the email or verify steps.
-    const emailStep = ef.active && id === 'details' && isOpen && !emailLocked;
+    // Guest mode leads with the full form, so there's no email-gate sub-state:
+    // the "enter your email" subtitle doesn't apply, and the form carries the
+    // "Required Fields" marker like any other.
+    const guestForm = ef.active && id === 'details' && journey.guestChosen && !emailLocked;
+    const emailStep = ef.active && id === 'details' && isOpen && !emailLocked && !journey.guestChosen;
     const detailsGuestForm =
       ef.active && id === 'details' && emailLocked && !ef.recognised && !ef.checking;
     // Payment carries its own per-method "Required Fields" inside the card form,
     // so the section header never repeats it.
     const showRequired =
-      isOpen && !complete && id !== 'payment' && (!ef.active || id !== 'details' || detailsGuestForm);
+      isOpen && !complete && id !== 'payment' && (!ef.active || id !== 'details' || detailsGuestForm || guestForm);
     // Payment's collapsed preferred state gets a Change link in the header, in
     // line with the title like the done sections above it.
     const payChange = id === 'payment' && isOpen && hasPreferred && !payExpanded && interactive;

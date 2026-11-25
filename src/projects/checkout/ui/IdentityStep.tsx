@@ -41,13 +41,6 @@ export function IdentityStep({
   const locked = ef.phase === 'locked';
   const formatError = touched && ef.email.trim().length > 0 && !ef.valid;
 
-  // The guest form must open with a BLANK email — the shopper chose to skip it.
-  // The field is editable, so the browser would otherwise autofill the saved
-  // address (and the auto-commit would lock it in). Keep it read-only until the
-  // shopper focuses it — a read-only field is never autofilled — and drop the
-  // `autocomplete="email"` hint. Normal flows keep their autofill.
-  const [guestEmailArmed, setGuestEmailArmed] = useState(false);
-
   // "Checkout As Guest" is offered while editing the email (toggle on). Tapping it
   // page-refreshes into the guest form (email before name, domain-based match) —
   // the same handoff the login step uses. Once in guest mode the button and the
@@ -61,6 +54,34 @@ export function IdentityStep({
           nav.goTo('loading');
         }
       : undefined;
+
+  // Guest mode leads with the full guest form (email before name). Most shoppers
+  // are genuine guests, so that's the default; a @gmail.com address commits a
+  // (fake) match, which swaps the form for the inline verify — a skeleton while
+  // the account "loads", then "Confirm it's you".
+  if (guestMode) {
+    if (locked && ef.recognised && !ef.verified) {
+      return (
+        <div className="co-fadein">
+          <ConfirmIdentity
+            phone={customer.phone}
+            interactive={interactive}
+            loading={ef.checking}
+            preSend={flags.softLogin}
+            passwordFirst={flags.passwordLogin}
+            onVerified={onAccountVerified}
+          />
+        </div>
+      );
+    }
+    return (
+      <DetailsSection
+        collectEmail
+        onContinue={onGuestContinue}
+        onEmailBlur={ef.onGuestEmailBlur}
+      />
+    );
+  }
 
   return (
     <>
@@ -96,10 +117,9 @@ export function IdentityStep({
           hideLabel
           type="email"
           inputMode="email"
-          autoComplete={guestMode ? 'off' : 'email'}
+          autoComplete="email"
           value={ef.email}
-          readOnly={!interactive || (guestMode && !guestEmailArmed)}
-          onFocus={() => setGuestEmailArmed(true)}
+          readOnly={!interactive}
           onChange={(e) => {
             setTouched(false);
             ef.onInput(e.target.value);
