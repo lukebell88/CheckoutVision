@@ -51,21 +51,38 @@ export interface EmailFirst {
   onVerified: () => void;
 }
 
+/** The domain a "Checkout As Guest" email is (fake-)matched to an account on, and
+ *  the matched account's phone — so the inline "Confirm it's you" step reads like
+ *  a real match (the signed-in handoff then fills the rest from the account). */
+const MATCH_DOMAIN = '@gmail.com';
+const MATCH_PHONE = '07784141908';
+
 export function useEmailFirst(): EmailFirst {
-  const { flags, customer } = useCheckoutConfig();
+  const { flags, customer, journey } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
 
   // The in-checkout email step runs both when the sign-in page is dropped
   // (emailFirstCheckout) and when a sign-in-page flow sends its guest route
   // through the same step (guestIdentityStep).
   const active = !!flags.emailFirstCheckout || !!flags.guestIdentityStep;
-  const recognised = !!customer.recognised;
+
+  // In guest mode ("Checkout As Guest") recognition is decided by the email the
+  // shopper types — a @gmail.com address is a (fake) account match — rather than
+  // by the flow's prefilled `recognised`. Computed from the committed value so it
+  // can't disagree with what the shopper sees.
+  const guestMode = !!journey.guestChosen;
+  const isRecognised = (val: string) =>
+    guestMode ? EMAIL_RE.test(val.trim()) && val.trim().toLowerCase().endsWith(MATCH_DOMAIN) : !!customer.recognised;
+
   const verified = !!customer.signedIn;
   const locked = !!customer.email;
+  const recognised = isRecognised(locked ? customer.email ?? '' : '');
   const phase: EmailPhase = locked ? 'locked' : 'editing';
 
   // The editable text resets when the scenario changes (flow/variant switch).
-  const seed = `${active}|${customer.email ?? ''}|${customer.signedIn ? 1 : 0}|${recognised ? 1 : 0}`;
+  // Keyed on the FLOW's recognised (not the derived one), so typing in guest mode
+  // — which flips recognition — doesn't reset the field mid-entry.
+  const seed = `${active}|${customer.email ?? ''}|${customer.signedIn ? 1 : 0}|${customer.recognised ? 1 : 0}|${guestMode ? 1 : 0}`;
   const [email, setEmail] = useSeededState(seed, () => customer.email ?? '');
   const [checking, setChecking] = useState(false);
 
@@ -85,15 +102,22 @@ export function useEmailFirst(): EmailFirst {
     if (!interactive || !EMAIL_RE.test(value.trim())) return;
     clearTimers();
     setChecking(true);
-    nav.patch('customer', { email: value.trim() });
+    // A guest-mode @gmail.com match adopts the fake account's phone so the verify
+    // step's masked number isn't blank.
+    nav.patch('customer', {
+      email: value.trim(),
+      ...(guestMode && isRecognised(value) ? { phone: MATCH_PHONE } : {}),
+    });
     check.current = window.setTimeout(() => {
       setChecking(false);
       // An unrecognised email's account check runs on Auth0 too, so hand off to
       // the Next checkout now (a guest doesn't verify). A recognised account
-      // verifies first and hands off from onVerified instead.
+      // verifies first and hands off from onVerified instead. In guest mode the
+      // shopper is already on the guest page, so an unrecognised address just
+      // reveals the name fields inline — no further refresh.
       const q = new URLSearchParams(window.location.search);
       const live = q.get('live') === '1' || q.get('mode') === 'live';
-      if (live && !recognised) nav.goTo('loading');
+      if (live && !guestMode && !isRecognised(value)) nav.goTo('loading');
     }, CHECK_MS);
   };
 

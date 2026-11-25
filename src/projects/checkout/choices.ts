@@ -12,7 +12,7 @@ import type { ProjectChoice } from '../../studio/project';
  * declaration, so the studio never learns what the values mean — checkout reads
  * `choices[id]` and maps it, exactly as it does with flags.
  */
-export type ChoiceId = 'paymentPresentation' | 'paymentLogos' | 'billingAddress';
+export type ChoiceId = 'paymentPresentation' | 'paymentLogos' | 'billingAddress' | 'guestButton';
 
 /** How the Payment step presents itself. */
 export type PaymentPresentation =
@@ -30,6 +30,9 @@ export type PaymentLogos = 'shown' | 'hidden';
 /** Whether the payment methods collect a billing address (Collection / Parcel
  *  Shop orders have no delivery address to bill to). */
 export type BillingAddress = 'on' | 'off';
+
+/** Whether the Your Details page offers a "Checkout As Guest" button. */
+export type GuestButton = 'on' | 'off';
 
 export interface ChoiceDef extends ProjectChoice {
   id: ChoiceId;
@@ -74,6 +77,17 @@ export const CHOICES: ChoiceDef[] = [
     ],
     default: 'off',
   },
+  {
+    id: 'guestButton',
+    name: 'Guest button',
+    description: 'Offer a “Checkout As Guest” button on Your Details (above Apple Pay). It page-refreshes into a guest form where the email is captured before the name; a @gmail.com address triggers a (fake) account match.',
+    group: 'Account',
+    options: [
+      { value: 'off', label: 'Off' },
+      { value: 'on', label: 'On' },
+    ],
+    default: 'off',
+  },
 ];
 
 /** Checkout's narrowed view of the studio's generic choice state. */
@@ -81,4 +95,5 @@ export type ChoiceState = {
   paymentPresentation: PaymentPresentation;
   paymentLogos: PaymentLogos;
   billingAddress: BillingAddress;
+  guestButton: GuestButton;
 };

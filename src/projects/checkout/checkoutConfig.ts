@@ -1,6 +1,6 @@
 import { useProjectRuntime } from '../../studio/runtime';
 import type { FlagState } from './flags';
-import type { ChoiceState, PaymentPresentation, PaymentLogos, BillingAddress } from './choices';
+import type { ChoiceState, PaymentPresentation, PaymentLogos, BillingAddress, GuestButton } from './choices';
 import { CHOICES } from './choices';
 import type { SectionId } from './screens';
 
@@ -70,6 +70,10 @@ export interface JourneyInfo {
   /** Once the passcode verifies, keep the page at the top (Your Details in view)
    *  instead of scrolling down to the Payment section it lands on. */
   stayAtTopOnVerify?: boolean;
+  /** The shopper tapped "Checkout As Guest": skip the email-first gate and open
+   *  the guest form (email before name), with a domain-based (fake) account
+   *  match. Carried across the page-refresh handoff via the `guest` live param. */
+  guestChosen?: boolean;
 }
 
 export interface CheckoutConfig {
@@ -88,6 +92,7 @@ const choiceDefault = (id: string) => CHOICES.find((c) => c.id === id)?.default;
 const PRESENTATION_DEFAULT = choiceDefault('paymentPresentation') as PaymentPresentation;
 const LOGOS_DEFAULT = choiceDefault('paymentLogos') as PaymentLogos;
 const BILLING_DEFAULT = choiceDefault('billingAddress') as BillingAddress;
+const GUESTBTN_DEFAULT = choiceDefault('guestButton') as GuestButton;
 
 /** The active checkout config for the surrounding rendered instance. */
 export function useCheckoutConfig(): CheckoutConfig {
@@ -95,9 +100,10 @@ export function useCheckoutConfig(): CheckoutConfig {
   const paymentPresentation = (rt.choices?.paymentPresentation ?? PRESENTATION_DEFAULT) as PaymentPresentation;
   const paymentLogos = (rt.choices?.paymentLogos ?? LOGOS_DEFAULT) as PaymentLogos;
   const billingAddress = (rt.choices?.billingAddress ?? BILLING_DEFAULT) as BillingAddress;
+  const guestButton = (rt.choices?.guestButton ?? GUESTBTN_DEFAULT) as GuestButton;
   return {
     flags: rt.flags as FlagState,
-    choices: { paymentPresentation, paymentLogos, billingAddress },
+    choices: { paymentPresentation, paymentLogos, billingAddress, guestButton },
     customer: (rt.data.customer ?? {}) as CustomerInfo,
     delivery: (rt.data.delivery ?? {}) as DeliveryInfo,
     payment: (rt.data.payment ?? {}) as PaymentInfo,

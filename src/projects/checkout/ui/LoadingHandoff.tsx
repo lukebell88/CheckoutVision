@@ -19,7 +19,7 @@ const HANDOFF_MS = 850;
 
 export function LoadingHandoff() {
   const { interactive, nav, flowId } = useProjectRuntime();
-  const { customer } = useCheckoutConfig();
+  const { customer, journey } = useCheckoutConfig();
 
   useEffect(() => {
     if (!interactive) return;
@@ -30,10 +30,18 @@ export function LoadingHandoff() {
       if (isLive) {
         const url = new URL(window.location.href);
         url.searchParams.delete('screen');
+        url.searchParams.delete('guest');
         if (customer.signedIn) {
           // Account: reload into the authenticated checkout — the signed-in flow
-          // (details/address done, remembered card on Payment).
+          // (details/address done, remembered card on Payment) — carrying the
+          // email so a gmail guest-match keeps the address they actually typed.
           url.searchParams.set('flow', 'signed-in');
+          if (customer.email) url.searchParams.set('email', customer.email);
+        } else if (journey.guestChosen) {
+          // "Checkout As Guest": reload into the current flow's guest form (email
+          // before name, domain-based match) — see LiveApp's `guest` handling.
+          url.searchParams.set('flow', flowId);
+          url.searchParams.set('guest', '1');
         } else {
           // Unknown guest: reload into the CURRENT flow, carrying the email so the
           // Next checkout reopens with it already captured (see LiveApp). Pin the
@@ -50,7 +58,7 @@ export function LoadingHandoff() {
     }, HANDOFF_MS);
 
     return () => clearTimeout(timer);
-  }, [interactive, nav, flowId, customer.signedIn, customer.email]);
+  }, [interactive, nav, flowId, customer.signedIn, customer.email, journey.guestChosen]);
 
   // A blank white page — the "nothing" a cross-domain redirect shows. Covers the
   // header too, so it reads as a real page load rather than an in-app screen.

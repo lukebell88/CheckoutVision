@@ -351,6 +351,9 @@
 /* ---------- Guest / express block ---------- */
 .co-guest { padding: 16px; background: var(--surface-subtle, #f0f0f0); }
 .co-guest__title { margin: 16px 0 8px; text-align: center; font-weight: 700; }
+/* "Checkout As Guest" — the secondary option above Apple Pay; a gap sets it off
+   from the Apple Pay button that follows. */
+.co-guestbtn { margin-bottom: 12px; }
 .co-express {
   display: flex;
   align-items: center;

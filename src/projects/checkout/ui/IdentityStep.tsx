@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { useProjectRuntime } from '../../../studio/runtime';
+import { Button } from '../../../components/Button';
 import { Icon } from '../../../components/Icon';
 import { useCheckoutConfig } from '../checkoutConfig';
 import { FormField } from '../components/FormField';
@@ -32,13 +33,27 @@ export function IdentityStep({
   onGuestContinue?: () => void;
   onAccountVerified: () => void;
 }) {
-  const { customer, flags } = useCheckoutConfig();
+  const { customer, flags, choices, journey } = useCheckoutConfig();
   const { interactive, nav } = useProjectRuntime();
   const emailId = useId();
   const [touched, setTouched] = useState(false);
 
   const locked = ef.phase === 'locked';
   const formatError = touched && ef.email.trim().length > 0 && !ef.valid;
+
+  // "Checkout As Guest" is offered while editing the email (toggle on). Tapping it
+  // page-refreshes into the guest form (email before name, domain-based match) —
+  // the same handoff the login step uses. Once in guest mode the button and the
+  // express/sign-in chrome are gone; it's just the guest form.
+  const guestButton = choices.guestButton === 'on';
+  const guestMode = !!journey.guestChosen;
+  const onCheckoutAsGuest =
+    interactive
+      ? () => {
+          nav.patch('journey', { guestChosen: true });
+          nav.goTo('loading');
+        }
+      : undefined;
 
   return (
     <>
@@ -125,11 +140,27 @@ export function IdentityStep({
 
       {/* Express is offered only while editing the email — and not when the
           sign-in page already carries it (guestIdentityStep), to avoid repeating
-          the Apple Pay button in checkout. */}
-      {!locked && flags.expressPayment && !flags.guestIdentityStep && (
+          the Apple Pay button in checkout. Gone once "Checkout As Guest" is taken:
+          the guest form stands alone. The "Checkout As Guest" button sits above
+          Apple Pay, so the heading drops "payment" to cover both options. */}
+      {!locked && !guestMode && flags.expressPayment && !flags.guestIdentityStep && (
         <div className="co-emailgate__express">
           <OrRule />
-          <p className="co-guest__title">Check out now with express payment</p>
+          <p className="co-guest__title">
+            Check out now with express{guestButton ? '' : ' payment'}
+          </p>
+          {guestButton && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              fullWidth
+              className="co-guestbtn"
+              onClick={onCheckoutAsGuest}
+            >
+              Checkout As Guest
+            </Button>
+          )}
           <ApplePayButton
             onClick={interactive ? () => nav.patch('overlay', { applePay: true }) : undefined}
           />

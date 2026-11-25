@@ -47,13 +47,19 @@ export function LiveApp() {
   useEffect(() => {
     if (!project || scenarioApplied.current) return;
     scenarioApplied.current = true;
-    const { client, flow, screen, email, enabledFlags } = readLiveParams();
+    const { client, flow, screen, email, guest, enabledFlags } = readLiveParams();
     const s = useStore.getState();
     if (client) s.setClient(client);
     if (flow) s.setFlow(flow);
     if (enabledFlags) s.setFlags(flagsFromLink(project, enabledFlags));
-    // Restore an email carried across the handoff reload (see LoadingHandoff),
-    // after setFlow so it isn't overwritten by the flow's prefill.
+    // Restore state carried across a handoff reload (see LoadingHandoff), after
+    // setFlow so it isn't overwritten by the flow's prefill.
+    if (guest) {
+      // "Checkout As Guest": open the guest form fresh — no email, no account
+      // recognition from the flow; the domain-based match decides it instead.
+      s.patchData('journey', { guestChosen: true });
+      s.patchData('customer', { email: '', recognised: false, signedIn: false });
+    }
     if (email) s.patchData('customer', { email });
     if (screen) s.goToScreen(screen);
   }, [project]);
