@@ -811,6 +811,17 @@
 .co-matched__lede { margin: 0 0 12px; }
 .co-optin { padding: 12px; margin: 12px 0; background: var(--surface-subtle, #f0f0f0); }
 
+/* Standalone billing-address section (wallet / gift-card methods, billing-at-
+   payment on) — set off from the pay button above it with a little space and a
+   heading, since there's no "Use Delivery Address" checkbox to introduce it. */
+.co-billing--standalone { margin-top: 4px; }
+.co-billing__title {
+  margin: 0 0 4px;
+  font-family: var(--global-h2-font-family, inherit);
+  font-size: var(--global-body-1-font-size, 1rem);
+  font-weight: var(--global-h2-font-weight, 700);
+}
+
 /* Marketing opt-out — no box, a Body2 lede and Email/SMS/Post in one row. */
 .co-optout { margin: 20px 0; }
 .co-optout__lede {

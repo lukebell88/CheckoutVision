@@ -1,6 +1,6 @@
 import { useProjectRuntime } from '../../studio/runtime';
 import type { FlagState } from './flags';
-import type { ChoiceState, PaymentPresentation, PaymentLogos } from './choices';
+import type { ChoiceState, PaymentPresentation, PaymentLogos, BillingAddress } from './choices';
 import { CHOICES } from './choices';
 import type { SectionId } from './screens';
 
@@ -87,15 +87,17 @@ export interface CheckoutConfig {
 const choiceDefault = (id: string) => CHOICES.find((c) => c.id === id)?.default;
 const PRESENTATION_DEFAULT = choiceDefault('paymentPresentation') as PaymentPresentation;
 const LOGOS_DEFAULT = choiceDefault('paymentLogos') as PaymentLogos;
+const BILLING_DEFAULT = choiceDefault('billingAddress') as BillingAddress;
 
 /** The active checkout config for the surrounding rendered instance. */
 export function useCheckoutConfig(): CheckoutConfig {
   const rt = useProjectRuntime();
   const paymentPresentation = (rt.choices?.paymentPresentation ?? PRESENTATION_DEFAULT) as PaymentPresentation;
   const paymentLogos = (rt.choices?.paymentLogos ?? LOGOS_DEFAULT) as PaymentLogos;
+  const billingAddress = (rt.choices?.billingAddress ?? BILLING_DEFAULT) as BillingAddress;
   return {
     flags: rt.flags as FlagState,
-    choices: { paymentPresentation, paymentLogos },
+    choices: { paymentPresentation, paymentLogos, billingAddress },
     customer: (rt.data.customer ?? {}) as CustomerInfo,
     delivery: (rt.data.delivery ?? {}) as DeliveryInfo,
     payment: (rt.data.payment ?? {}) as PaymentInfo,

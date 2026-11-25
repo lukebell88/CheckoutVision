@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button } from '../../../../components/Button';
 import { Checkbox } from '../../../../components/Checkbox';
 import { Icon } from '../../../../components/Icon';
@@ -82,6 +82,43 @@ function CardSchemesMark() {
   );
 }
 
+/** The billing-address fields — the same shape as Delivery, minus the phone. */
+function BillingFields() {
+  const { flags } = useCheckoutConfig();
+  return (
+    <>
+      <FormField
+        label="Address Line 1"
+        required
+        placeholder="Start typing your address"
+        endIcon={flags.addressLookup ? <Icon name="search" category="feature" size={20} /> : undefined}
+      />
+      <FormField label="Address Line 2" required />
+      <div className="co-fieldrow">
+        <FormField label="City" required />
+        <FormField label="Postcode" required />
+      </div>
+    </>
+  );
+}
+
+/**
+ * A standalone billing-address section for the wallet / gift-card methods, which
+ * have no card form to carry one. Shown when "Billing address at payment" is on —
+ * a Collection / Parcel Shop order has no delivery address to bill to.
+ */
+function BillingAddressBlock() {
+  return (
+    <div className="co-billing co-billing--standalone co-fadein">
+      <h4 className="co-billing__title">Billing Address</h4>
+      <p className="co-section__required">
+        Required Fields<span className="co-req">*</span>
+      </p>
+      <BillingFields />
+    </div>
+  );
+}
+
 /**
  * 3. Payment.
  *
@@ -143,6 +180,12 @@ export function PaymentSection({
   // logos to show, so they're dropped there regardless of the toggle.
   const showLogos = choices.paymentLogos !== 'hidden';
 
+  // "Billing address at payment": collect a billing address on Card, Apple Pay,
+  // PayPal and Gift Card. For the Collection / Parcel Shop order it's aimed at,
+  // there's no delivery address to reuse — so the card's "Use Delivery Address"
+  // box is unticked by default and the billing fields show up front.
+  const billingAtPayment = choices.billingAddress === 'on';
+
   // Redeem a gift card: record the amount (the order summary discounts the
   // total). If it clears the whole balance owed, complete; otherwise stay on
   // Payment so the shopper can settle the remainder with another method.
@@ -203,7 +246,12 @@ export function PaymentSection({
   );
 
   // Billing defaults to the delivery address; unticking reveals a billing form.
-  const [billingSame, setBillingSame] = useState(true);
+  // With "Billing address at payment" on there's no delivery address to reuse
+  // (Collection / Parcel Shop), so it starts UNticked with the fields shown.
+  const [billingSame, setBillingSame] = useSeededState<boolean>(
+    `${billingAtPayment}`,
+    () => !billingAtPayment,
+  );
 
   const cardForm = (
     <>
@@ -218,17 +266,7 @@ export function PaymentSection({
           minus the phone number. */}
       {!billingSame && (
         <div className="co-billing co-fadein">
-          <FormField
-            label="Address Line 1"
-            required
-            placeholder="Start typing your address"
-            endIcon={flags.addressLookup ? <Icon name="search" category="feature" size={20} /> : undefined}
-          />
-          <FormField label="Address Line 2" required />
-          <div className="co-fieldrow">
-            <FormField label="City" required />
-            <FormField label="Postcode" required />
-          </div>
+          <BillingFields />
         </div>
       )}
       <p className="co-section__required">
@@ -293,14 +331,20 @@ export function PaymentSection({
 
   const contentFor = (id: string) =>
     // Gift card and nextpay own their whole reveal (their own CTA); the rest show
-    // a form (card) or nothing, then the shared pay button.
+    // a form (card) or nothing, then the shared pay button. With billing-at-payment
+    // on, the wallet / gift-card methods gain a standalone billing section (card
+    // carries its own inside cardForm).
     id === 'giftcard' ? (
-      <GiftCardForm onRedeem={redeemGiftCard} />
+      <>
+        <GiftCardForm onRedeem={redeemGiftCard} />
+        {billingAtPayment && <BillingAddressBlock />}
+      </>
     ) : id === 'nextpay' ? (
       nextpayForm
     ) : (
       <>
         {id === 'card' ? cardForm : null}
+        {billingAtPayment && (id === 'apple' || id === 'paypal') && <BillingAddressBlock />}
         <div className="co-payment__pay">{payFor(id)}</div>
       </>
     );

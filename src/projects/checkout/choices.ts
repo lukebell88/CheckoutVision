@@ -12,7 +12,7 @@ import type { ProjectChoice } from '../../studio/project';
  * declaration, so the studio never learns what the values mean — checkout reads
  * `choices[id]` and maps it, exactly as it does with flags.
  */
-export type ChoiceId = 'paymentPresentation' | 'paymentLogos';
+export type ChoiceId = 'paymentPresentation' | 'paymentLogos' | 'billingAddress';
 
 /** How the Payment step presents itself. */
 export type PaymentPresentation =
@@ -26,6 +26,10 @@ export type PaymentPresentation =
 
 /** Whether each Payment row carries its scheme / wallet logo on the right. */
 export type PaymentLogos = 'shown' | 'hidden';
+
+/** Whether the payment methods collect a billing address (Collection / Parcel
+ *  Shop orders have no delivery address to bill to). */
+export type BillingAddress = 'on' | 'off';
 
 export interface ChoiceDef extends ProjectChoice {
   id: ChoiceId;
@@ -59,10 +63,22 @@ export const CHOICES: ChoiceDef[] = [
     ],
     default: 'shown',
   },
+  {
+    id: 'billingAddress',
+    name: 'Billing address at payment',
+    description: 'Collect a billing address on Card, Apple Pay, PayPal and Gift Card — for an Unknown User collecting to a store (Collection / Parcel Shop), who has no delivery address. The card’s “Use Delivery Address” box is unticked by default.',
+    group: 'Payment',
+    options: [
+      { value: 'off', label: 'Off' },
+      { value: 'on', label: 'On' },
+    ],
+    default: 'off',
+  },
 ];
 
 /** Checkout's narrowed view of the studio's generic choice state. */
 export type ChoiceState = {
   paymentPresentation: PaymentPresentation;
   paymentLogos: PaymentLogos;
+  billingAddress: BillingAddress;
 };
